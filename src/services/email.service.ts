@@ -18,7 +18,7 @@ export async function sendVerificationEmail({
     throw new Error("NEXT_PUBLIC_APP_URL is not configured.");
   }
 
-  const verificationUrl = `${appUrl}/api/auth/verify-email?token=${token}`;
+  const verificationUrl = `${appUrl}/verify-email?token=${token}`;
 
   await sendEmail({
     to: email,
