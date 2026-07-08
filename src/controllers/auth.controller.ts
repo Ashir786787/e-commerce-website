@@ -1,4 +1,3 @@
-import { Request } from "next/server";
 import { signupUser } from "@/services/auth.service";
 import { successResponse, errorResponse } from "@/utils/api-response";
 import { connectDB } from "@/lib/db";
