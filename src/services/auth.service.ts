@@ -15,10 +15,8 @@ interface SignupPayload {
 }
 
 export async function signupUser(data: SignupPayload) {
-  // Validate input
   const validatedData = signupSchema.parse(data);
 
-  // Check existing user
   const existingUser = await User.findOne({
     email: validatedData.email,
   });
@@ -27,15 +25,12 @@ export async function signupUser(data: SignupPayload) {
     throw new Error("Email already exists.");
   }
 
-  // Hash password
   const hashedPassword = await hashPassword(validatedData.password);
 
-  // Create verification token
   const verificationToken = generateToken();
   const hashedVerificationToken = hashToken(verificationToken);
   const verificationTokenExpiry = generateExpiry(60);
 
-  // Create user
   const user = await User.create({
     fullName: validatedData.fullName,
     email: validatedData.email,
@@ -44,7 +39,6 @@ export async function signupUser(data: SignupPayload) {
     verificationTokenExpiry,
   });
 
-  // Send verification email
   await sendVerificationEmail({
     fullName: user.fullName,
     email: user.email,
