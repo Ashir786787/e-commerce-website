@@ -1,3 +1,5 @@
-export async function POST() {
-  return Response.json({ message: "Verify email endpoint" });
+import { verifyEmailController } from "@/controllers/auth.controller";
+
+export async function POST(request: Request) {
+  return verifyEmailController(request);
 }
