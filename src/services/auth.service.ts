@@ -1,6 +1,6 @@
 import User from "@/models/User";
-import { hashPassword } from "@/utils/password";
-import { signupSchema } from "@/validations/auth.validation";
+import { hashPassword, comparePassword } from "@/utils/password";
+import { signupSchema, loginSchema } from "@/validations/auth.validation";
 import {
   generateToken,
   hashToken,
@@ -81,6 +81,44 @@ export async function verifyEmail(token: string) {
     id: user._id,
     fullName: user.fullName,
     email: user.email,
+    isVerified: user.isVerified,
+  };
+}
+
+interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export async function loginUser(data: LoginPayload) {
+  const validatedData = loginSchema.parse(data);
+
+  const user = await User.findOne({
+    email: validatedData.email,
+  });
+
+  if (!user) {
+    throw new Error("Invalid email or password.");
+  }
+
+  if (!user.isVerified) {
+    throw new Error("Please verify your email before logging in.");
+  }
+
+  const isPasswordCorrect = await comparePassword(
+    validatedData.password,
+    user.password
+  );
+
+  if (!isPasswordCorrect) {
+    throw new Error("Invalid email or password.");
+  }
+
+  return {
+    id: user._id,
+    fullName: user.fullName,
+    email: user.email,
+    role: user.role,
     isVerified: user.isVerified,
   };
 }

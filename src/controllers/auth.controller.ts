@@ -1,6 +1,8 @@
-import { signupUser, verifyEmail } from "@/services/auth.service";
+import { signupUser, verifyEmail, loginUser } from "@/services/auth.service";
 import { successResponse, errorResponse } from "@/utils/api-response";
 import { connectDB } from "@/lib/db";
+import { cookies } from "next/headers";
+import { signToken } from "@/utils/jwt";
 
 export async function signupController(request: Request) {
   try {
@@ -45,6 +47,40 @@ export async function verifyEmailController(request: Request) {
       error instanceof Error
         ? error.message
         : "Something went wrong.",
+      400
+    );
+  }
+}
+
+export async function loginController(request: Request) {
+  try {
+    await connectDB();
+
+    const body = await request.json();
+
+    const user = await loginUser(body);
+
+    const token = signToken({
+      userId: user.id,
+      role: user.role,
+    });
+
+    const cookieStore = await cookies();
+
+    cookieStore.set("novacart_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60,
+    });
+
+    return successResponse("Login successful.", user, 200);
+  } catch (error) {
+    console.error(error);
+
+    return errorResponse(
+      error instanceof Error ? error.message : "Something went wrong.",
       400
     );
   }
