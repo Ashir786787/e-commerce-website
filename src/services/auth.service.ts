@@ -7,6 +7,8 @@ import {
   generateExpiry,
 } from "@/utils/token";
 import { sendVerificationEmail } from "@/services/email.service";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/utils/jwt";
 
 interface SignupPayload {
   fullName: string;
@@ -112,6 +114,35 @@ export async function loginUser(data: LoginPayload) {
 
   if (!isPasswordCorrect) {
     throw new Error("Invalid email or password.");
+  }
+
+  return {
+    id: user._id,
+    fullName: user.fullName,
+    email: user.email,
+    role: user.role,
+    isVerified: user.isVerified,
+  };
+}
+
+export async function getCurrentUser() {
+  const cookieStore = await cookies();
+
+  const token = cookieStore.get("novacart_token")?.value;
+
+  if (!token) {
+    throw new Error("Not authenticated.");
+  }
+
+  const decoded = verifyToken(token) as {
+    userId: string;
+    role: string;
+  };
+
+  const user = await User.findById(decoded.userId).select("-password");
+
+  if (!user) {
+    throw new Error("User not found.");
   }
 
   return {
