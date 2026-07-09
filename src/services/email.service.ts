@@ -5,28 +5,20 @@ import { resetPasswordTemplate } from "@/templates/reset-password";
 interface SendVerificationEmailOptions {
   fullName: string;
   email: string;
-  token: string;
+  otp: string;
 }
 
 export async function sendVerificationEmail({
   fullName,
   email,
-  token,
+  otp,
 }: SendVerificationEmailOptions) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-
-  if (!appUrl) {
-    throw new Error("NEXT_PUBLIC_APP_URL is not configured.");
-  }
-
-  const verificationUrl = `${appUrl}/verify-email?token=${token}`;
-
   await sendEmail({
     to: email,
-    subject: "Verify your NovaCart account",
+    subject: "Your NovaCart verification code",
     html: verifyEmailTemplate({
       fullName,
-      verificationUrl,
+      otp,
     }),
   });
 }

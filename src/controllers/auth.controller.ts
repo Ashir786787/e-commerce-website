@@ -33,9 +33,9 @@ export async function verifyEmailController(request: Request) {
   try {
     await connectDB();
 
-    const { token } = await request.json();
+    const body = await request.json();
 
-    await verifyEmail(token);
+    await verifyEmail(body);
 
     return successResponse(
       "Email verified successfully."

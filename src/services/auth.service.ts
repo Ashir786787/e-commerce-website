@@ -3,6 +3,7 @@ import { hashPassword, comparePassword } from "@/utils/password";
 import { signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from "@/validations/auth.validation";
 import {
   generateToken,
+  generateOTP,
   hashToken,
   generateExpiry,
 } from "@/utils/token";
@@ -29,22 +30,22 @@ export async function signupUser(data: SignupPayload) {
 
   const hashedPassword = await hashPassword(validatedData.password);
 
-  const verificationToken = generateToken();
-  const hashedVerificationToken = hashToken(verificationToken);
-  const verificationTokenExpiry = generateExpiry(60);
+  const verificationOTP = generateOTP();
+  const hashedVerificationOTP = hashToken(verificationOTP);
+  const verificationOTPExpiry = generateExpiry(10);
 
   const user = await User.create({
     fullName: validatedData.fullName,
     email: validatedData.email,
     password: hashedPassword,
-    verificationToken: hashedVerificationToken,
-    verificationTokenExpiry,
+    verificationOTP: hashedVerificationOTP,
+    verificationOTPExpiry,
   });
 
   await sendVerificationEmail({
     fullName: user.fullName,
     email: user.email,
-    token: verificationToken,
+    otp: verificationOTP,
   });
 
   return {
@@ -55,27 +56,29 @@ export async function signupUser(data: SignupPayload) {
   };
 }
 
-export async function verifyEmail(token: string) {
-  if (!token) {
-    throw new Error("Verification token is required.");
-  }
+interface VerifyEmailPayload {
+  email: string;
+  otp: string;
+}
 
-  const hashedToken = hashToken(token);
+export async function verifyEmail(data: VerifyEmailPayload) {
+  const hashedOTP = hashToken(data.otp);
 
   const user = await User.findOne({
-    verificationToken: hashedToken,
-    verificationTokenExpiry: {
+    email: data.email.toLowerCase(),
+    verificationOTP: hashedOTP,
+    verificationOTPExpiry: {
       $gt: new Date(),
     },
   });
 
   if (!user) {
-    throw new Error("Invalid or expired verification token.");
+    throw new Error("Invalid or expired verification code.");
   }
 
   user.isVerified = true;
-  user.verificationToken = undefined;
-  user.verificationTokenExpiry = undefined;
+  user.verificationOTP = undefined;
+  user.verificationOTPExpiry = undefined;
 
   await user.save();
 

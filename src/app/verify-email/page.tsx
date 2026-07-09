@@ -18,17 +18,17 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     async function verifyEmail() {
       const params = new URLSearchParams(window.location.search);
-      const token = params.get("token");
+      const otp = params.get("otp");
 
-      if (!token) {
+      if (!otp) {
         setStatus("error");
-        setMessage("Verification token is missing.");
+        setMessage("Verification code is missing.");
         return;
       }
 
       try {
         const response = await api.post("/auth/verify-email", {
-          token,
+          otp,
         });
 
         setStatus("success");

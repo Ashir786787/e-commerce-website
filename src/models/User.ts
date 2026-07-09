@@ -41,9 +41,9 @@ const UserSchema = new Schema<IUser>(
       default: false,
     },
 
-    verificationToken: String,
+    verificationOTP: String,
 
-    verificationTokenExpiry: Date,
+    verificationOTPExpiry: Date,
 
     resetPasswordToken: String,
 
