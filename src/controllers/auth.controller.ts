@@ -16,66 +16,34 @@ import { signToken } from "@/utils/jwt";
 export async function signupController(request: Request) {
   try {
     await connectDB();
-
     const body = await request.json();
-
     const user = await signupUser(body);
-
-    return successResponse(
-      "Account created successfully.",
-      user,
-      201
-    );
+    return successResponse("Account created successfully.", user, 201);
   } catch (error) {
     console.error(error);
-
-    return errorResponse(
-      error instanceof Error
-        ? error.message
-        : "Something went wrong.",
-      400
-    );
+    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 400);
   }
 }
 
 export async function verifyEmailController(request: Request) {
   try {
     await connectDB();
-
     const body = await request.json();
-
     await verifyEmail(body);
-
-    return successResponse(
-      "Email verified successfully."
-    );
+    return successResponse("Email verified successfully.");
   } catch (error) {
     console.error(error);
-
-    return errorResponse(
-      error instanceof Error
-        ? error.message
-        : "Something went wrong.",
-      400
-    );
+    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 400);
   }
 }
 
 export async function loginController(request: Request) {
   try {
     await connectDB();
-
     const body = await request.json();
-
     const user = await loginUser(body);
-
-    const token = signToken({
-      userId: user.id,
-      role: user.role,
-    });
-
+    const token = signToken({ userId: user.id, role: user.role });
     const cookieStore = await cookies();
-
     cookieStore.set("novacart_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -83,136 +51,66 @@ export async function loginController(request: Request) {
       path: "/",
       maxAge: 7 * 24 * 60 * 60,
     });
-
     return successResponse("Login successful.", user, 200);
   } catch (error) {
     console.error(error);
-
-    return errorResponse(
-      error instanceof Error
-        ? error.message
-        : "Something went wrong.",
-      400
-    );
+    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 400);
   }
 }
 
 export async function resendOTPController(request: Request) {
   try {
     await connectDB();
-
     const body = await request.json();
-
     await resendOTP(body);
-
-    return successResponse(
-      "Verification code sent successfully.",
-      null,
-      200
-    );
+    return successResponse("Verification code sent successfully.", null, 200);
   } catch (error) {
     console.error(error);
-
-    return errorResponse(
-      error instanceof Error ? error.message : "Something went wrong.",
-      400
-    );
+    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 400);
   }
 }
-export async function forgotPasswordController(
-  request: Request
-) {
+
+export async function forgotPasswordController(request: Request) {
   try {
     await connectDB();
-
     const body = await request.json();
-
     await forgotPassword(body);
-
-    return successResponse(
-      "Password reset email sent successfully.",
-      null,
-      200
-    );
+    return successResponse("Password reset email sent successfully.", null, 200);
   } catch (error) {
     console.error(error);
-
-    return errorResponse(
-      error instanceof Error
-        ? error.message
-        : "Something went wrong.",
-      400
-    );
+    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 400);
   }
 }
 
-export async function resetPasswordController(
-  request: Request
-) {
+export async function resetPasswordController(request: Request) {
   try {
     await connectDB();
-
     const body = await request.json();
-
     await resetPassword(body);
-
-    return successResponse(
-      "Password reset successfully.",
-      null,
-      200
-    );
+    return successResponse("Password reset successfully.", null, 200);
   } catch (error) {
     console.error(error);
-
-    return errorResponse(
-      error instanceof Error
-        ? error.message
-        : "Something went wrong.",
-      400
-    );
+    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 400);
   }
 }
 
 export async function meController() {
   try {
     await connectDB();
-
     const user = await getCurrentUser();
-
-    return successResponse(
-      "User fetched successfully.",
-      user,
-      200
-    );
+    return successResponse("User fetched successfully.", user, 200);
   } catch (error) {
     console.error(error);
-
-    return errorResponse(
-      error instanceof Error
-        ? error.message
-        : "Something went wrong.",
-      401
-    );
+    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 401);
   }
 }
 
 export async function logoutController() {
   try {
     await logoutUser();
-
-    return successResponse(
-      "Logged out successfully.",
-      null,
-      200
-    );
+    return successResponse("Logged out successfully.", null, 200);
   } catch (error) {
     console.error(error);
-
-    return errorResponse(
-      error instanceof Error
-        ? error.message
-        : "Something went wrong.",
-      400
-    );
+    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 400);
   }
 }

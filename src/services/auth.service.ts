@@ -11,25 +11,12 @@ import { sendVerificationEmail, sendResetPasswordEmail } from "@/services/email.
 import { cookies } from "next/headers";
 import { verifyToken } from "@/utils/jwt";
 
-interface SignupPayload {
-  fullName: string;
-  email: string;
-  password: string;
-}
-
-export async function signupUser(data: SignupPayload) {
+export async function signupUser(data: { fullName: string; email: string; password: string }) {
   const validatedData = signupSchema.parse(data);
-
-  const existingUser = await User.findOne({
-    email: validatedData.email,
-  });
-
-  if (existingUser) {
-    throw new Error("Email already exists.");
-  }
+  const existingUser = await User.findOne({ email: validatedData.email });
+  if (existingUser) throw new Error("Email already exists.");
 
   const hashedPassword = await hashPassword(validatedData.password);
-
   const verificationOTP = generateOTP();
   const hashedVerificationOTP = hashToken(verificationOTP);
   const verificationOTPExpiry = generateExpiry(10);
@@ -42,226 +29,95 @@ export async function signupUser(data: SignupPayload) {
     verificationOTPExpiry,
   });
 
-  await sendVerificationEmail({
-    fullName: user.fullName,
-    email: user.email,
-    otp: verificationOTP,
-  });
+  await sendVerificationEmail({ fullName: user.fullName, email: user.email, otp: verificationOTP });
 
-  return {
-    id: user._id,
-    fullName: user.fullName,
-    email: user.email,
-    isVerified: user.isVerified,
-  };
+  return { id: user._id, fullName: user.fullName, email: user.email, isVerified: user.isVerified };
 }
 
-interface VerifyEmailPayload {
-  email: string;
-  otp: string;
-}
-
-export async function verifyEmail(data: VerifyEmailPayload) {
+export async function verifyEmail(data: { email: string; otp: string }) {
   const hashedOTP = hashToken(data.otp);
-
   const user = await User.findOne({
     email: data.email.toLowerCase(),
     verificationOTP: hashedOTP,
-    verificationOTPExpiry: {
-      $gt: new Date(),
-    },
+    verificationOTPExpiry: { $gt: new Date() },
   });
 
-  if (!user) {
-    throw new Error("Invalid or expired verification code.");
-  }
+  if (!user) throw new Error("Invalid or expired verification code.");
 
   user.isVerified = true;
   user.verificationOTP = undefined;
   user.verificationOTPExpiry = undefined;
-
   await user.save();
 
-  return {
-    id: user._id,
-    fullName: user.fullName,
-    email: user.email,
-    isVerified: user.isVerified,
-  };
+  return { id: user._id, fullName: user.fullName, email: user.email, isVerified: user.isVerified };
 }
 
-interface ResendOTPPayload {
-  email: string;
-}
-
-export async function resendOTP(data: ResendOTPPayload) {
+export async function resendOTP(data: { email: string }) {
   const email = data.email.toLowerCase().trim();
-
   const user = await User.findOne({ email });
-
-  if (!user) {
-    throw new Error("User not found.");
-  }
-
-  if (user.isVerified) {
-    throw new Error("Email is already verified.");
-  }
+  if (!user) throw new Error("User not found.");
+  if (user.isVerified) throw new Error("Email is already verified.");
 
   const otp = generateOTP();
-
   user.verificationOTP = hashToken(otp);
   user.verificationOTPExpiry = generateExpiry(10);
-
   await user.save();
 
-  await sendVerificationEmail({
-    fullName: user.fullName,
-    email: user.email,
-    otp,
-  });
+  await sendVerificationEmail({ fullName: user.fullName, email: user.email, otp });
 
-  return {
-    message: "Verification code sent successfully.",
-  };
+  return { message: "Verification code sent successfully." };
 }
 
-interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-export async function loginUser(data: LoginPayload) {
+export async function loginUser(data: { email: string; password: string }) {
   const validatedData = loginSchema.parse(data);
+  const user = await User.findOne({ email: validatedData.email });
+  if (!user) throw new Error("Invalid email or password.");
+  if (!user.isVerified) throw new Error("Please verify your email before logging in.");
 
-  const user = await User.findOne({
-    email: validatedData.email,
-  });
+  const isPasswordCorrect = await comparePassword(validatedData.password, user.password);
+  if (!isPasswordCorrect) throw new Error("Invalid email or password.");
 
-  if (!user) {
-    throw new Error("Invalid email or password.");
-  }
-
-  if (!user.isVerified) {
-    throw new Error("Please verify your email before logging in.");
-  }
-
-  const isPasswordCorrect = await comparePassword(
-    validatedData.password,
-    user.password
-  );
-
-  if (!isPasswordCorrect) {
-    throw new Error("Invalid email or password.");
-  }
-
-  return {
-    id: user._id,
-    fullName: user.fullName,
-    email: user.email,
-    role: user.role,
-    isVerified: user.isVerified,
-  };
+  return { id: user._id, fullName: user.fullName, email: user.email, role: user.role, isVerified: user.isVerified };
 }
 
 export async function getCurrentUser() {
   const cookieStore = await cookies();
-
   const token = cookieStore.get("novacart_token")?.value;
+  if (!token) throw new Error("Not authenticated.");
 
-  if (!token) {
-    throw new Error("Not authenticated.");
-  }
-
-  const decoded = verifyToken(token) as {
-    userId: string;
-    role: string;
-  };
-
+  const decoded = verifyToken(token) as { userId: string; role: string };
   const user = await User.findById(decoded.userId).select("-password");
+  if (!user) throw new Error("User not found.");
 
-  if (!user) {
-    throw new Error("User not found.");
-  }
-
-  return {
-    id: user._id,
-    fullName: user.fullName,
-    email: user.email,
-    role: user.role,
-    isVerified: user.isVerified,
-  };
+  return { id: user._id, fullName: user.fullName, email: user.email, role: user.role, isVerified: user.isVerified };
 }
 
 export async function logoutUser() {
   const cookieStore = await cookies();
-
-  cookieStore.set("novacart_token", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0,
-  });
+  cookieStore.set("novacart_token", "", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 0 });
 }
 
-interface ForgotPasswordPayload {
-  email: string;
-}
-
-export async function forgotPassword(
-  data: ForgotPasswordPayload
-) {
+export async function forgotPassword(data: { email: string }) {
   const validatedData = forgotPasswordSchema.parse(data);
-
-  const user = await User.findOne({
-    email: validatedData.email,
-  });
-
-  if (!user) {
-    throw new Error("User not found.");
-  }
+  const user = await User.findOne({ email: validatedData.email });
+  if (!user) throw new Error("User not found.");
 
   const resetToken = generateToken();
-
   user.resetPasswordToken = hashToken(resetToken);
   user.resetPasswordExpiry = generateExpiry(60);
-
   await user.save();
 
-  await sendResetPasswordEmail({
-    fullName: user.fullName,
-    email: user.email,
-    token: resetToken,
-  });
+  await sendResetPasswordEmail({ fullName: user.fullName, email: user.email, token: resetToken });
 }
 
-interface ResetPasswordPayload {
-  token: string;
-  password: string;
-}
-
-export async function resetPassword(
-  data: ResetPasswordPayload
-) {
+export async function resetPassword(data: { token: string; password: string }) {
   const validatedData = resetPasswordSchema.parse(data);
-
   const hashedToken = hashToken(validatedData.token);
-
-  const user = await User.findOne({
-    resetPasswordToken: hashedToken,
-    resetPasswordExpiry: {
-      $gt: new Date(),
-    },
-  });
-
-  if (!user) {
-    throw new Error("Invalid or expired reset token.");
-  }
+  const user = await User.findOne({ resetPasswordToken: hashedToken, resetPasswordExpiry: { $gt: new Date() } });
+  if (!user) throw new Error("Invalid or expired reset token.");
 
   user.password = await hashPassword(validatedData.password);
-
   user.resetPasswordToken = undefined;
   user.resetPasswordExpiry = undefined;
-
   await user.save();
 }

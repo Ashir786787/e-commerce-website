@@ -5,17 +5,12 @@ export interface IUser {
   email: string;
   password: string;
   role: UserRole;
-
   isVerified: boolean;
-
   avatar?: string;
-
   verificationOTP?: string;
   verificationOTPExpiry?: Date;
-
   resetPasswordToken?: string;
   resetPasswordExpiry?: Date;
-
   createdAt: Date;
   updatedAt: Date;
 }

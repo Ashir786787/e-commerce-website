@@ -5,17 +5,16 @@ interface MongooseCache {
   promise: Promise<typeof mongoose> | null;
 }
 
-declare global {
-  // eslint-disable-next-line no-var
-  var mongooseCache: MongooseCache | undefined;
-}
+const globalForMongoose = globalThis as unknown as {
+  mongooseCache: MongooseCache | undefined;
+};
 
-const cached: MongooseCache = global.mongooseCache ?? {
+const cached: MongooseCache = globalForMongoose.mongooseCache ?? {
   conn: null,
   promise: null,
 };
 
-global.mongooseCache = cached;
+globalForMongoose.mongooseCache = cached;
 
 export async function connectDB() {
   const MONGODB_URI = process.env.MONGODB_URI;
