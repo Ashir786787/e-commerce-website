@@ -1,4 +1,4 @@
-import { signupUser, verifyEmail, loginUser, getCurrentUser } from "@/services/auth.service";
+import { signupUser, verifyEmail, loginUser, getCurrentUser, logoutUser } from "@/services/auth.service";
 import { successResponse, errorResponse } from "@/utils/api-response";
 import { connectDB } from "@/lib/db";
 import { cookies } from "next/headers";
@@ -105,6 +105,27 @@ export async function meController() {
         ? error.message
         : "Something went wrong.",
       401
+    );
+  }
+}
+
+export async function logoutController() {
+  try {
+    await logoutUser();
+
+    return successResponse(
+      "Logged out successfully.",
+      null,
+      200
+    );
+  } catch (error) {
+    console.error(error);
+
+    return errorResponse(
+      error instanceof Error
+        ? error.message
+        : "Something went wrong.",
+      400
     );
   }
 }

@@ -153,3 +153,15 @@ export async function getCurrentUser() {
     isVerified: user.isVerified,
   };
 }
+
+export async function logoutUser() {
+  const cookieStore = await cookies();
+
+  cookieStore.set("novacart_token", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+}
