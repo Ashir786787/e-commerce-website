@@ -75,15 +75,15 @@ export default function VerifyEmailPage() {
           </div>
 
           {status === "success" && (
-            <Button asChild className="w-full">
-              <Link href="/login">Continue to Login</Link>
-            </Button>
+            <Link href="/login">
+              <Button className="w-full">Continue to Login</Button>
+            </Link>
           )}
 
           {status === "error" && (
-            <Button asChild variant="outline" className="w-full">
-              <Link href="/signup">Back to Signup</Link>
-            </Button>
+            <Link href="/signup">
+              <Button variant="outline" className="w-full">Back to Signup</Button>
+            </Link>
           )}
         </div>
       </AuthCard>
