@@ -1,0 +1,5 @@
+import { resetPasswordController } from "@/controllers/auth.controller";
+
+export async function POST(request: Request) {
+  return resetPasswordController(request);
+}

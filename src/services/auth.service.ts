@@ -1,12 +1,12 @@
 import User from "@/models/User";
 import { hashPassword, comparePassword } from "@/utils/password";
-import { signupSchema, loginSchema } from "@/validations/auth.validation";
+import { signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from "@/validations/auth.validation";
 import {
   generateToken,
   hashToken,
   generateExpiry,
 } from "@/utils/token";
-import { sendVerificationEmail } from "@/services/email.service";
+import { sendVerificationEmail, sendResetPasswordEmail } from "@/services/email.service";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/utils/jwt";
 
@@ -164,4 +164,66 @@ export async function logoutUser() {
     path: "/",
     maxAge: 0,
   });
+}
+
+interface ForgotPasswordPayload {
+  email: string;
+}
+
+export async function forgotPassword(
+  data: ForgotPasswordPayload
+) {
+  const validatedData = forgotPasswordSchema.parse(data);
+
+  const user = await User.findOne({
+    email: validatedData.email,
+  });
+
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  const resetToken = generateToken();
+
+  user.resetPasswordToken = hashToken(resetToken);
+  user.resetPasswordExpiry = generateExpiry(60);
+
+  await user.save();
+
+  await sendResetPasswordEmail({
+    fullName: user.fullName,
+    email: user.email,
+    token: resetToken,
+  });
+}
+
+interface ResetPasswordPayload {
+  token: string;
+  password: string;
+}
+
+export async function resetPassword(
+  data: ResetPasswordPayload
+) {
+  const validatedData = resetPasswordSchema.parse(data);
+
+  const hashedToken = hashToken(validatedData.token);
+
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpiry: {
+      $gt: new Date(),
+    },
+  });
+
+  if (!user) {
+    throw new Error("Invalid or expired reset token.");
+  }
+
+  user.password = await hashPassword(validatedData.password);
+
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpiry = undefined;
+
+  await user.save();
 }
