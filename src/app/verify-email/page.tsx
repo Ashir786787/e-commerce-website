@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, LoaderCircle, XCircle } from "lucide-react";
 
+import api from "@/lib/api";
+import AuthLayout from "@/components/layout/AuthLayout";
+import AuthCard from "@/components/auth/AuthCard";
+import { Button } from "@/components/ui/button";
+
 type Status = "loading" | "success" | "error";
 
 export default function VerifyEmailPage() {
@@ -22,28 +27,19 @@ export default function VerifyEmailPage() {
       }
 
       try {
-        const response = await fetch("/api/auth/verify-email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ token }),
+        const response = await api.post("/auth/verify-email", {
+          token,
         });
 
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-          throw new Error(data.message || "Verification failed.");
-        }
-
         setStatus("success");
-        setMessage("Your email has been verified successfully.");
-      } catch (error) {
+        setMessage(
+          response.data?.message || "Your email has been verified successfully."
+        );
+      } catch (error: any) {
         setStatus("error");
         setMessage(
-          error instanceof Error
-            ? error.message
-            : "Invalid or expired verification link."
+          error?.response?.data?.message ||
+            "Invalid or expired verification link."
         );
       }
     }
@@ -52,48 +48,45 @@ export default function VerifyEmailPage() {
   }, []);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4">
-      <section className="w-full max-w-md rounded-2xl border bg-card p-8 text-center shadow-sm">
-        <div className="mb-6 flex justify-center">
-          {status === "loading" && (
-            <LoaderCircle className="h-14 w-14 animate-spin text-primary" />
-          )}
+    <AuthLayout>
+      <AuthCard
+        title={
+          status === "loading"
+            ? "Verifying Email"
+            : status === "success"
+            ? "Email Verified"
+            : "Verification Failed"
+        }
+        description={message}
+      >
+        <div className="space-y-6 text-center">
+          <div className="flex justify-center">
+            {status === "loading" && (
+              <LoaderCircle className="h-14 w-14 animate-spin text-primary" />
+            )}
+
+            {status === "success" && (
+              <CheckCircle2 className="h-14 w-14 text-green-500" />
+            )}
+
+            {status === "error" && (
+              <XCircle className="h-14 w-14 text-red-500" />
+            )}
+          </div>
 
           {status === "success" && (
-            <CheckCircle2 className="h-14 w-14 text-green-500" />
+            <Button asChild className="w-full">
+              <Link href="/login">Continue to Login</Link>
+            </Button>
           )}
 
           {status === "error" && (
-            <XCircle className="h-14 w-14 text-red-500" />
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/signup">Back to Signup</Link>
+            </Button>
           )}
         </div>
-
-        <h1 className="text-2xl font-bold">
-          {status === "loading" && "Verifying Email"}
-          {status === "success" && "Email Verified"}
-          {status === "error" && "Verification Failed"}
-        </h1>
-
-        <p className="mt-3 text-sm text-muted-foreground">{message}</p>
-
-        {status === "success" && (
-          <Link
-            href="/login"
-            className="mt-6 inline-flex rounded-lg bg-primary px-5 py-3 text-sm font-medium text-primary-foreground"
-          >
-            Continue to Login
-          </Link>
-        )}
-
-        {status === "error" && (
-          <Link
-            href="/signup"
-            className="mt-6 inline-flex rounded-lg border px-5 py-3 text-sm font-medium"
-          >
-            Back to Signup
-          </Link>
-        )}
-      </section>
-    </main>
+      </AuthCard>
+    </AuthLayout>
   );
 }
