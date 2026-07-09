@@ -32,7 +32,7 @@ export default function SignupForm() {
       await api.post("/auth/signup", signupData);
 
       toast.success("Account created. Check your email to verify.");
-      router.push("/login");
+      router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
       router.refresh();
     } catch (error: any) {
       toast.error(

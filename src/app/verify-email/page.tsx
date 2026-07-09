@@ -1,92 +1,84 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { CheckCircle2, LoaderCircle, XCircle } from "lucide-react";
+import { Suspense, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import api from "@/lib/api";
 import AuthLayout from "@/components/layout/AuthLayout";
 import AuthCard from "@/components/auth/AuthCard";
-import { Button } from "@/components/ui/button";
+import OTPInput from "@/components/form/OTPInput";
+import SubmitButton from "@/components/form/SubmitButton";
 
-type Status = "loading" | "success" | "error";
+function VerifyEmailContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-export default function VerifyEmailPage() {
-  const [status, setStatus] = useState<Status>("loading");
-  const [message, setMessage] = useState("Verifying your email...");
+  const email = searchParams.get("email") || "";
 
-  useEffect(() => {
-    async function verifyEmail() {
-      const params = new URLSearchParams(window.location.search);
-      const otp = params.get("otp");
+  const [otp, setOtp] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-      if (!otp) {
-        setStatus("error");
-        setMessage("Verification code is missing.");
-        return;
-      }
-
-      try {
-        const response = await api.post("/auth/verify-email", {
-          otp,
-        });
-
-        setStatus("success");
-        setMessage(
-          response.data?.message || "Your email has been verified successfully."
-        );
-      } catch (error: any) {
-        setStatus("error");
-        setMessage(
-          error?.response?.data?.message ||
-            "Invalid or expired verification link."
-        );
-      }
+  async function handleVerify(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email) {
+      toast.error("Email is missing. Please signup again.");
+      return;
     }
 
-    verifyEmail();
-  }, []);
+    if (otp.length !== 6) {
+      toast.error("Please enter the 6-digit verification code.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      await api.post("/auth/verify-email", {
+        email,
+        otp,
+      });
+
+      toast.success("Email verified successfully.");
+      router.push("/login");
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          "Invalid or expired verification code."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
+    <AuthCard
+      title="Verify your email"
+      description={`Enter the 6-digit code sent to ${email || "your email"}.`}
+    >
+      <form onSubmit={handleVerify} className="space-y-6">
+        <OTPInput value={otp} onChange={setOtp} />
+
+        <SubmitButton isLoading={isSubmitting}>
+          Verify Email
+        </SubmitButton>
+      </form>
+    </AuthCard>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
     <AuthLayout>
-      <AuthCard
-        title={
-          status === "loading"
-            ? "Verifying Email"
-            : status === "success"
-            ? "Email Verified"
-            : "Verification Failed"
+      <Suspense
+        fallback={
+          <AuthCard title="Verify your email" description="Loading...">
+            <div className="space-y-6" />
+          </AuthCard>
         }
-        description={message}
       >
-        <div className="space-y-6 text-center">
-          <div className="flex justify-center">
-            {status === "loading" && (
-              <LoaderCircle className="h-14 w-14 animate-spin text-primary" />
-            )}
-
-            {status === "success" && (
-              <CheckCircle2 className="h-14 w-14 text-green-500" />
-            )}
-
-            {status === "error" && (
-              <XCircle className="h-14 w-14 text-red-500" />
-            )}
-          </div>
-
-          {status === "success" && (
-            <Link href="/login">
-              <Button className="w-full">Continue to Login</Button>
-            </Link>
-          )}
-
-          {status === "error" && (
-            <Link href="/signup">
-              <Button variant="outline" className="w-full">Back to Signup</Button>
-            </Link>
-          )}
-        </div>
-      </AuthCard>
+        <VerifyEmailContent />
+      </Suspense>
     </AuthLayout>
   );
 }
