@@ -90,6 +90,41 @@ export async function verifyEmail(data: VerifyEmailPayload) {
   };
 }
 
+interface ResendOTPPayload {
+  email: string;
+}
+
+export async function resendOTP(data: ResendOTPPayload) {
+  const email = data.email.toLowerCase().trim();
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  if (user.isVerified) {
+    throw new Error("Email is already verified.");
+  }
+
+  const otp = generateOTP();
+
+  user.verificationOTP = hashToken(otp);
+  user.verificationOTPExpiry = generateExpiry(10);
+
+  await user.save();
+
+  await sendVerificationEmail({
+    fullName: user.fullName,
+    email: user.email,
+    otp,
+  });
+
+  return {
+    message: "Verification code sent successfully.",
+  };
+}
+
 interface LoginPayload {
   email: string;
   password: string;

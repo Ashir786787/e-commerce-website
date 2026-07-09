@@ -9,7 +9,7 @@ export const signupSchema = z.object({
 
   email: z
     .email("Please enter a valid email address.")
-    .transform((email) => email.toLowerCase()),
+    .transform((email) => email.toLowerCase().trim()),
 
   password: z
     .string()
@@ -20,7 +20,7 @@ export const signupSchema = z.object({
 export const loginSchema = z.object({
   email: z
     .email("Please enter a valid email address.")
-    .transform((email) => email.toLowerCase()),
+    .transform((email) => email.toLowerCase().trim()),
 
   password: z
     .string()
@@ -30,7 +30,7 @@ export const loginSchema = z.object({
 export const forgotPasswordSchema = z.object({
   email: z
     .email("Please enter a valid email address.")
-    .transform((email) => email.toLowerCase()),
+    .transform((email) => email.toLowerCase().trim()),
 });
 
 export const resetPasswordSchema = z.object({

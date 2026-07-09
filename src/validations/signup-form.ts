@@ -7,7 +7,7 @@ export const signupFormSchema = z
       .min(3, "Full name must be at least 3 characters.")
       .max(50, "Full name cannot exceed 50 characters."),
 
-    email: z.email("Enter a valid email."),
+    email: z.string().trim().email("Enter a valid email."),
 
     password: z
       .string()

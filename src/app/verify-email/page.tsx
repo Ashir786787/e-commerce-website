@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -18,6 +18,8 @@ function VerifyEmailContent() {
 
   const [otp, setOtp] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [resendTimer, setResendTimer] = useState(60);
+  const [isResending, setIsResending] = useState(false);
 
   async function handleVerify(e: React.FormEvent) {
     e.preventDefault();
@@ -51,6 +53,39 @@ function VerifyEmailContent() {
     }
   }
 
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+
+    const timer = setTimeout(() => {
+      setResendTimer((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [resendTimer]);
+
+  async function handleResendOTP() {
+    if (!email) {
+      toast.error("Email is missing. Please signup again.");
+      return;
+    }
+
+    try {
+      setIsResending(true);
+
+      await api.post("/auth/resend-otp", { email });
+
+      toast.success("New verification code sent.");
+      setResendTimer(60);
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          "Unable to resend verification code."
+      );
+    } finally {
+      setIsResending(false);
+    }
+  }
+
   return (
     <AuthCard
       title="Verify your email"
@@ -62,6 +97,21 @@ function VerifyEmailContent() {
         <SubmitButton isLoading={isSubmitting}>
           Verify Email
         </SubmitButton>
+
+        <div className="text-center text-sm text-muted-foreground">
+          {resendTimer > 0 ? (
+            <p>Resend OTP in {resendTimer}s</p>
+          ) : (
+            <button
+              type="button"
+              onClick={handleResendOTP}
+              disabled={isResending}
+              className="text-primary hover:underline disabled:opacity-50"
+            >
+              {isResending ? "Sending..." : "Resend OTP"}
+            </button>
+          )}
+        </div>
       </form>
     </AuthCard>
   );

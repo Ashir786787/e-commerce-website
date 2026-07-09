@@ -1,4 +1,13 @@
-import { signupUser, verifyEmail, loginUser, getCurrentUser, logoutUser, forgotPassword, resetPassword } from "@/services/auth.service";
+import {
+  signupUser,
+  verifyEmail,
+  loginUser,
+  getCurrentUser,
+  logoutUser,
+  forgotPassword,
+  resetPassword,
+  resendOTP,
+} from "@/services/auth.service";
 import { successResponse, errorResponse } from "@/utils/api-response";
 import { connectDB } from "@/lib/db";
 import { cookies } from "next/headers";
@@ -78,6 +87,7 @@ export async function loginController(request: Request) {
     return successResponse("Login successful.", user, 200);
   } catch (error) {
     console.error(error);
+
     return errorResponse(
       error instanceof Error
         ? error.message
@@ -87,6 +97,28 @@ export async function loginController(request: Request) {
   }
 }
 
+export async function resendOTPController(request: Request) {
+  try {
+    await connectDB();
+
+    const body = await request.json();
+
+    await resendOTP(body);
+
+    return successResponse(
+      "Verification code sent successfully.",
+      null,
+      200
+    );
+  } catch (error) {
+    console.error(error);
+
+    return errorResponse(
+      error instanceof Error ? error.message : "Something went wrong.",
+      400
+    );
+  }
+}
 export async function forgotPasswordController(
   request: Request
 ) {

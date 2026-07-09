@@ -58,6 +58,7 @@ export default function OTPInput({
             handleChange(index, e.target.value)
           }
           onKeyDown={(e) => handleKeyDown(index, e)}
+          aria-label={`Digit ${index + 1}`}
           className="h-14 w-14 rounded-lg border text-center text-xl font-bold outline-none focus:border-primary"
         />
       ))}
