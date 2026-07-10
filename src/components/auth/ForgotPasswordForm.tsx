@@ -32,7 +32,6 @@ export default function ForgotPasswordForm() {
       await api.post("/auth/forgot-password", values);
 
       toast.success("Password reset code sent successfully.");
-
       router.push(
         `/reset-password?email=${encodeURIComponent(values.email)}`
       );

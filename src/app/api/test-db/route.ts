@@ -7,15 +7,15 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: "✅ MongoDB Connected Successfully!",
+      message: "MongoDB connected successfully.",
     });
   } catch (error) {
-    console.error("Database Connection Error:", error);
+    console.error(error);
 
     return NextResponse.json(
       {
         success: false,
-        message: "❌ Failed to connect to MongoDB",
+        message: "Failed to connect to MongoDB.",
       },
       {
         status: 500,

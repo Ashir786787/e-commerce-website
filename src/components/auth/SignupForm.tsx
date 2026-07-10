@@ -42,10 +42,7 @@ export default function SignupForm() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-5"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <FormField
         id="fullName"
         label="Full Name"

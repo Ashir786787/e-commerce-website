@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function ShopLayout({
   children,
 }: {
@@ -6,17 +8,17 @@ export default function ShopLayout({
   return (
     <>
       <header className="border-b border-border">
-        <div className="mx-auto max-w-7xl px-4 py-4 flex items-center justify-between">
-          <a href="/" className="text-xl font-bold">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+          <Link href="/" className="text-xl font-bold">
             NovaCart
-          </a>
+          </Link>
           <nav className="flex items-center gap-6">
-            <a href="/products" className="text-sm hover:text-primary">
+            <Link href="/products" className="text-sm hover:text-primary">
               Products
-            </a>
-            <a href="/cart" className="text-sm hover:text-primary">
+            </Link>
+            <Link href="/cart" className="text-sm hover:text-primary">
               Cart
-            </a>
+            </Link>
           </nav>
         </div>
       </header>
