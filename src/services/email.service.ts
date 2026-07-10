@@ -26,24 +26,20 @@ export async function sendVerificationEmail({
 interface SendResetPasswordEmailOptions {
   fullName: string;
   email: string;
-  token: string;
+  otp: string;
 }
 
 export async function sendResetPasswordEmail({
   fullName,
   email,
-  token,
+  otp,
 }: SendResetPasswordEmailOptions) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
-
-  const resetUrl = `${appUrl}/reset-password?token=${token}`;
-
   await sendEmail({
     to: email,
-    subject: "Reset your NovaCart password",
+    subject: "Your NovaCart password reset code",
     html: resetPasswordTemplate({
       fullName,
-      resetUrl,
+      otp,
     }),
   });
 }

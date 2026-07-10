@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import api from "@/lib/api";
+import FormField from "@/components/form/FormField";
 import PasswordInput from "@/components/form/PasswordInput";
 import SubmitButton from "@/components/form/SubmitButton";
 
@@ -17,8 +18,6 @@ import {
 
 export default function ResetPasswordForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
 
   const {
     register,
@@ -29,14 +28,10 @@ export default function ResetPasswordForm() {
   });
 
   async function onSubmit(values: ResetPasswordFormValues) {
-    if (!token) {
-      toast.error("Reset token is missing.");
-      return;
-    }
-
     try {
       await api.post("/auth/reset-password", {
-        token,
+        email: values.email,
+        otp: values.otp,
         password: values.password,
       });
 
@@ -50,22 +45,27 @@ export default function ResetPasswordForm() {
     }
   }
 
-  if (!token) {
-    return (
-      <div className="space-y-4 text-center">
-        <p className="text-sm text-red-500">
-          Reset token is missing or invalid.
-        </p>
-
-        <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-          Request a new reset link
-        </Link>
-      </div>
-    );
-  }
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <FormField
+        id="email"
+        label="Email"
+        type="email"
+        placeholder="you@example.com"
+        registration={register("email")}
+        error={errors.email?.message}
+      />
+
+      <FormField
+        id="otp"
+        label="Verification Code"
+        placeholder="Enter 6-digit code"
+        maxLength={6}
+        inputMode="numeric"
+        registration={register("otp")}
+        error={errors.otp?.message}
+      />
+
       <PasswordInput
         id="password"
         label="New Password"
@@ -85,6 +85,12 @@ export default function ResetPasswordForm() {
       <SubmitButton isLoading={isSubmitting}>
         Reset Password
       </SubmitButton>
+
+      <p className="text-center text-sm text-muted-foreground">
+        <Link href="/forgot-password" className="text-primary hover:underline">
+          Request a new code
+        </Link>
+      </p>
     </form>
   );
 }

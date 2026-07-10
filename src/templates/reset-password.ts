@@ -1,47 +1,37 @@
 interface ResetPasswordTemplateProps {
   fullName: string;
-  resetUrl: string;
+  otp: string;
 }
 
 export function resetPasswordTemplate({
   fullName,
-  resetUrl,
+  otp,
 }: ResetPasswordTemplateProps) {
   return `
-    <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto;">
-      <h2>Password Reset Request</h2>
+    <div style="font-family: Arial, sans-serif; background-color: #f8fafc; padding: 40px;">
+      <div style="max-width: 600px; margin: auto; background: white; border-radius: 12px; padding: 32px; border: 1px solid #e2e8f0;">
+        <h1 style="color: #0f172a;">Reset your NovaCart password</h1>
 
-      <p>Hello <strong>${fullName}</strong>,</p>
+        <p style="color: #334155; font-size: 16px;">
+          Hi ${fullName},
+        </p>
 
-      <p>We received a request to reset your NovaCart password.</p>
+        <p style="color: #334155; font-size: 16px;">
+          Use the 6-digit code below to reset your password.
+        </p>
 
-      <p>
-        Click the button below to choose a new password:
-      </p>
+        <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #2563eb; margin: 24px 0;">
+          ${otp}
+        </div>
 
-      <p>
-        <a
-          href="${resetUrl}"
-          style="
-            background:#2563eb;
-            color:white;
-            padding:12px 24px;
-            text-decoration:none;
-            border-radius:6px;
-            display:inline-block;
-          "
-        >
-          Reset Password
-        </a>
-      </p>
+        <p style="color: #64748b; font-size: 14px;">
+          This code expires in 10 minutes.
+        </p>
 
-      <p>This link expires in <strong>1 hour</strong>.</p>
-
-      <p>If you didn't request this, simply ignore this email.</p>
-
-      <hr />
-
-      <p>NovaCart Team</p>
+        <p style="color: #64748b; font-size: 14px;">
+          If you did not request a password reset, you can safely ignore this email.
+        </p>
+      </div>
     </div>
   `;
 }

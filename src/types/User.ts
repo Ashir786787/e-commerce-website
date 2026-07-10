@@ -9,8 +9,8 @@ export interface IUser {
   avatar?: string;
   verificationOTP?: string;
   verificationOTPExpiry?: Date;
-  resetPasswordToken?: string;
-  resetPasswordExpiry?: Date;
+  resetPasswordOTP?: string;
+  resetPasswordOTPExpiry?: Date;
   createdAt: Date;
   updatedAt: Date;
 }

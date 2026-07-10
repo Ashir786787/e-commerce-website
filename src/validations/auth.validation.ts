@@ -16,8 +16,21 @@ export const forgotPasswordSchema = z.object({
 });
 
 export const resetPasswordSchema = z.object({
-  token: z.string().min(1, "Token is required."),
-  password: z.string().min(6, "Password must be at least 6 characters.").max(32, "Password cannot exceed 32 characters."),
+  email: z
+    .string()
+    .trim()
+    .email("Please enter a valid email address.")
+    .transform((email) => email.toLowerCase()),
+
+  otp: z
+    .string()
+    .length(6, "OTP must be exactly 6 digits.")
+    .regex(/^\d+$/, "OTP must contain only numbers."),
+
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters.")
+    .max(32, "Password cannot exceed 32 characters."),
 });
 
 export type SignupInput = z.infer<typeof signupSchema>;

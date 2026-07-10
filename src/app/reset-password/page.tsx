@@ -1,5 +1,3 @@
-import { Suspense } from "react";
-
 import AuthLayout from "@/components/layout/AuthLayout";
 import AuthCard from "@/components/auth/AuthCard";
 import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
@@ -9,11 +7,9 @@ export default function ResetPasswordPage() {
     <AuthLayout>
       <AuthCard
         title="Reset Password"
-        description="Enter a new password for your NovaCart account."
+        description="Enter the code sent to your email and set a new password."
       >
-        <Suspense fallback={<p className="text-center text-sm">Loading...</p>}>
-          <ResetPasswordForm />
-        </Suspense>
+        <ResetPasswordForm />
       </AuthCard>
     </AuthLayout>
   );

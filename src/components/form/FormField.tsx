@@ -6,6 +6,8 @@ interface FormFieldProps {
   label: string;
   type?: string;
   placeholder?: string;
+  maxLength?: number;
+  inputMode?: "text" | "numeric" | "email" | "tel" | "url";
   error?: string;
   registration: any;
 }
@@ -15,6 +17,8 @@ export default function FormField({
   label,
   type = "text",
   placeholder,
+  maxLength,
+  inputMode,
   error,
   registration,
 }: FormFieldProps) {
@@ -26,6 +30,8 @@ export default function FormField({
         id={id}
         type={type}
         placeholder={placeholder}
+        maxLength={maxLength}
+        inputMode={inputMode}
         {...registration}
       />
 

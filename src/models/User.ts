@@ -11,8 +11,8 @@ const UserSchema = new Schema<IUser>(
     isVerified: { type: Boolean, default: false },
     verificationOTP: String,
     verificationOTPExpiry: Date,
-    resetPasswordToken: String,
-    resetPasswordExpiry: Date,
+    resetPasswordOTP: String,
+    resetPasswordOTPExpiry: Date,
   },
   {
     timestamps: true,

@@ -97,27 +97,63 @@ export async function logoutUser() {
   cookieStore.set("novacart_token", "", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 0 });
 }
 
-export async function forgotPassword(data: { email: string }) {
-  const validatedData = forgotPasswordSchema.parse(data);
-  const user = await User.findOne({ email: validatedData.email });
-  if (!user) throw new Error("User not found.");
-
-  const resetToken = generateToken();
-  user.resetPasswordToken = hashToken(resetToken);
-  user.resetPasswordExpiry = generateExpiry(60);
-  await user.save();
-
-  await sendResetPasswordEmail({ fullName: user.fullName, email: user.email, token: resetToken });
+interface ForgotPasswordPayload {
+  email: string;
 }
 
-export async function resetPassword(data: { token: string; password: string }) {
+export async function forgotPassword(
+  data: ForgotPasswordPayload
+) {
+  const validatedData = forgotPasswordSchema.parse(data);
+
+  const user = await User.findOne({
+    email: validatedData.email,
+  });
+
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  const resetOTP = generateOTP();
+
+  user.resetPasswordOTP = hashToken(resetOTP);
+  user.resetPasswordOTPExpiry = generateExpiry(10);
+
+  await user.save();
+
+  await sendResetPasswordEmail({
+    fullName: user.fullName,
+    email: user.email,
+    otp: resetOTP,
+  });
+}
+
+interface ResetPasswordPayload {
+  email: string;
+  otp: string;
+  password: string;
+}
+
+export async function resetPassword(data: ResetPasswordPayload) {
   const validatedData = resetPasswordSchema.parse(data);
-  const hashedToken = hashToken(validatedData.token);
-  const user = await User.findOne({ resetPasswordToken: hashedToken, resetPasswordExpiry: { $gt: new Date() } });
-  if (!user) throw new Error("Invalid or expired reset token.");
+
+  const hashedOTP = hashToken(validatedData.otp);
+
+  const user = await User.findOne({
+    email: validatedData.email,
+    resetPasswordOTP: hashedOTP,
+    resetPasswordOTPExpiry: {
+      $gt: new Date(),
+    },
+  });
+
+  if (!user) {
+    throw new Error("Invalid or expired password reset code.");
+  }
 
   user.password = await hashPassword(validatedData.password);
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpiry = undefined;
+  user.resetPasswordOTP = undefined;
+  user.resetPasswordOTPExpiry = undefined;
+
   await user.save();
 }
