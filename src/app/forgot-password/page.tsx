@@ -7,7 +7,7 @@ export default function ForgotPasswordPage() {
     <AuthLayout>
       <AuthCard
         title="Forgot Password?"
-        description="Enter your email address and we'll send you a password reset link."
+        description="Enter your email address and we'll send you a 6-digit password reset code."
       >
         <ForgotPasswordForm />
       </AuthCard>

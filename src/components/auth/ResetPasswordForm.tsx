@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -18,6 +18,8 @@ import {
 
 export default function ResetPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") || "";
 
   const {
     register,
@@ -25,6 +27,12 @@ export default function ResetPasswordForm() {
     formState: { errors, isSubmitting },
   } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordFormSchema),
+    defaultValues: {
+      email,
+      otp: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
   async function onSubmit(values: ResetPasswordFormValues) {
@@ -58,10 +66,9 @@ export default function ResetPasswordForm() {
 
       <FormField
         id="otp"
-        label="Verification Code"
-        placeholder="Enter 6-digit code"
-        maxLength={6}
-        inputMode="numeric"
+        label="6-Digit Verification Code"
+        type="text"
+        placeholder="Enter the code"
         registration={register("otp")}
         error={errors.otp?.message}
       />
@@ -87,8 +94,12 @@ export default function ResetPasswordForm() {
       </SubmitButton>
 
       <p className="text-center text-sm text-muted-foreground">
-        <Link href="/forgot-password" className="text-primary hover:underline">
-          Request a new code
+        Didn&apos;t receive the code?{" "}
+        <Link
+          href="/forgot-password"
+          className="text-primary hover:underline"
+        >
+          Request another code
         </Link>
       </p>
     </form>

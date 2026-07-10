@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -16,6 +17,8 @@ import {
 } from "@/validations/forgot-password-form";
 
 export default function ForgotPasswordForm() {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -28,11 +31,15 @@ export default function ForgotPasswordForm() {
     try {
       await api.post("/auth/forgot-password", values);
 
-      toast.success("Password reset email sent successfully.");
+      toast.success("Password reset code sent successfully.");
+
+      router.push(
+        `/reset-password?email=${encodeURIComponent(values.email)}`
+      );
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message ||
-          "Unable to send reset email."
+          "Unable to send password reset code."
       );
     }
   }
@@ -52,7 +59,7 @@ export default function ForgotPasswordForm() {
       />
 
       <SubmitButton isLoading={isSubmitting}>
-        Send Reset Link
+        Send Reset Code
       </SubmitButton>
 
       <p className="text-center text-sm text-muted-foreground">
