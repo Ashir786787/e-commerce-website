@@ -21,7 +21,7 @@ export async function signupController(request: Request) {
     return successResponse("Account created successfully.", user, 201);
   } catch (error) {
     console.error(error);
-    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 400);
+    return errorResponse(error instanceof Error ? error.message : "Failed to create account.", 400);
   }
 }
 
@@ -33,7 +33,7 @@ export async function verifyEmailController(request: Request) {
     return successResponse("Email verified successfully.");
   } catch (error) {
     console.error(error);
-    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 400);
+    return errorResponse(error instanceof Error ? error.message : "Failed to verify email.", 400);
   }
 }
 
@@ -54,7 +54,7 @@ export async function loginController(request: Request) {
     return successResponse("Login successful.", user, 200);
   } catch (error) {
     console.error(error);
-    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 400);
+    return errorResponse(error instanceof Error ? error.message : "Login failed.", 400);
   }
 }
 
@@ -66,7 +66,7 @@ export async function resendOTPController(request: Request) {
     return successResponse("Verification code sent successfully.", null, 200);
   } catch (error) {
     console.error(error);
-    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 400);
+    return errorResponse(error instanceof Error ? error.message : "Failed to resend verification code.", 400);
   }
 }
 
@@ -78,7 +78,7 @@ export async function forgotPasswordController(request: Request) {
     return successResponse("Password reset email sent successfully.", null, 200);
   } catch (error) {
     console.error(error);
-    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 400);
+    return errorResponse(error instanceof Error ? error.message : "Failed to send password reset email.", 400);
   }
 }
 
@@ -90,7 +90,7 @@ export async function resetPasswordController(request: Request) {
     return successResponse("Password reset successfully.", null, 200);
   } catch (error) {
     console.error(error);
-    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 400);
+    return errorResponse(error instanceof Error ? error.message : "Failed to reset password.", 400);
   }
 }
 
@@ -101,7 +101,7 @@ export async function meController() {
     return successResponse("User fetched successfully.", user, 200);
   } catch (error) {
     console.error(error);
-    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 401);
+    return errorResponse(error instanceof Error ? error.message : "Failed to fetch user.", 401);
   }
 }
 
@@ -111,6 +111,6 @@ export async function logoutController() {
     return successResponse("Logged out successfully.", null, 200);
   } catch (error) {
     console.error(error);
-    return errorResponse(error instanceof Error ? error.message : "Something went wrong.", 400);
+    return errorResponse(error instanceof Error ? error.message : "Failed to log out.", 400);
   }
 }

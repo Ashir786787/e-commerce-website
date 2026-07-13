@@ -28,7 +28,7 @@ export async function createCategoryController(
     return errorResponse(
       error instanceof Error
         ? error.message
-        : "Something went wrong.",
+        : "Failed to create category.",
       400
     );
   }
@@ -51,7 +51,7 @@ export async function getCategoriesController() {
     return errorResponse(
       error instanceof Error
         ? error.message
-        : "Something went wrong.",
+        : "Failed to fetch categories.",
       500
     );
   }

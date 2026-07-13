@@ -101,59 +101,33 @@ interface ForgotPasswordPayload {
   email: string;
 }
 
-export async function forgotPassword(
-  data: ForgotPasswordPayload
-) {
+export async function forgotPassword(data: { email: string }) {
   const validatedData = forgotPasswordSchema.parse(data);
-
-  const user = await User.findOne({
-    email: validatedData.email,
-  });
-
-  if (!user) {
-    throw new Error("User not found.");
-  }
+  const user = await User.findOne({ email: validatedData.email });
+  if (!user) throw new Error("User not found.");
 
   const resetOTP = generateOTP();
-
   user.resetPasswordOTP = hashToken(resetOTP);
   user.resetPasswordOTPExpiry = generateExpiry(10);
-
   await user.save();
 
-  await sendResetPasswordEmail({
-    fullName: user.fullName,
-    email: user.email,
-    otp: resetOTP,
-  });
+  await sendResetPasswordEmail({ fullName: user.fullName, email: user.email, otp: resetOTP });
 }
 
-interface ResetPasswordPayload {
-  email: string;
-  otp: string;
-  password: string;
-}
-
-export async function resetPassword(data: ResetPasswordPayload) {
+export async function resetPassword(data: { email: string; otp: string; password: string }) {
   const validatedData = resetPasswordSchema.parse(data);
-
   const hashedOTP = hashToken(validatedData.otp);
 
   const user = await User.findOne({
     email: validatedData.email,
     resetPasswordOTP: hashedOTP,
-    resetPasswordOTPExpiry: {
-      $gt: new Date(),
-    },
+    resetPasswordOTPExpiry: { $gt: new Date() },
   });
 
-  if (!user) {
-    throw new Error("Invalid or expired password reset code.");
-  }
+  if (!user) throw new Error("Invalid or expired password reset code.");
 
   user.password = await hashPassword(validatedData.password);
   user.resetPasswordOTP = undefined;
   user.resetPasswordOTPExpiry = undefined;
-
   await user.save();
 }
