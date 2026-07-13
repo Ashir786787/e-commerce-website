@@ -1,5 +1,6 @@
 import { Schema, model, models } from "mongoose";
-import { ICategory } from "@/types/Category";
+
+import type { ICategory } from "@/types/Category";
 
 const CategorySchema = new Schema<ICategory>(
   {
@@ -8,15 +9,16 @@ const CategorySchema = new Schema<ICategory>(
       required: true,
       trim: true,
       minlength: 2,
-      maxlength: 80,
+      maxlength: 100,
+      unique: true,
     },
 
     slug: {
       type: String,
       required: true,
-      unique: true,
-      lowercase: true,
       trim: true,
+      lowercase: true,
+      unique: true,
       index: true,
     },
 
@@ -24,19 +26,16 @@ const CategorySchema = new Schema<ICategory>(
       type: String,
       trim: true,
       maxlength: 500,
-      default: "",
     },
 
     image: {
       type: String,
       trim: true,
-      default: "",
     },
 
     isActive: {
       type: Boolean,
       default: true,
-      index: true,
     },
   },
   {
@@ -44,9 +43,8 @@ const CategorySchema = new Schema<ICategory>(
   }
 );
 
-CategorySchema.index({ name: "text", description: "text" });
-
 const Category =
-  models.Category || model<ICategory>("Category", CategorySchema);
+  models.Category ||
+  model<ICategory>("Category", CategorySchema);
 
 export default Category;

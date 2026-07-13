@@ -1,24 +1,33 @@
 import { Types } from "mongoose";
 
+export interface IProductImage {
+  url: string;
+  publicId?: string;
+}
+
 export interface IProduct {
-  _id?: Types.ObjectId;
   name: string;
   slug: string;
-  shortDescription: string;
   description: string;
+
   price: number;
-  discountPrice?: number;
-  category: string;
+  originalPrice?: number;
+
+  category: Types.ObjectId;
   brand: string;
-  images: string[];
-  thumbnail: string;
+
+  images: IProductImage[];
+
   stock: number;
-  sku: string;
+  sold: number;
+
   rating: number;
-  numReviews: number;
-  featured: boolean;
+  reviewCount: number;
+
+  isFeatured: boolean;
+  isTrending: boolean;
   isActive: boolean;
-  tags: string[];
+
   createdAt?: Date;
   updatedAt?: Date;
 }

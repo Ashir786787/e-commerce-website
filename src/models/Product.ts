@@ -1,5 +1,27 @@
 import { Schema, model, models } from "mongoose";
-import { IProduct } from "@/types/Product";
+
+import type {
+  IProduct,
+  IProductImage,
+} from "@/types/Product";
+
+const ProductImageSchema = new Schema<IProductImage>(
+  {
+    url: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    publicId: {
+      type: String,
+      trim: true,
+    },
+  },
+  {
+    _id: false,
+  }
+);
 
 const ProductSchema = new Schema<IProduct>(
   {
@@ -20,18 +42,12 @@ const ProductSchema = new Schema<IProduct>(
       index: true,
     },
 
-    shortDescription: {
-      type: String,
-      required: true,
-      trim: true,
-      maxlength: 250,
-    },
-
     description: {
       type: String,
       required: true,
       trim: true,
       minlength: 10,
+      maxlength: 5000,
     },
 
     price: {
@@ -40,17 +56,15 @@ const ProductSchema = new Schema<IProduct>(
       min: 0,
     },
 
-    discountPrice: {
+    originalPrice: {
       type: Number,
       min: 0,
-      default: undefined,
     },
 
     category: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "Category",
       required: true,
-      trim: true,
-      lowercase: true,
       index: true,
     },
 
@@ -58,19 +72,18 @@ const ProductSchema = new Schema<IProduct>(
       type: String,
       required: true,
       trim: true,
-      index: true,
+      maxlength: 100,
     },
 
     images: {
-      type: [String],
+      type: [ProductImageSchema],
       required: true,
-      default: [],
-    },
-
-    thumbnail: {
-      type: String,
-      required: true,
-      trim: true,
+      validate: {
+        validator(images: IProductImage[]) {
+          return images.length > 0;
+        },
+        message: "At least one product image is required.",
+      },
     },
 
     stock: {
@@ -80,13 +93,10 @@ const ProductSchema = new Schema<IProduct>(
       default: 0,
     },
 
-    sku: {
-      type: String,
-      required: true,
-      unique: true,
-      uppercase: true,
-      trim: true,
-      index: true,
+    sold: {
+      type: Number,
+      min: 0,
+      default: 0,
     },
 
     rating: {
@@ -96,27 +106,25 @@ const ProductSchema = new Schema<IProduct>(
       default: 0,
     },
 
-    numReviews: {
+    reviewCount: {
       type: Number,
       min: 0,
       default: 0,
     },
 
-    featured: {
+    isFeatured: {
       type: Boolean,
       default: false,
-      index: true,
+    },
+
+    isTrending: {
+      type: Boolean,
+      default: false,
     },
 
     isActive: {
       type: Boolean,
       default: true,
-      index: true,
-    },
-
-    tags: {
-      type: [String],
-      default: [],
     },
   },
   {
@@ -126,22 +134,8 @@ const ProductSchema = new Schema<IProduct>(
 
 ProductSchema.index({
   name: "text",
-  shortDescription: "text",
   description: "text",
   brand: "text",
-  tags: "text",
-});
-
-ProductSchema.pre("validate", async function () {
-  if (
-    this.discountPrice !== undefined &&
-    this.discountPrice >= this.price
-  ) {
-    this.invalidate(
-      "discountPrice",
-      "Discount price must be lower than the regular price."
-    );
-  }
 });
 
 const Product =
