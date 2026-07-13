@@ -1,6 +1,8 @@
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import HeroSection from "@/components/home/HeroSection";
+import FeaturedCategories from "@/components/FeaturedCategories/FeaturedCategories";
+import TrendingProducts from "@/components/home/TrendingProducts";
 
 export default function HomePage() {
   return (
@@ -9,6 +11,8 @@ export default function HomePage() {
 
       <main className="flex-1">
         <HeroSection />
+        <FeaturedCategories />
+        <TrendingProducts />
       </main>
 
       <SiteFooter />
