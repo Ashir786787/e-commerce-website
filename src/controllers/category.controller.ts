@@ -2,6 +2,8 @@ import { connectDB } from "@/lib/db";
 import {
   createCategory,
   getCategories,
+  updateCategory,
+  deleteCategory,
 } from "@/services/category.service";
 import {
   successResponse,
@@ -53,6 +55,56 @@ export async function getCategoriesController() {
         ? error.message
         : "Failed to fetch categories.",
       500
+    );
+  }
+}
+
+export async function updateCategoryController(
+  request: Request,
+  id: string
+) {
+  try {
+    await connectDB();
+
+    const body = await request.json();
+    const category = await updateCategory(id, body);
+
+    return successResponse(
+      "Category updated successfully.",
+      category,
+      200
+    );
+  } catch (error) {
+    console.error(error);
+
+    return errorResponse(
+      error instanceof Error
+        ? error.message
+        : "Failed to update category.",
+      400
+    );
+  }
+}
+
+export async function deleteCategoryController(id: string) {
+  try {
+    await connectDB();
+
+    const category = await deleteCategory(id);
+
+    return successResponse(
+      "Category deleted successfully.",
+      category,
+      200
+    );
+  } catch (error) {
+    console.error(error);
+
+    return errorResponse(
+      error instanceof Error
+        ? error.message
+        : "Failed to delete category.",
+      400
     );
   }
 }
