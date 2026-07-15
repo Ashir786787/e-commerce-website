@@ -7,6 +7,6 @@ export async function POST(request: Request) {
   return createProductController(request);
 }
 
-export async function GET() {
-  return getProductsController();
+export async function GET(request: Request) {
+  return getProductsController(request);
 }

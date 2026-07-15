@@ -38,11 +38,16 @@ export async function createProductController(
   }
 }
 
-export async function getProductsController() {
+export async function getProductsController(
+  request: Request
+) {
   try {
     await connectDB();
 
-    const products = await getProducts();
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get("search") || undefined;
+
+    const products = await getProducts(search);
 
     return successResponse(
       "Products loaded",
@@ -55,7 +60,7 @@ export async function getProductsController() {
     return errorResponse(
       error instanceof Error
         ? error.message
-        : "Unable to load products.",
+        : "Something went wrong.",
       500
     );
   }

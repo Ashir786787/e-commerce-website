@@ -51,8 +51,37 @@ export async function createProduct(data: CreateProductInput) {
   return product;
 }
 
-export async function getProducts() {
-  const products = await Product.find()
+export async function getProducts(search?: string) {
+  const query: Record<string, unknown> = {
+    isActive: true,
+  };
+
+  if (search?.trim()) {
+    const searchTerm = search.trim();
+
+    query.$or = [
+      {
+        name: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      },
+      {
+        description: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      },
+      {
+        brand: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      },
+    ];
+  }
+
+  const products = await Product.find(query)
     .populate("category", "name slug image")
     .sort({ createdAt: -1 })
     .lean();
