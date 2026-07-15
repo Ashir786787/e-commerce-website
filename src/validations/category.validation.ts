@@ -6,7 +6,6 @@ export const createCategorySchema = z.object({
     .trim()
     .min(2, "Category name must be at least 2 characters.")
     .max(100, "Category name cannot exceed 100 characters."),
-
   slug: z
     .string()
     .trim()
@@ -16,15 +15,12 @@ export const createCategorySchema = z.object({
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
       "Slug must contain lowercase letters, numbers, and hyphens only."
     ),
-
   description: z
     .string()
     .trim()
     .max(500, "Description cannot exceed 500 characters.")
     .optional(),
-
   image: z.string().trim().optional(),
-
   isActive: z.boolean().optional().default(true),
 });
 

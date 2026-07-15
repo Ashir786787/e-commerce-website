@@ -8,6 +8,7 @@ import ProductCard from "@/components/product/ProductCard";
 import { connectDB } from "@/lib/db";
 import Category from "@/models/Category";
 import Product from "@/models/Product";
+import { getCategoryName } from "@/lib/utils";
 
 interface CategoryPageProps {
   params: Promise<{
@@ -77,12 +78,7 @@ export default async function CategoryPage({
             ) : (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {products.map((product) => {
-                  const categoryName =
-                    typeof product.category === "object" &&
-                    product.category !== null &&
-                    "name" in product.category
-                      ? String(product.category.name)
-                      : category.name;
+                  const categoryName = getCategoryName(product.category) || category.name;
 
                   const discount =
                     product.originalPrice &&
@@ -108,7 +104,7 @@ export default async function CategoryPage({
                         reviews: product.reviewCount,
                         image:
                           product.images[0]?.url ||
-                          "/products/headphones.jpg",
+                          "/products/electronics/headphones.jpg",
                         discount,
                       }}
                     />

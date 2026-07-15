@@ -7,12 +7,49 @@ import "@/models/Category";
 import Product from "@/models/Product";
 import { getCategoryName } from "@/lib/utils";
 
-export default async function ProductsPage() {
+interface ProductsPageProps {
+  searchParams: Promise<{
+    search?: string;
+  }>;
+}
+
+export default async function ProductsPage({
+  searchParams,
+}: ProductsPageProps) {
+  const { search } = await searchParams;
+
   await connectDB();
 
-  const products = await Product.find({
+  const query: Record<string, unknown> = {
     isActive: true,
-  })
+  };
+
+  if (search?.trim()) {
+    const searchTerm = search.trim();
+
+    query.$or = [
+      {
+        name: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      },
+      {
+        description: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      },
+      {
+        brand: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      },
+    ];
+  }
+
+  const products = await Product.find(query)
     .populate("category", "name slug image")
     .sort({ createdAt: -1 })
     .lean();
@@ -28,11 +65,14 @@ export default async function ProductsPage() {
               Shop
             </p>
             <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
-              All Products
+              {search ? `Search results for "${search}"` : "All Products"}
             </h1>
             <p className="mt-4 max-w-2xl text-muted-foreground">
-              Browse the complete NovaCart collection and discover products
-              across electronics, fashion, accessories, and more.
+              {search
+                ? `${products.length} product${
+                    products.length === 1 ? "" : "s"
+                  } found.`
+                : "Browse the complete NovaCart collection and discover products across all categories."}
             </p>
           </div>
         </section>
@@ -42,10 +82,12 @@ export default async function ProductsPage() {
             {products.length === 0 ? (
               <div className="rounded-2xl border bg-background p-12 text-center">
                 <h2 className="text-xl font-semibold">
-                  No products available
+                  {search ? "No matching products found" : "No products available"}
                 </h2>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Products will appear here once they are added.
+                  {search
+                    ? "Try another search term or clear your search."
+                    : "Products will appear here once they are added."}
                 </p>
               </div>
             ) : (

@@ -15,7 +15,7 @@ export default async function TrendingProducts() {
     isActive: true,
   })
     .populate("category", "name slug image")
-    .sort({ createdAt: -1 })
+    .sort({ createdAt: -1, _id: -1 })
     .limit(4)
     .lean();
 

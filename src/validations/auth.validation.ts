@@ -21,12 +21,10 @@ export const resetPasswordSchema = z.object({
     .trim()
     .email("Please enter a valid email address.")
     .transform((email) => email.toLowerCase()),
-
   otp: z
     .string()
     .length(6, "OTP must be exactly 6 digits.")
     .regex(/^\d+$/, "OTP must contain only numbers."),
-
   password: z
     .string()
     .min(8, "Password must be at least 8 characters.")

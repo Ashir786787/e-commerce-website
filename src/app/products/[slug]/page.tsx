@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { connectDB } from "@/lib/db";
 import "@/models/Category";
 import Product from "@/models/Product";
+import { getCategoryName, getCategorySlug } from "@/lib/utils";
 
 interface ProductDetailsPageProps {
   params: Promise<{
@@ -46,19 +47,8 @@ export default async function ProductDetailsPage({
     notFound();
   }
 
-  const category =
-    typeof product.category === "object" &&
-    product.category !== null &&
-    "name" in product.category
-      ? String(product.category.name)
-      : "Uncategorized";
-
-  const categorySlug =
-    typeof product.category === "object" &&
-    product.category !== null &&
-    "slug" in product.category
-      ? String(product.category.slug)
-      : "";
+  const category = getCategoryName(product.category);
+  const categorySlug = getCategorySlug(product.category);
 
   const discount =
     product.originalPrice &&
@@ -104,7 +94,7 @@ export default async function ProductDetailsPage({
               <Image
                 src={
                   product.images[0]?.url ||
-                  "/products/headphones.jpg"
+                  "/products/electronics/headphones.jpg"
                 }
                 alt={product.name}
                 fill

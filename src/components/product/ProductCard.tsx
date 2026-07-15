@@ -37,6 +37,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             src={product.image}
             alt={product.name}
             fill
+            loading="eager"
             sizes="(max-width: 640px) 100vw,
                    (max-width: 1024px) 50vw,
                    25vw"

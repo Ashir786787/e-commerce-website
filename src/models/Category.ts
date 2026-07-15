@@ -12,7 +12,6 @@ const CategorySchema = new Schema<ICategory>(
       maxlength: 100,
       unique: true,
     },
-
     slug: {
       type: String,
       required: true,
@@ -21,18 +20,15 @@ const CategorySchema = new Schema<ICategory>(
       unique: true,
       index: true,
     },
-
     description: {
       type: String,
       trim: true,
       maxlength: 500,
     },
-
     image: {
       type: String,
       trim: true,
     },
-
     isActive: {
       type: Boolean,
       default: true,

@@ -59,7 +59,7 @@ export default async function CategoriesPage() {
                       <Image
                         src={
                           category.image ||
-                          "/products/headphones.jpg"
+                          "/products/electronics/headphones.jpg"
                         }
                         alt={category.name}
                         fill

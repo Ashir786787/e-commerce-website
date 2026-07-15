@@ -53,16 +53,12 @@ export async function updateCategory(
   }
 
   if (validatedData.name || validatedData.slug) {
+    const orConditions = [];
+    if (validatedData.name) orConditions.push({ name: validatedData.name });
+    if (validatedData.slug) orConditions.push({ slug: validatedData.slug });
     const duplicateCategory = await Category.findOne({
       _id: { $ne: id },
-      $or: [
-        ...(validatedData.name
-          ? [{ name: validatedData.name }]
-          : []),
-        ...(validatedData.slug
-          ? [{ slug: validatedData.slug }]
-          : []),
-      ],
+      $or: orConditions,
     });
 
     if (duplicateCategory) {

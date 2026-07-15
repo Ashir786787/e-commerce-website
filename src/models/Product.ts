@@ -12,7 +12,6 @@ const ProductImageSchema = new Schema<IProductImage>(
       required: true,
       trim: true,
     },
-
     publicId: {
       type: String,
       trim: true,
@@ -32,7 +31,6 @@ const ProductSchema = new Schema<IProduct>(
       minlength: 3,
       maxlength: 150,
     },
-
     slug: {
       type: String,
       required: true,
@@ -41,7 +39,6 @@ const ProductSchema = new Schema<IProduct>(
       trim: true,
       index: true,
     },
-
     description: {
       type: String,
       required: true,
@@ -49,32 +46,27 @@ const ProductSchema = new Schema<IProduct>(
       minlength: 10,
       maxlength: 5000,
     },
-
     price: {
       type: Number,
       required: true,
       min: 0,
     },
-
     originalPrice: {
       type: Number,
       min: 0,
     },
-
     category: {
       type: Schema.Types.ObjectId,
       ref: "Category",
       required: true,
       index: true,
     },
-
     brand: {
       type: String,
       required: true,
       trim: true,
       maxlength: 100,
     },
-
     images: {
       type: [ProductImageSchema],
       required: true,
@@ -85,43 +77,36 @@ const ProductSchema = new Schema<IProduct>(
         message: "At least one product image is required.",
       },
     },
-
     stock: {
       type: Number,
       required: true,
       min: 0,
       default: 0,
     },
-
     sold: {
       type: Number,
       min: 0,
       default: 0,
     },
-
     rating: {
       type: Number,
       min: 0,
       max: 5,
       default: 0,
     },
-
     reviewCount: {
       type: Number,
       min: 0,
       default: 0,
     },
-
     isFeatured: {
       type: Boolean,
       default: false,
     },
-
     isTrending: {
       type: Boolean,
       default: false,
     },
-
     isActive: {
       type: Boolean,
       default: true,

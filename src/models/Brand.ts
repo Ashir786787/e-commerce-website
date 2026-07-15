@@ -10,7 +10,6 @@ const BrandSchema = new Schema<IBrand>(
       minlength: 2,
       maxlength: 80,
     },
-
     slug: {
       type: String,
       required: true,
@@ -19,26 +18,22 @@ const BrandSchema = new Schema<IBrand>(
       trim: true,
       index: true,
     },
-
     description: {
       type: String,
       trim: true,
       maxlength: 500,
       default: "",
     },
-
     logo: {
       type: String,
       trim: true,
       default: "",
     },
-
     website: {
       type: String,
       trim: true,
       default: "",
     },
-
     isActive: {
       type: Boolean,
       default: true,
