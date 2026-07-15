@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { UseFormRegisterReturn } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,7 @@ interface PasswordInputProps {
   label: string;
   placeholder?: string;
   error?: string;
-  registration: any;
+  registration: UseFormRegisterReturn;
 }
 
 export default function PasswordInput({
@@ -26,7 +27,6 @@ export default function PasswordInput({
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
-
       <div className="relative">
         <Input
           id={id}
@@ -35,7 +35,6 @@ export default function PasswordInput({
           className="pr-10"
           {...registration}
         />
-
         <button
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
@@ -44,7 +43,6 @@ export default function PasswordInput({
           {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
         </button>
       </div>
-
       {error && <p className="text-sm text-red-500">{error}</p>}
     </div>
   );

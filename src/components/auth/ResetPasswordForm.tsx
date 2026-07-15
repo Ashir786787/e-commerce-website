@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AxiosError } from "axios";
 import { toast } from "sonner";
 
 import api from "@/lib/api";
@@ -45,10 +46,11 @@ export default function ResetPasswordForm() {
 
       toast.success("Password reset successfully. Please login.");
       router.push("/login");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(
-        error?.response?.data?.message ||
-          "Unable to reset password."
+        error instanceof AxiosError
+          ? error.response?.data?.message
+          : "Unable to reset password."
       );
     }
   }
@@ -63,7 +65,6 @@ export default function ResetPasswordForm() {
         registration={register("email")}
         error={errors.email?.message}
       />
-
       <FormField
         id="otp"
         label="6-Digit Verification Code"
@@ -72,7 +73,6 @@ export default function ResetPasswordForm() {
         registration={register("otp")}
         error={errors.otp?.message}
       />
-
       <PasswordInput
         id="password"
         label="New Password"
@@ -80,7 +80,6 @@ export default function ResetPasswordForm() {
         registration={register("password")}
         error={errors.password?.message}
       />
-
       <PasswordInput
         id="confirmPassword"
         label="Confirm Password"
@@ -88,11 +87,9 @@ export default function ResetPasswordForm() {
         registration={register("confirmPassword")}
         error={errors.confirmPassword?.message}
       />
-
       <SubmitButton isLoading={isSubmitting}>
         Reset Password
       </SubmitButton>
-
       <p className="text-center text-sm text-muted-foreground">
         Didn&apos;t receive the code?{" "}
         <Link

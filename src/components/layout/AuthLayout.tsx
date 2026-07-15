@@ -19,7 +19,6 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
               Smart Shopping. Simplified.
             </p>
           </div>
-
           {children}
         </div>
 

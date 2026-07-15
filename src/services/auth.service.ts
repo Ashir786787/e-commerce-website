@@ -2,7 +2,6 @@ import User from "@/models/User";
 import { hashPassword, comparePassword } from "@/utils/password";
 import { signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from "@/validations/auth.validation";
 import {
-  generateToken,
   generateOTP,
   hashToken,
   generateExpiry,
@@ -95,10 +94,6 @@ export async function getCurrentUser() {
 export async function logoutUser() {
   const cookieStore = await cookies();
   cookieStore.set("novacart_token", "", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 0 });
-}
-
-interface ForgotPasswordPayload {
-  email: string;
 }
 
 export async function forgotPassword(data: { email: string }) {

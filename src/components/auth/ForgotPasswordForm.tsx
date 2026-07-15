@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AxiosError } from "axios";
 import { toast } from "sonner";
 
 import api from "@/lib/api";
@@ -35,10 +36,11 @@ export default function ForgotPasswordForm() {
       router.push(
         `/reset-password?email=${encodeURIComponent(values.email)}`
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(
-        error?.response?.data?.message ||
-          "Unable to send password reset code."
+        error instanceof AxiosError
+          ? error.response?.data?.message
+          : "Unable to send password reset code."
       );
     }
   }
@@ -56,11 +58,9 @@ export default function ForgotPasswordForm() {
         registration={register("email")}
         error={errors.email?.message}
       />
-
       <SubmitButton isLoading={isSubmitting}>
         Send Reset Code
       </SubmitButton>
-
       <p className="text-center text-sm text-muted-foreground">
         Remember your password?{" "}
         <Link

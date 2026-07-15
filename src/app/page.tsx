@@ -1,7 +1,7 @@
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import HeroSection from "@/components/home/HeroSection";
-import FeaturedCategories from "@/components/FeaturedCategories/FeaturedCategories";
+import FeaturedCategories from "@/components/home/FeaturedCategories";
 import TrendingProducts from "@/components/home/TrendingProducts";
 
 export default function HomePage() {

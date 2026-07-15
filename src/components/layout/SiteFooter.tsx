@@ -8,7 +8,6 @@ export default function SiteFooter() {
           <Link href="/" className="text-2xl font-bold text-primary">
             NovaCart
           </Link>
-
           <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">
             Discover quality products, secure shopping, and a simple checkout
             experience—all in one place.
@@ -17,7 +16,6 @@ export default function SiteFooter() {
 
         <div>
           <h3 className="font-semibold">Shop</h3>
-
           <div className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
             <Link href="/products" className="hover:text-foreground">
               Products
@@ -33,7 +31,6 @@ export default function SiteFooter() {
 
         <div>
           <h3 className="font-semibold">Account</h3>
-
           <div className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
             <Link href="/login" className="hover:text-foreground">
               Login

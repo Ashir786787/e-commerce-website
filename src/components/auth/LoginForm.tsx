@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AxiosError } from "axios";
 import { toast } from "sonner";
 
 import api from "@/lib/api";
@@ -31,9 +32,11 @@ export default function LoginForm() {
       toast.success("Login successful.");
       router.push("/");
       router.refresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(
-        error?.response?.data?.message || "Login failed. Please try again."
+        error instanceof AxiosError
+          ? error.response?.data?.message
+          : "Login failed. Please try again."
       );
     }
   }
@@ -48,7 +51,6 @@ export default function LoginForm() {
         registration={register("email")}
         error={errors.email?.message}
       />
-
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Password</Label>
@@ -56,7 +58,6 @@ export default function LoginForm() {
             Forgot password?
           </Link>
         </div>
-
         <PasswordInput
           id="password"
           label=""
@@ -65,11 +66,9 @@ export default function LoginForm() {
           error={errors.password?.message}
         />
       </div>
-
       <SubmitButton isLoading={isSubmitting}>
         Login
       </SubmitButton>
-
       <p className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
         <Link href="/signup" className="text-primary hover:underline">

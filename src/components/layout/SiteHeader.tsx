@@ -37,13 +37,11 @@ export default function SiteHeader() {
           >
             NovaCart
           </Link>
-
           <form
             action="/products"
             className="relative hidden flex-1 md:block"
           >
             <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-
             <Input
               name="search"
               type="search"
@@ -51,7 +49,6 @@ export default function SiteHeader() {
               className="h-11 rounded-full pl-12 pr-4"
             />
           </form>
-
           <div className="ml-auto hidden items-center gap-1 md:flex">
             <Link
               href="/wishlist"
@@ -65,7 +62,6 @@ export default function SiteHeader() {
                 </span>
               </span>
             </Link>
-
             <Link
               href="/cart"
               aria-label="Cart"
@@ -78,7 +74,6 @@ export default function SiteHeader() {
                 </span>
               </span>
             </Link>
-
             <Link
               href="/login"
               className={cn(
@@ -90,7 +85,6 @@ export default function SiteHeader() {
               Account
             </Link>
           </div>
-
           <Button
             type="button"
             variant="ghost"
@@ -121,7 +115,6 @@ export default function SiteHeader() {
               </Link>
             ))}
           </nav>
-
           <p className="text-sm font-medium text-primary">
             Free delivery on qualifying orders
           </p>
@@ -132,7 +125,6 @@ export default function SiteHeader() {
         <div className="border-t bg-background px-4 py-5 md:hidden">
           <form action="/products" className="relative mb-5">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-
             <Input
               name="search"
               type="search"
@@ -140,7 +132,6 @@ export default function SiteHeader() {
               className="h-11 rounded-full pl-12"
             />
           </form>
-
           <nav className="flex flex-col gap-1">
             {navigation.map((item) => (
               <Link
@@ -153,7 +144,6 @@ export default function SiteHeader() {
               </Link>
             ))}
           </nav>
-
           <div className="mt-5 grid grid-cols-3 gap-2 border-t pt-5">
             <Link
               href="/wishlist"
@@ -163,7 +153,6 @@ export default function SiteHeader() {
               <Heart className="h-5 w-5" />
               Wishlist
             </Link>
-
             <Link
               href="/cart"
               onClick={() => setIsMenuOpen(false)}
@@ -172,7 +161,6 @@ export default function SiteHeader() {
               <ShoppingCart className="h-5 w-5" />
               Cart
             </Link>
-
             <Link
               href="/login"
               onClick={() => setIsMenuOpen(false)}

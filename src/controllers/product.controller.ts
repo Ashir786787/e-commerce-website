@@ -3,6 +3,7 @@ import {
   createProduct,
   getProducts,
   getProductById,
+  getProductBySlug,
   updateProduct,
   deleteProduct,
 } from "@/services/product.service";
@@ -21,7 +22,7 @@ export async function createProductController(
     const product = await createProduct(body);
 
     return successResponse(
-      "Product created successfully.",
+      "Product created",
       product,
       201
     );
@@ -31,7 +32,7 @@ export async function createProductController(
     return errorResponse(
       error instanceof Error
         ? error.message
-        : "Failed to create product.",
+        : "Could not create product.",
       400
     );
   }
@@ -44,7 +45,7 @@ export async function getProductsController() {
     const products = await getProducts();
 
     return successResponse(
-      "Products fetched successfully.",
+      "Products loaded",
       products,
       200
     );
@@ -54,7 +55,7 @@ export async function getProductsController() {
     return errorResponse(
       error instanceof Error
         ? error.message
-        : "Failed to fetch products.",
+        : "Unable to load products.",
       500
     );
   }
@@ -67,7 +68,7 @@ export async function getProductByIdController(id: string) {
     const product = await getProductById(id);
 
     return successResponse(
-      "Product fetched successfully.",
+      "Product loaded",
       product,
       200
     );
@@ -77,7 +78,7 @@ export async function getProductByIdController(id: string) {
     return errorResponse(
       error instanceof Error
         ? error.message
-        : "Failed to fetch product.",
+        : "Unable to fetch product.",
       404
     );
   }
@@ -95,7 +96,7 @@ export async function updateProductController(
     const product = await updateProduct(id, body);
 
     return successResponse(
-      "Product updated successfully.",
+      "Product updated",
       product,
       200
     );
@@ -105,7 +106,7 @@ export async function updateProductController(
     return errorResponse(
       error instanceof Error
         ? error.message
-        : "Failed to update product.",
+        : "Could not update product.",
       400
     );
   }
@@ -118,7 +119,7 @@ export async function deleteProductController(id: string) {
     const product = await deleteProduct(id);
 
     return successResponse(
-      "Product deleted successfully.",
+      "Product deleted",
       product,
       200
     );
@@ -128,8 +129,31 @@ export async function deleteProductController(id: string) {
     return errorResponse(
       error instanceof Error
         ? error.message
-        : "Failed to delete product.",
+        : "Unable to delete product.",
       400
+    );
+  }
+}
+
+export async function getProductBySlugController(slug: string) {
+  try {
+    await connectDB();
+
+    const product = await getProductBySlug(slug);
+
+    return successResponse(
+      "Product fetched",
+      product,
+      200
+    );
+  } catch (error) {
+    console.error(error);
+
+    return errorResponse(
+      error instanceof Error
+        ? error.message
+        : "Product not found.",
+      404
     );
   }
 }

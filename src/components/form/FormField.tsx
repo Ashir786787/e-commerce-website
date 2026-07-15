@@ -1,3 +1,5 @@
+import type { UseFormRegisterReturn } from "react-hook-form";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -9,7 +11,7 @@ interface FormFieldProps {
   maxLength?: number;
   inputMode?: "text" | "numeric" | "email" | "tel" | "url";
   error?: string;
-  registration: any;
+  registration: UseFormRegisterReturn;
 }
 
 export default function FormField({
@@ -25,7 +27,6 @@ export default function FormField({
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
-
       <Input
         id={id}
         type={type}
@@ -34,7 +35,6 @@ export default function FormField({
         inputMode={inputMode}
         {...registration}
       />
-
       {error && (
         <p className="text-sm text-red-500">
           {error}

@@ -20,7 +20,7 @@ export async function createCategoryController(
     const category = await createCategory(body);
 
     return successResponse(
-      "Category created successfully.",
+      "Category created",
       category,
       201
     );
@@ -30,7 +30,7 @@ export async function createCategoryController(
     return errorResponse(
       error instanceof Error
         ? error.message
-        : "Failed to create category.",
+        : "Could not create category.",
       400
     );
   }
@@ -43,7 +43,7 @@ export async function getCategoriesController() {
     const categories = await getCategories();
 
     return successResponse(
-      "Categories fetched successfully.",
+      "Categories loaded",
       categories,
       200
     );
@@ -53,7 +53,7 @@ export async function getCategoriesController() {
     return errorResponse(
       error instanceof Error
         ? error.message
-        : "Failed to fetch categories.",
+        : "Unable to load categories.",
       500
     );
   }
@@ -70,7 +70,7 @@ export async function updateCategoryController(
     const category = await updateCategory(id, body);
 
     return successResponse(
-      "Category updated successfully.",
+      "Category updated",
       category,
       200
     );
@@ -80,7 +80,7 @@ export async function updateCategoryController(
     return errorResponse(
       error instanceof Error
         ? error.message
-        : "Failed to update category.",
+        : "Unable to update category.",
       400
     );
   }
@@ -93,7 +93,7 @@ export async function deleteCategoryController(id: string) {
     const category = await deleteCategory(id);
 
     return successResponse(
-      "Category deleted successfully.",
+      "Category deleted",
       category,
       200
     );
@@ -103,7 +103,7 @@ export async function deleteCategoryController(id: string) {
     return errorResponse(
       error instanceof Error
         ? error.message
-        : "Failed to delete category.",
+        : "Could not delete category.",
       400
     );
   }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AxiosError } from "axios";
 import { toast } from "sonner";
 
 import api from "@/lib/api";
@@ -28,15 +29,20 @@ export default function SignupForm() {
 
   async function onSubmit(values: SignupFormValues) {
     try {
-      const { confirmPassword, ...signupData } = values;
-      await api.post("/auth/signup", signupData);
+      await api.post("/auth/signup", {
+        fullName: values.fullName,
+        email: values.email,
+        password: values.password,
+      });
 
       toast.success("Account created. Check your email to verify.");
       router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
       router.refresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(
-        error?.response?.data?.message || "Signup failed. Please try again."
+        error instanceof AxiosError
+          ? error.response?.data?.message
+          : "Signup failed. Please try again."
       );
     }
   }
@@ -50,7 +56,6 @@ export default function SignupForm() {
         registration={register("fullName")}
         error={errors.fullName?.message}
       />
-
       <FormField
         id="email"
         label="Email"
@@ -59,7 +64,6 @@ export default function SignupForm() {
         registration={register("email")}
         error={errors.email?.message}
       />
-
       <PasswordInput
         id="password"
         label="Password"
@@ -67,7 +71,6 @@ export default function SignupForm() {
         registration={register("password")}
         error={errors.password?.message}
       />
-
       <PasswordInput
         id="confirmPassword"
         label="Confirm Password"
@@ -75,11 +78,9 @@ export default function SignupForm() {
         registration={register("confirmPassword")}
         error={errors.confirmPassword?.message}
       />
-
       <SubmitButton isLoading={isSubmitting}>
         Create Account
       </SubmitButton>
-
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
         <Link

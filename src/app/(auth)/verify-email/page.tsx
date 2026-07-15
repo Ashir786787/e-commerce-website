@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { AxiosError } from "axios";
 import { toast } from "sonner";
 
 import api from "@/lib/api";
@@ -43,10 +44,11 @@ function VerifyEmailContent() {
 
       toast.success("Email verified successfully.");
       router.push("/login");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(
-        error?.response?.data?.message ||
-          "Invalid or expired verification code."
+        error instanceof AxiosError
+          ? error.response?.data?.message
+          : "Invalid or expired verification code."
       );
     } finally {
       setIsSubmitting(false);
@@ -76,10 +78,11 @@ function VerifyEmailContent() {
 
       toast.success("New verification code sent.");
       setResendTimer(60);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(
-        error?.response?.data?.message ||
-          "Unable to resend verification code."
+        error instanceof AxiosError
+          ? error.response?.data?.message
+          : "Unable to resend verification code."
       );
     } finally {
       setIsResending(false);

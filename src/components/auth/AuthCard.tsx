@@ -23,7 +23,6 @@ export default function AuthCard({
         <CardTitle className="text-2xl">{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-
       <CardContent>{children}</CardContent>
     </Card>
   );

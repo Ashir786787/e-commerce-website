@@ -144,3 +144,18 @@ export async function deleteProduct(id: string) {
 
   return product;
 }
+
+export async function getProductBySlug(slug: string) {
+  const product = await Product.findOne({
+    slug,
+    isActive: true,
+  })
+    .populate("category", "name slug image")
+    .lean();
+
+  if (!product) {
+    throw new Error("Product not found.");
+  }
+
+  return product;
+}

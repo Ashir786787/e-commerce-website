@@ -13,17 +13,14 @@ export default function FeaturedCategories() {
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
               Browse Collections
             </p>
-
             <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
               Shop by Category
             </h2>
-
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
               Explore popular product collections and quickly find what suits
               your lifestyle.
             </p>
           </div>
-
           <Link
             href="/categories"
             className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:opacity-80"
@@ -48,13 +45,11 @@ export default function FeaturedCategories() {
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover transition duration-500 group-hover:scale-105"
                 />
-
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
                 <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6">
                   <div>
                     <p className="text-sm text-white/75">Explore collection</p>
-
                     <h3 className="mt-1 text-2xl font-bold text-white">
                       {category.name}
                     </h3>
