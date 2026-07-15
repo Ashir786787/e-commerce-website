@@ -5,11 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function getCategoryName(category: unknown): string {
+export function getCategoryName(category: unknown, fallback?: string): string {
   if (typeof category === "object" && category !== null && "name" in category) {
     return String(category.name);
   }
-  return "Uncategorized";
+  return fallback ?? "Uncategorized";
 }
 
 export function getCategorySlug(category: unknown): string {
