@@ -46,8 +46,90 @@ export async function getProductsController(
 
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || undefined;
+    const category = searchParams.get("category") || undefined;
+    const brand = searchParams.get("brand") || undefined;
+    const featuredParam = searchParams.get("featured");
+    const trendingParam = searchParams.get("trending");
 
-    const products = await getProducts(search);
+    const featured =
+      featuredParam === null
+        ? undefined
+        : featuredParam === "true"
+          ? true
+          : featuredParam === "false"
+            ? false
+            : undefined;
+
+    const trending =
+      trendingParam === null
+        ? undefined
+        : trendingParam === "true"
+          ? true
+          : trendingParam === "false"
+            ? false
+            : undefined;
+
+    if (
+      featuredParam !== null &&
+      featuredParam !== "true" &&
+      featuredParam !== "false"
+    ) {
+      return errorResponse(
+        "Featured must be either true or false.",
+        400
+      );
+    }
+
+    if (
+      trendingParam !== null &&
+      trendingParam !== "true" &&
+      trendingParam !== "false"
+    ) {
+      return errorResponse(
+        "Trending must be either true or false.",
+        400
+      );
+    }
+
+    const minPriceParam = searchParams.get("minPrice");
+    const maxPriceParam = searchParams.get("maxPrice");
+
+    const minPrice =
+      minPriceParam !== null ? Number(minPriceParam) : undefined;
+
+    const maxPrice =
+      maxPriceParam !== null ? Number(maxPriceParam) : undefined;
+
+    if (
+      (minPrice !== undefined && Number.isNaN(minPrice)) ||
+      (maxPrice !== undefined && Number.isNaN(maxPrice))
+    ) {
+      return errorResponse(
+        "Minimum and maximum prices must be valid numbers.",
+        400
+      );
+    }
+
+    if (
+      minPrice !== undefined &&
+      maxPrice !== undefined &&
+      minPrice > maxPrice
+    ) {
+      return errorResponse(
+        "Minimum price cannot be greater than maximum price.",
+        400
+      );
+    }
+
+    const products = await getProducts({
+      search,
+      category,
+      brand,
+      minPrice,
+      maxPrice,
+      featured,
+      trending,
+    });
 
     return successResponse(
       "Products loaded",

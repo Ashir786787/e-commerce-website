@@ -51,7 +51,25 @@ export async function createProduct(data: CreateProductInput) {
   return product;
 }
 
-export async function getProducts(search?: string) {
+interface GetProductsOptions {
+  search?: string;
+  category?: string;
+  brand?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  featured?: boolean;
+  trending?: boolean;
+}
+
+export async function getProducts({
+  search,
+  category,
+  brand,
+  minPrice,
+  maxPrice,
+  featured,
+  trending,
+}: GetProductsOptions) {
   const query: Record<string, unknown> = {
     isActive: true,
   };
@@ -79,6 +97,48 @@ export async function getProducts(search?: string) {
         },
       },
     ];
+  }
+
+  if (category?.trim()) {
+    const categoryDocument = await Category.findOne({
+      slug: category.trim().toLowerCase(),
+      isActive: true,
+    })
+      .select("_id")
+      .lean();
+
+    if (!categoryDocument) {
+      return [];
+    }
+
+    query.category = categoryDocument._id;
+  }
+
+  if (brand?.trim()) {
+    query.brand = {
+      $regex: `^${brand.trim()}$`,
+      $options: "i",
+    };
+  }
+
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    query.price = {};
+
+    if (minPrice !== undefined) {
+      (query.price as Record<string, number>).$gte = minPrice;
+    }
+
+    if (maxPrice !== undefined) {
+      (query.price as Record<string, number>).$lte = maxPrice;
+    }
+  }
+
+  if (featured !== undefined) {
+    query.isFeatured = featured;
+  }
+
+  if (trending !== undefined) {
+    query.isTrending = trending;
   }
 
   const products = await Product.find(query)
