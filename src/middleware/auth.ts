@@ -3,7 +3,6 @@ import { verifyToken } from "@/utils/jwt";
 
 export async function requireAuth() {
   const cookieStore = await cookies();
-
   const token = cookieStore.get("novacart_token")?.value;
 
   if (!token) {

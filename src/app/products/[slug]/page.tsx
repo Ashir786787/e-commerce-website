@@ -50,15 +50,9 @@ export default async function ProductDetailsPage({
   const category = getCategoryName(product.category);
   const categorySlug = getCategorySlug(product.category);
 
-  const discount =
-    product.originalPrice &&
-    product.originalPrice > product.price
-      ? Math.round(
-          ((product.originalPrice - product.price) /
-            product.originalPrice) *
-            100
-        )
-      : undefined;
+  const discount = product.originalPrice && product.originalPrice > product.price
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : undefined;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -92,10 +86,7 @@ export default async function ProductDetailsPage({
           <section className="grid gap-12 lg:grid-cols-2">
             <div className="relative aspect-square overflow-hidden rounded-3xl border bg-muted">
               <Image
-                src={
-                  product.images[0]?.url ||
-                  "/products/electronics/headphones.jpg"
-                }
+                src={product.images[0]?.url || "/products/electronics/headphones.jpg"}
                 alt={product.name}
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
@@ -117,21 +108,14 @@ export default async function ProductDetailsPage({
                 {product.name}
               </h1>
               <p className="mt-3 text-sm text-muted-foreground">
-                Brand:{" "}
-                <span className="font-medium text-foreground">
-                  {product.brand}
-                </span>
+                Brand: <span className="font-medium text-foreground">{product.brand}</span>
               </p>
               <div className="mt-5 flex items-center gap-3">
                 <div className="flex items-center gap-1">
                   <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
-                  <span className="font-semibold">
-                    {product.rating}
-                  </span>
+                  <span className="font-semibold">{product.rating}</span>
                 </div>
-                <span className="text-sm text-muted-foreground">
-                  ({product.reviewCount} reviews)
-                </span>
+                <span className="text-sm text-muted-foreground">({product.reviewCount} reviews)</span>
               </div>
               <div className="mt-7 flex items-end gap-4">
                 <p className="text-3xl font-bold text-primary">
@@ -180,34 +164,22 @@ export default async function ProductDetailsPage({
                 <div className="flex items-center gap-3">
                   <Truck className="h-5 w-5 text-primary" />
                   <div>
-                    <p className="text-sm font-semibold">
-                      Fast Delivery
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Reliable shipping
-                    </p>
+                    <p className="text-sm font-semibold">Fast Delivery</p>
+                    <p className="text-xs text-muted-foreground">Reliable shipping</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <ShieldCheck className="h-5 w-5 text-primary" />
                   <div>
-                    <p className="text-sm font-semibold">
-                      Secure Checkout
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Protected payments
-                    </p>
+                    <p className="text-sm font-semibold">Secure Checkout</p>
+                    <p className="text-xs text-muted-foreground">Protected payments</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <PackageCheck className="h-5 w-5 text-primary" />
                   <div>
-                    <p className="text-sm font-semibold">
-                      Easy Returns
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Simple process
-                    </p>
+                    <p className="text-sm font-semibold">Easy Returns</p>
+                    <p className="text-xs text-muted-foreground">Simple process</p>
                   </div>
                 </div>
               </div>

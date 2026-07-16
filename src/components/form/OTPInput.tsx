@@ -17,27 +17,16 @@ export default function OTPInput({
     if (!/^\d?$/.test(digit)) return;
 
     const otp = value.split("");
-
     otp[index] = digit;
-
-    const newValue = otp.join("");
-
-    onChange(newValue);
+    onChange(otp.join(""));
 
     if (digit && index < 5) {
       inputs.current[index + 1]?.focus();
     }
   }
 
-  function handleKeyDown(
-    index: number,
-    event: React.KeyboardEvent<HTMLInputElement>
-  ) {
-    if (
-      event.key === "Backspace" &&
-      !value[index] &&
-      index > 0
-    ) {
+  function handleKeyDown(index: number, event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Backspace" && !value[index] && index > 0) {
       inputs.current[index - 1]?.focus();
     }
   }
@@ -54,9 +43,7 @@ export default function OTPInput({
           inputMode="numeric"
           maxLength={1}
           value={value[index] || ""}
-          onChange={(e) =>
-            handleChange(index, e.target.value)
-          }
+          onChange={(e) => handleChange(index, e.target.value)}
           onKeyDown={(e) => handleKeyDown(index, e)}
           aria-label={`Digit ${index + 1}`}
           className="h-12 w-11 rounded-lg border text-center text-xl font-bold outline-none focus:border-primary"
