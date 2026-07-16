@@ -43,7 +43,7 @@ export default function OTPInput({
   }
 
   return (
-    <div className="flex justify-center gap-3">
+    <div className="flex justify-center gap-2">
       {Array.from({ length: 6 }).map((_, index) => (
         <input
           key={index}
@@ -59,7 +59,7 @@ export default function OTPInput({
           }
           onKeyDown={(e) => handleKeyDown(index, e)}
           aria-label={`Digit ${index + 1}`}
-          className="h-14 w-14 rounded-lg border text-center text-xl font-bold outline-none focus:border-primary"
+          className="h-12 w-11 rounded-lg border text-center text-xl font-bold outline-none focus:border-primary"
         />
       ))}
     </div>

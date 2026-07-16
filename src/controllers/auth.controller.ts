@@ -100,8 +100,8 @@ export async function meController() {
     const user = await getCurrentUser();
     return successResponse("User loaded", user, 200);
   } catch (error) {
-    console.error(error);
-    return errorResponse(error instanceof Error ? error.message : "Could not load user.", 401);
+    const message = error instanceof Error ? error.message : "Could not load user.";
+    return errorResponse(message, message === "Not authenticated." ? 401 : 500);
   }
 }
 

@@ -22,6 +22,8 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions) {
     },
   });
 
+  console.log(`[Email] Sending to: ${to} | Subject: ${subject}`);
+
   await transporter.sendMail({
     from: `"NovaCart" <${emailUser}>`,
     to,
