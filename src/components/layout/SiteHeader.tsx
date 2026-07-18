@@ -8,15 +8,12 @@ import {
   LogOut,
   Menu,
   Package,
-  Search,
   Settings,
   ShoppingCart,
   UserRound,
   X,
 } from "lucide-react";
-
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -104,7 +101,6 @@ export default function SiteHeader() {
       setIsLoggingOut(false);
     }
   }
-
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
       <div className="border-b">
@@ -115,18 +111,6 @@ export default function SiteHeader() {
           >
             NovaCart
           </Link>
-          <form
-            action="/products"
-            className="relative hidden flex-1 md:block"
-          >
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              name="search"
-              type="search"
-              placeholder="Search products, categories, and brands..."
-              className="h-11 rounded-full pl-12 pr-4"
-            />
-          </form>
           <div className="ml-auto hidden items-center gap-1 md:flex">
             <Link
               href="/wishlist"
@@ -295,15 +279,6 @@ export default function SiteHeader() {
 
       {isMenuOpen && (
         <div className="border-t bg-background px-4 py-5 md:hidden">
-          <form action="/products" className="relative mb-5">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              name="search"
-              type="search"
-              placeholder="Search products..."
-              className="h-11 rounded-full pl-12"
-            />
-          </form>
           <nav className="flex flex-col gap-1">
             {navigation.map((item) => (
               <Link

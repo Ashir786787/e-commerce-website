@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
-
 import api from "@/lib/api";
 import { loginFormSchema, LoginFormValues } from "@/validations/login-form";
 import FormField from "@/components/form/FormField";
@@ -40,7 +39,6 @@ export default function LoginForm() {
       );
     }
   }
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <FormField

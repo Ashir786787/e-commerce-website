@@ -30,8 +30,8 @@ export async function getProductsController(request: Request) {
     const { searchParams } = new URL(request.url);
 
     const search = searchParams.get("search") || undefined;
-    const category = searchParams.get("category") || undefined;
-    const brand = searchParams.get("brand") || undefined;
+    const categories = searchParams.getAll("category").map((c) => c.trim()).filter(Boolean);
+    const brands = searchParams.getAll("brand").map((b) => b.trim()).filter(Boolean);
     const featuredParam = searchParams.get("featured");
     const trendingParam = searchParams.get("trending");
 
@@ -83,7 +83,7 @@ export async function getProductsController(request: Request) {
       return errorResponse("Page and limit must be valid positive integers. Maximum limit is 100.", 400);
     }
 
-    const result = await getProducts({ search, category, brand, minPrice, maxPrice, featured, trending, page, limit });
+    const result = await getProducts({ search, categories, brands, minPrice, maxPrice, featured, trending, page, limit });
     return successResponse("Products fetched successfully.", result, 200);
   } catch (error) {
     console.error(error);

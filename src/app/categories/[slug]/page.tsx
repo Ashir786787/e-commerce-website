@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import ProductCard from "@/components/product/ProductCard";
-
 import { connectDB } from "@/lib/db";
 import Category from "@/models/Category";
 import Product from "@/models/Product";

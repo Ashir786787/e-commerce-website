@@ -1,5 +1,4 @@
 import { Schema, model, models } from "mongoose";
-
 import type { ICategory } from "@/types/Category";
 
 const CategorySchema = new Schema<ICategory>(
@@ -39,8 +38,6 @@ const CategorySchema = new Schema<ICategory>(
   }
 );
 
-const Category =
-  models.Category ||
-  model<ICategory>("Category", CategorySchema);
+const Category = models.Category || model<ICategory>("Category", CategorySchema);
 
 export default Category;

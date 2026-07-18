@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-
 import AuthLayout from "@/components/layout/AuthLayout";
 import AuthCard from "@/components/auth/AuthCard";
 import ResetPasswordForm from "@/components/auth/ResetPasswordForm";

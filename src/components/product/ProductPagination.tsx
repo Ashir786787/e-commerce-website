@@ -2,7 +2,6 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 
 interface ProductPaginationProps {
@@ -44,7 +43,6 @@ export default function ProductPagination({
   }
 
   const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
-
   return (
     <nav
       aria-label="Product pagination"

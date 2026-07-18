@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { SlidersHorizontal, X } from "lucide-react";
-
 import ProductFilters from "@/components/product/ProductFilters";
 import { Button } from "@/components/ui/button";
 
@@ -22,7 +21,6 @@ export default function MobileProductFilters({
   brands,
 }: MobileProductFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
-
   return (
     <div className="lg:hidden">
       <Button

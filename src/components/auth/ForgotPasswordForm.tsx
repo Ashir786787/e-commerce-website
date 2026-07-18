@@ -6,12 +6,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
-
 import api from "@/lib/api";
-
 import FormField from "@/components/form/FormField";
 import SubmitButton from "@/components/form/SubmitButton";
-
 import {
   forgotPasswordFormSchema,
   ForgotPasswordFormValues,
@@ -44,7 +41,6 @@ export default function ForgotPasswordForm() {
       );
     }
   }
-
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}

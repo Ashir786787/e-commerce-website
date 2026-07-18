@@ -1,9 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
-
 import { connectDB } from "@/lib/db";
 import Category from "@/models/Category";
 

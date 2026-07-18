@@ -28,7 +28,6 @@ export async function createProduct(data: CreateProductInput) {
   if (validatedData.originalPrice !== undefined && validatedData.originalPrice < validatedData.price) {
     throw new Error("Original price cannot be lower than the selling price.");
   }
-
   return Product.create({
     ...validatedData,
     category: new Types.ObjectId(validatedData.category),
@@ -37,8 +36,8 @@ export async function createProduct(data: CreateProductInput) {
 
 interface GetProductsOptions {
   search?: string;
-  category?: string;
-  brand?: string;
+  categories?: string[];
+  brands?: string[];
   minPrice?: number;
   maxPrice?: number;
   featured?: boolean;
@@ -49,8 +48,8 @@ interface GetProductsOptions {
 
 export async function getProducts({
   search,
-  category,
-  brand,
+  categories,
+  brands,
   minPrice,
   maxPrice,
   featured,
@@ -69,24 +68,26 @@ export async function getProducts({
     ];
   }
 
-  if (category?.trim()) {
-    const categoryDocument = await Category.findOne({
-      slug: category.trim().toLowerCase(),
+  if (categories && categories.length > 0) {
+    const normalizedCategories = categories.map((c) => c.trim().toLowerCase()).filter(Boolean);
+    const categoryDocuments = await Category.find({
+      slug: { $in: normalizedCategories },
       isActive: true,
     }).select("_id").lean();
 
-    if (!categoryDocument) {
+    if (categoryDocuments.length === 0) {
       return {
         products: [],
-        pagination: { page, limit, totalProducts: 0, totalPages: 0, hasNextPage: false, hasPreviousPage: false },
+        pagination: { page, limit, totalProducts: 0, totalPages: 1, hasNextPage: false, hasPreviousPage: false },
       };
     }
 
-    query.category = categoryDocument._id;
+    query.category = { $in: categoryDocuments.map((c) => c._id) };
   }
 
-  if (brand?.trim()) {
-    query.brand = { $regex: `^${brand.trim()}$`, $options: "i" };
+  if (brands && brands.length > 0) {
+    const normalizedBrands = brands.map((b) => b.trim()).filter(Boolean);
+    query.brand = { $in: normalizedBrands };
   }
 
   if (minPrice !== undefined || maxPrice !== undefined) {
@@ -134,7 +135,6 @@ export async function getProductById(id: string) {
   if (!product) {
     throw new Error("Product not found.");
   }
-
   return product;
 }
 
@@ -167,7 +167,6 @@ export async function updateProduct(id: string, data: UpdateProductInput) {
   if (!product) {
     throw new Error("Product not found.");
   }
-
   return product;
 }
 
@@ -180,7 +179,6 @@ export async function deleteProduct(id: string) {
   if (!product) {
     throw new Error("Product not found.");
   }
-
   return product;
 }
 
@@ -192,6 +190,5 @@ export async function getProductBySlug(slug: string) {
   if (!product) {
     throw new Error("Product not found.");
   }
-
   return product;
 }

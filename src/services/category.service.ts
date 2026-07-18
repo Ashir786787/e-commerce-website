@@ -17,7 +17,6 @@ export async function createCategory(data: CreateCategoryInput) {
   if (existingCategory) {
     throw new Error("A category with this name or slug already exists.");
   }
-
   return Category.create(validatedData);
 }
 
@@ -54,7 +53,6 @@ export async function updateCategory(id: string, data: UpdateCategoryInput) {
 
   Object.assign(category, validatedData);
   await category.save();
-
   return category;
 }
 
@@ -67,6 +65,5 @@ export async function deleteCategory(id: string) {
   if (!category) {
     throw new Error("Category not found.");
   }
-
   return category;
 }

@@ -6,12 +6,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
-
 import api from "@/lib/api";
 import FormField from "@/components/form/FormField";
 import PasswordInput from "@/components/form/PasswordInput";
 import SubmitButton from "@/components/form/SubmitButton";
-
 import {
   resetPasswordFormSchema,
   ResetPasswordFormValues,
@@ -54,7 +52,6 @@ export default function ResetPasswordForm() {
       );
     }
   }
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <FormField

@@ -50,7 +50,6 @@ BrandSchema.index({
   description: "text",
 });
 
-const Brand =
-  models.Brand || model<IBrand>("Brand", BrandSchema);
+const Brand = models.Brand || model<IBrand>("Brand", BrandSchema);
 
 export default Brand;

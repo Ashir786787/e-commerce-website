@@ -148,7 +148,6 @@ export default function HeroSection() {
         <div className="mx-auto grid max-w-7xl gap-5 px-4 py-6 sm:px-6 md:grid-cols-3 lg:px-8">
           {trustFeatures.map((feature) => {
             const Icon = feature.icon;
-
             return (
               <div
                 key={feature.title}

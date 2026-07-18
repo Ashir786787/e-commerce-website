@@ -1,7 +1,6 @@
 import { loadEnvConfig } from "@next/env";
 
 loadEnvConfig(process.cwd());
-
 import { connectDB } from "@/lib/db";
 import Category from "@/models/Category";
 import Product from "@/models/Product";
@@ -28,7 +27,6 @@ async function seedProducts() {
         console.error(`Category slug "${categorySlug}" not found.`);
         process.exit(1);
       }
-
       return {
         ...rest,
         category: categoryId,

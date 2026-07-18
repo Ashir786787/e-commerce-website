@@ -9,11 +9,9 @@ import {
   Star,
   Truck,
 } from "lucide-react";
-
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import { Button } from "@/components/ui/button";
-
 import { connectDB } from "@/lib/db";
 import "@/models/Category";
 import Product from "@/models/Product";

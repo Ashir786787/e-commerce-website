@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -30,23 +29,34 @@ export default function ProductFilters({
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") ?? "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") ?? "");
 
-  function handleCategoryChange(categorySlug: string) {
+  const selectedCategories = searchParams.getAll("category");
+  const selectedBrands = searchParams.getAll("brand");
+
+  function toggleCategory(slug: string) {
     const params = new URLSearchParams(searchParams.toString());
+    const currentCategories = params.getAll("category");
+    params.delete("category");
+    const updatedCategories = currentCategories.includes(slug)
+      ? currentCategories.filter((category) => category !== slug)
+      : [...currentCategories, slug];
+    updatedCategories.forEach((category) => {
+      params.append("category", category);
+    });
     params.delete("page");
-    params.set("category", categorySlug);
-    router.push(`${pathname}?${params.toString()}`);
+    router.push(params.toString() ? `${pathname}?${params.toString()}` : pathname);
   }
 
-  function handleBrandChange(brand: string) {
+  function toggleBrand(brand: string) {
     const params = new URLSearchParams(searchParams.toString());
+    const currentBrands = params.getAll("brand");
+    params.delete("brand");
+    const updatedBrands = currentBrands.includes(brand)
+      ? currentBrands.filter((item) => item !== brand)
+      : [...currentBrands, brand];
+    updatedBrands.forEach((item) => {
+      params.append("brand", item);
+    });
     params.delete("page");
-
-    if (params.get("brand") === brand) {
-      params.delete("brand");
-    } else {
-      params.set("brand", brand);
-    }
-
     router.push(params.toString() ? `${pathname}?${params.toString()}` : pathname);
   }
 
@@ -87,7 +97,6 @@ export default function ProductFilters({
     setMaxPrice("");
     router.push(pathname);
   }
-
   return (
     <aside className={cn("h-fit rounded-2xl border bg-card p-5 lg:sticky lg:top-24", className)}>
       <h2 className="text-lg font-semibold">Filters</h2>
@@ -109,12 +118,10 @@ export default function ProductFilters({
                 className="flex cursor-pointer items-center gap-3"
               >
                 <input
-                  type="radio"
-                  name="category"
-                  value={category.slug}
-                  checked={searchParams.get("category") === category.slug}
-                  onChange={() => handleCategoryChange(category.slug)}
-                  className="h-4 w-4 accent-primary"
+                  type="checkbox"
+                  checked={selectedCategories.includes(category.slug)}
+                  onChange={() => toggleCategory(category.slug)}
+                  className="h-4 w-4 rounded border-gray-300 accent-primary"
                 />
 
                 <span className="text-sm">{category.name}</span>
@@ -141,12 +148,10 @@ export default function ProductFilters({
                 className="flex cursor-pointer items-center gap-3"
               >
                 <input
-                  type="radio"
-                  name="brand"
-                  value={brand}
-                  checked={searchParams.get("brand") === brand}
-                  onChange={() => handleBrandChange(brand)}
-                  className="h-4 w-4 accent-primary"
+                  type="checkbox"
+                  checked={selectedBrands.includes(brand)}
+                  onChange={() => toggleBrand(brand)}
+                  className="h-4 w-4 rounded border-gray-300 accent-primary"
                 />
 
                 <span className="text-sm">{brand}</span>

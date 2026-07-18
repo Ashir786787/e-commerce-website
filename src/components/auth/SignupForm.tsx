@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
-
 import api from "@/lib/api";
 import FormField from "@/components/form/FormField";
 import PasswordInput from "@/components/form/PasswordInput";
@@ -46,7 +45,6 @@ export default function SignupForm() {
       );
     }
   }
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <FormField

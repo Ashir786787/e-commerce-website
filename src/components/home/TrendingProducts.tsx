@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-
 import { connectDB } from "@/lib/db";
 import "@/models/Category";
 import Product from "@/models/Product";
@@ -18,7 +17,6 @@ export default async function TrendingProducts() {
     .sort({ createdAt: -1, _id: -1 })
     .limit(4)
     .lean();
-
   return (
     <section className="bg-muted/20 py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

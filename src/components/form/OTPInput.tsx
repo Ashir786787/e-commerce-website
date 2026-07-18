@@ -30,7 +30,6 @@ export default function OTPInput({
       inputs.current[index - 1]?.focus();
     }
   }
-
   return (
     <div className="flex justify-center gap-2">
       {Array.from({ length: 6 }).map((_, index) => (

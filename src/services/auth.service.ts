@@ -29,7 +29,6 @@ export async function signupUser(data: { fullName: string; email: string; passwo
   });
 
   await sendVerificationEmail({ fullName: user.fullName, email: user.email, otp: verificationOTP });
-
   return { id: user._id, fullName: user.fullName, email: user.email, isVerified: user.isVerified };
 }
 
@@ -47,7 +46,6 @@ export async function verifyEmail(data: { email: string; otp: string }) {
   user.verificationOTP = undefined;
   user.verificationOTPExpiry = undefined;
   await user.save();
-
   return { id: user._id, fullName: user.fullName, email: user.email, isVerified: user.isVerified };
 }
 
@@ -63,7 +61,6 @@ export async function resendOTP(data: { email: string }) {
   await user.save();
 
   await sendVerificationEmail({ fullName: user.fullName, email: user.email, otp });
-
   return { message: "Verification code sent successfully." };
 }
 
@@ -75,7 +72,6 @@ export async function loginUser(data: { email: string; password: string }) {
 
   const isPasswordCorrect = await comparePassword(validatedData.password, user.password);
   if (!isPasswordCorrect) throw new Error("Invalid email or password.");
-
   return { id: user._id, fullName: user.fullName, email: user.email, role: user.role, isVerified: user.isVerified };
 }
 
@@ -87,7 +83,6 @@ export async function getCurrentUser() {
   const decoded = verifyToken(token) as { userId: string; role: string };
   const user = await User.findById(decoded.userId).select("-password");
   if (!user) throw new Error("User not found.");
-
   return { id: user._id, fullName: user.fullName, email: user.email, role: user.role, isVerified: user.isVerified };
 }
 

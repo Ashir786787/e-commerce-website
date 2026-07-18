@@ -6,27 +6,31 @@ import ProductFilters from "@/components/product/ProductFilters";
 import MobileProductFilters from "@/components/product/MobileProductFilters";
 import ActiveFilters from "@/components/product/ActiveFilters";
 import ProductPagination from "@/components/product/ProductPagination";
+import ProductSearch from "@/components/product/ProductSearch";
 import { connectDB } from "@/lib/db";
 import Category from "@/models/Category";
 import Product from "@/models/Product";
 import { getCategoryName } from "@/lib/utils";
 
+function toArray(value: string | string[] | undefined): string[] {
+  if (!value) return [];
+  return (Array.isArray(value) ? value : [value]).map((v) => v.trim()).filter(Boolean);
+}
+
 interface ProductsPageProps {
-  searchParams: Promise<{
-    search?: string;
-    category?: string;
-    brand?: string;
-    minPrice?: string;
-    maxPrice?: string;
-    featured?: string;
-    trending?: string;
-    page?: string;
-  }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const params = await searchParams;
-  const { search, category, brand, minPrice, maxPrice, featured, trending, page: pageParam } = params;
+  const selectedCategories = toArray(params.category);
+  const selectedBrands = toArray(params.brand);
+  const search = typeof params.search === "string" ? params.search : undefined;
+  const minPrice = typeof params.minPrice === "string" ? params.minPrice : undefined;
+  const maxPrice = typeof params.maxPrice === "string" ? params.maxPrice : undefined;
+  const featured = typeof params.featured === "string" ? params.featured : undefined;
+  const trending = typeof params.trending === "string" ? params.trending : undefined;
+  const pageParam = typeof params.page === "string" ? params.page : undefined;
 
   const page = Math.max(1, Number(pageParam) || 1);
   const limit = 8;
@@ -51,16 +55,18 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     ];
   }
 
-  if (category?.trim()) {
-    const categoryDoc = await Category.findOne({
-      slug: category.trim().toLowerCase(),
+  if (selectedCategories.length > 0) {
+    const categoryDocs = await Category.find({
+      slug: { $in: selectedCategories },
       isActive: true,
     }).select("_id").lean();
-    if (categoryDoc) query.category = categoryDoc._id;
+    if (categoryDocs.length > 0) {
+      query.category = { $in: categoryDocs.map((c) => c._id) };
+    }
   }
 
-  if (brand?.trim()) {
-    query.brand = { $regex: `^${brand.trim()}$`, $options: "i" };
+  if (selectedBrands.length > 0) {
+    query.brand = { $in: selectedBrands };
   }
 
   if (minPrice || maxPrice) {
@@ -112,14 +118,17 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
         <section className="py-14">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <ProductSearch />
+
             <MobileProductFilters categories={filterCategories} brands={sortedBrands} />
 
             <div className="mt-6 grid items-start gap-8 lg:grid-cols-[260px_minmax(0,1fr)]">
-              <ProductFilters
-                categories={filterCategories}
-                brands={sortedBrands}
-                className="hidden lg:block"
-              />
+              <div className="hidden lg:block">
+                <ProductFilters
+                  categories={filterCategories}
+                  brands={sortedBrands}
+                />
+              </div>
 
               <div className="min-w-0">
                 <ActiveFilters />

@@ -4,7 +4,6 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
-
 import api from "@/lib/api";
 import AuthLayout from "@/components/layout/AuthLayout";
 import AuthCard from "@/components/auth/AuthCard";
