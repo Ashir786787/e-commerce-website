@@ -44,6 +44,7 @@ interface GetProductsOptions {
   trending?: boolean;
   page?: number;
   limit?: number;
+  sort?: string;
 }
 
 export async function getProducts({
@@ -56,6 +57,7 @@ export async function getProducts({
   trending,
   page = 1,
   limit = 12,
+  sort = "newest",
 }: GetProductsOptions) {
   const query: Record<string, unknown> = { isActive: true };
 
@@ -103,9 +105,53 @@ export async function getProducts({
   const totalProducts = await Product.countDocuments(query);
   const totalPages = Math.max(1, Math.ceil(totalProducts / limit));
 
+  let sortOptions: Record<string, 1 | -1> = {
+    createdAt: -1,
+  };
+
+  switch (sort) {
+    case "price-asc":
+      sortOptions = {
+        price: 1,
+      };
+      break;
+
+    case "price-desc":
+      sortOptions = {
+        price: -1,
+      };
+      break;
+
+    case "name-asc":
+      sortOptions = {
+        name: 1,
+      };
+      break;
+
+    case "name-desc":
+      sortOptions = {
+        name: -1,
+      };
+      break;
+
+    case "featured":
+      sortOptions = {
+        isFeatured: -1,
+        createdAt: -1,
+      };
+      break;
+
+    case "newest":
+    default:
+      sortOptions = {
+        createdAt: -1,
+      };
+      break;
+  }
+
   const products = await Product.find(query)
     .populate("category", "name slug image")
-    .sort({ createdAt: -1 })
+    .sort(sortOptions)
     .skip(skip)
     .limit(limit)
     .lean();

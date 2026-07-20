@@ -83,7 +83,25 @@ export async function getProductsController(request: Request) {
       return errorResponse("Page and limit must be valid positive integers. Maximum limit is 100.", 400);
     }
 
-    const result = await getProducts({ search, categories, brands, minPrice, maxPrice, featured, trending, page, limit });
+    const sort = searchParams.get("sort") || "newest";
+
+    const allowedSortValues = [
+      "newest",
+      "featured",
+      "price-asc",
+      "price-desc",
+      "name-asc",
+      "name-desc",
+    ];
+
+    if (!allowedSortValues.includes(sort)) {
+      return errorResponse(
+        "Invalid sort option.",
+        400
+      );
+    }
+
+    const result = await getProducts({ search, categories, brands, minPrice, maxPrice, featured, trending, page, limit, sort });
     return successResponse("Products fetched successfully.", result, 200);
   } catch (error) {
     console.error(error);

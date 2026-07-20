@@ -7,6 +7,7 @@ import MobileProductFilters from "@/components/product/MobileProductFilters";
 import ActiveFilters from "@/components/product/ActiveFilters";
 import ProductPagination from "@/components/product/ProductPagination";
 import ProductSearch from "@/components/product/ProductSearch";
+import ProductSort from "@/components/product/ProductSort";
 import { connectDB } from "@/lib/db";
 import Category from "@/models/Category";
 import Product from "@/models/Product";
@@ -119,6 +120,22 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         <section className="py-14">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <ProductSearch />
+
+            <div className="mb-6 flex flex-col gap-4 border-b pb-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">
+                  Showing {totalProducts} Product{totalProducts !== 1 ? "s" : ""}
+                </h2>
+
+                {search && (
+                  <p className="text-sm text-muted-foreground">
+                    Results for "<span className="font-medium">{search}</span>"
+                  </p>
+                )}
+              </div>
+
+              <ProductSort />
+            </div>
 
             <MobileProductFilters categories={filterCategories} brands={sortedBrands} />
 
