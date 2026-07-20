@@ -16,9 +16,8 @@ export async function createProductController(request: Request) {
     const product = await createProduct(body);
     return successResponse("Product created", product, 201);
   } catch (error) {
-    console.error(error);
     return errorResponse(
-      error instanceof Error ? error.message : "Could not create product.",
+      error instanceof Error ? error.message : "Failed to create product.",
       400
     );
   }
@@ -104,9 +103,8 @@ export async function getProductsController(request: Request) {
     const result = await getProducts({ search, categories, brands, minPrice, maxPrice, featured, trending, page, limit, sort });
     return successResponse("Products fetched successfully.", result, 200);
   } catch (error) {
-    console.error(error);
     return errorResponse(
-      error instanceof Error ? error.message : "Something went wrong.",
+      error instanceof Error ? error.message : "Failed to fetch products.",
       500
     );
   }
@@ -118,9 +116,8 @@ export async function getProductByIdController(id: string) {
     const product = await getProductById(id);
     return successResponse("Product loaded", product, 200);
   } catch (error) {
-    console.error(error);
     return errorResponse(
-      error instanceof Error ? error.message : "Unable to fetch product.",
+      error instanceof Error ? error.message : "Product not found.",
       404
     );
   }
@@ -133,9 +130,8 @@ export async function updateProductController(request: Request, id: string) {
     const product = await updateProduct(id, body);
     return successResponse("Product updated", product, 200);
   } catch (error) {
-    console.error(error);
     return errorResponse(
-      error instanceof Error ? error.message : "Could not update product.",
+      error instanceof Error ? error.message : "Failed to update product.",
       400
     );
   }
@@ -147,9 +143,8 @@ export async function deleteProductController(id: string) {
     const product = await deleteProduct(id);
     return successResponse("Product deleted", product, 200);
   } catch (error) {
-    console.error(error);
     return errorResponse(
-      error instanceof Error ? error.message : "Unable to delete product.",
+      error instanceof Error ? error.message : "Failed to delete product.",
       400
     );
   }
@@ -161,7 +156,6 @@ export async function getProductBySlugController(slug: string) {
     const product = await getProductBySlug(slug);
     return successResponse("Product fetched", product, 200);
   } catch (error) {
-    console.error(error);
     return errorResponse(
       error instanceof Error ? error.message : "Product not found.",
       404
