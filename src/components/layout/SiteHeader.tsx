@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/context/CartContext";
 
 const navigation = [
   { label: "Home", href: "/" },
@@ -45,6 +46,7 @@ export default function SiteHeader() {
   const [isUserLoading, setIsUserLoading] = useState(true);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { totalItems } = useCart();
 
   useEffect(() => {
     async function loadCurrentUser() {
@@ -63,8 +65,7 @@ export default function SiteHeader() {
         const result: MeResponse = await response.json();
 
         setUser(result.data);
-      } catch (error) {
-        console.error("Unable to load current user:", error);
+      } catch {
         setUser(null);
       } finally {
         setIsUserLoading(false);
@@ -95,8 +96,8 @@ export default function SiteHeader() {
       setUser(null);
       setIsAccountMenuOpen(false);
       window.location.href = "/";
-    } catch (error) {
-      console.error("Unable to log out:", error);
+    } catch {
+      // logout failed silently
     } finally {
       setIsLoggingOut(false);
     }
@@ -126,15 +127,20 @@ export default function SiteHeader() {
             </Link>
             <Link
               href="/cart"
-              aria-label="Cart"
-              className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
+              className="relative flex items-center gap-2 rounded-lg p-2 transition hover:bg-muted"
+              aria-label={`Shopping cart with ${totalItems} items`}
             >
-              <span className="relative">
-                <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-                  0
-                </span>
+              <ShoppingCart className="h-5 w-5" />
+
+              <span className="hidden text-sm font-medium sm:inline">
+                Cart
               </span>
+
+              {totalItems > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground">
+                  {totalItems > 99 ? "99+" : totalItems}
+                </span>
+              )}
             </Link>
             {user ? (
               <div className="relative ml-2">
@@ -303,9 +309,16 @@ export default function SiteHeader() {
             <Link
               href="/cart"
               onClick={() => setIsMenuOpen(false)}
-              className="flex flex-col items-center gap-2 rounded-lg border p-3 text-xs font-medium"
+              className="relative flex flex-col items-center gap-2 rounded-lg border p-3 text-xs font-medium"
             >
-              <ShoppingCart className="h-5 w-5" />
+              <span className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                    {totalItems > 99 ? "99+" : totalItems}
+                  </span>
+                )}
+              </span>
               Cart
             </Link>
             {user ? (

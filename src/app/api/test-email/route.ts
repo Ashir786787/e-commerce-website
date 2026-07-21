@@ -14,8 +14,6 @@ export async function GET() {
 
     return successResponse("Test email sent successfully.");
   } catch (error) {
-    console.error(error);
-
     return errorResponse(
       error instanceof Error ? error.message : "Failed to send email.",
       500

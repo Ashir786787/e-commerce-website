@@ -18,14 +18,12 @@ const CartItemSchema = new Schema<ICartItem>(
       ref: "Product",
       required: true,
     },
-
     quantity: {
       type: Number,
       required: true,
       default: 1,
       min: 1,
     },
-
     price: {
       type: Number,
       required: true,
@@ -44,7 +42,6 @@ const CartSchema = new Schema<ICart>(
       required: true,
       unique: true,
     },
-
     items: {
       type: [CartItemSchema],
       default: [],

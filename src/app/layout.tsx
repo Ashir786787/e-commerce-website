@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
+
+import { CartProvider } from "@/context/CartContext";
+import { WishlistProvider } from "@/context/WishlistContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,8 +34,18 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-dvh flex flex-col">
-        {children}
-        <Toaster richColors position="top-right" />
+        <CartProvider>
+          <WishlistProvider>
+            {children}
+
+            <Toaster
+              position="top-right"
+              richColors
+              closeButton
+              duration={3000}
+            />
+          </WishlistProvider>
+        </CartProvider>
       </body>
     </html>
   );

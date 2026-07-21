@@ -3,7 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingCart, Star } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/context/CartContext";
 
 interface ProductCardProps {
   product: {
@@ -25,6 +27,41 @@ function formatPrice(price: number) {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const { refreshCart } = useCart();
+
+  const handleAddToCart = async (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    try {
+      const response = await fetch("/api/cart/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          productId: product.id,
+          quantity: 1,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Failed to add product.");
+      }
+
+      await refreshCart();
+
+      toast.success("Product added to cart.");
+    } catch (error) {
+      toast.error("Failed to add product.");
+    }
+  };
+
   return (
     <article className="group overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
       <div className="relative aspect-square overflow-hidden bg-muted">
@@ -87,7 +124,13 @@ export default function ProductCard({ product }: ProductCardProps) {
               </p>
             )}
           </div>
-          <Button size="icon" className="rounded-full">
+          <Button
+            size="icon"
+            className="rounded-full"
+            type="button"
+            onClick={handleAddToCart}
+            aria-label={`Add ${product.name} to cart`}
+          >
             <ShoppingCart className="h-4 w-4" />
           </Button>
         </div>

@@ -5,12 +5,12 @@ import {
   Heart,
   PackageCheck,
   ShieldCheck,
-  ShoppingCart,
   Star,
   Truck,
 } from "lucide-react";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
+import AddToCartButton from "@/components/product/AddToCartButton";
 import { Button } from "@/components/ui/button";
 import { connectDB } from "@/lib/db";
 import "@/models/Category";
@@ -141,14 +141,10 @@ export default async function ProductDetailsPage({
                 </p>
               </div>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button
-                  size="lg"
-                  className="h-12 flex-1"
+                <AddToCartButton
+                  productId={product._id.toString()}
                   disabled={product.stock <= 0}
-                >
-                  <ShoppingCart className="mr-2 h-5 w-5" />
-                  Add to Cart
-                </Button>
+                />
                 <Button
                   size="lg"
                   variant="outline"
