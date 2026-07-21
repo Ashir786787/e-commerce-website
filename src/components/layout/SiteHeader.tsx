@@ -16,6 +16,7 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 
 const navigation = [
   { label: "Home", href: "/" },
@@ -47,6 +48,7 @@ export default function SiteHeader() {
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { totalItems } = useCart();
+  const { totalItems: wishlistTotalItems } = useWishlist();
 
   useEffect(() => {
     async function loadCurrentUser() {
@@ -97,7 +99,6 @@ export default function SiteHeader() {
       setIsAccountMenuOpen(false);
       window.location.href = "/";
     } catch {
-      // logout failed silently
     } finally {
       setIsLoggingOut(false);
     }
@@ -115,14 +116,16 @@ export default function SiteHeader() {
           <div className="ml-auto hidden items-center gap-1 md:flex">
             <Link
               href="/wishlist"
-              aria-label="Wishlist"
+              aria-label={`Wishlist with ${wishlistTotalItems} items`}
               className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
             >
               <span className="relative">
                 <Heart className="h-5 w-5" />
-                <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-                  0
-                </span>
+                {wishlistTotalItems > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                    {wishlistTotalItems > 99 ? "99+" : wishlistTotalItems}
+                  </span>
+                )}
               </span>
             </Link>
             <Link
@@ -301,9 +304,16 @@ export default function SiteHeader() {
             <Link
               href="/wishlist"
               onClick={() => setIsMenuOpen(false)}
-              className="flex flex-col items-center gap-2 rounded-lg border p-3 text-xs font-medium"
+              className="relative flex flex-col items-center gap-2 rounded-lg border p-3 text-xs font-medium"
             >
-              <Heart className="h-5 w-5" />
+              <span className="relative">
+                <Heart className="h-5 w-5" />
+                {wishlistTotalItems > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                    {wishlistTotalItems > 99 ? "99+" : wishlistTotalItems}
+                  </span>
+                )}
+              </span>
               Wishlist
             </Link>
             <Link

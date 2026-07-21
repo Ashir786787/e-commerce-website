@@ -73,7 +73,8 @@ export async function forgotPasswordController(request: Request) {
     await forgotPassword(body);
     return successResponse("Password reset email sent", null, 200);
   } catch (error) {
-    return errorResponse(error instanceof Error ? error.message : "Could not send reset email.", 400);
+    const msg = error instanceof Error ? error.message : "Could not send reset email.";
+    return errorResponse(msg, 400);
   }
 }
 
@@ -94,8 +95,8 @@ export async function meController() {
     const user = await getCurrentUser();
     return successResponse("User loaded", user, 200);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load user.";
-    return errorResponse(message, message === "Not authenticated." ? 401 : 500);
+    const msg = error instanceof Error ? error.message : "Failed to load user.";
+    return errorResponse(msg, msg === "Not authenticated." ? 401 : 500);
   }
 }
 
@@ -103,7 +104,7 @@ export async function logoutController() {
   try {
     await logoutUser();
     return successResponse("Logged out", null, 200);
-  } catch (error) {
-    return errorResponse(error instanceof Error ? error.message : "Logout failed.", 400);
+  } catch {
+    return errorResponse("Logout failed.", 400);
   }
 }

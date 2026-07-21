@@ -51,6 +51,7 @@ export default function CartItem({
               src={image}
               alt={item.product.name}
               fill
+              sizes="112px"
               className="object-cover"
             />
           ) : (

@@ -180,26 +180,28 @@ export default function CartPage() {
           {!isLoading && !error && cart && cart.items.length > 0 && (
             <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
               <div className="space-y-5">
-                {cart.items.map((item) => (
-                  <CartItem
-                    key={item.product._id}
-                    item={item}
-                    loading={updatingId === item.product._id}
-                    onIncrease={() =>
-                      updateQuantity(
-                        item.product._id,
-                        item.quantity + 1
-                      )
-                    }
-                    onDecrease={() =>
-                      updateQuantity(
-                        item.product._id,
-                        item.quantity - 1
-                      )
-                    }
-                    onRemove={() => removeItem(item.product._id)}
-                  />
-                ))}
+                {cart.items
+                  .filter((item) => item.product != null)
+                  .map((item) => (
+                    <CartItem
+                      key={item.product._id}
+                      item={item}
+                      loading={updatingId === item.product._id}
+                      onIncrease={() =>
+                        updateQuantity(
+                          item.product._id,
+                          item.quantity + 1
+                        )
+                      }
+                      onDecrease={() =>
+                        updateQuantity(
+                          item.product._id,
+                          item.quantity - 1
+                        )
+                      }
+                      onRemove={() => removeItem(item.product._id)}
+                    />
+                  ))}
               </div>
 
               {cart.summary && <CartSummary summary={cart.summary} />}

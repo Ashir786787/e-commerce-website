@@ -13,7 +13,7 @@ interface Product {
   name: string;
   price: number;
   discountPrice?: number;
-  images: string[];
+  images: { url: string; publicId?: string }[];
 }
 
 interface Wishlist {
@@ -50,7 +50,6 @@ export function WishlistProvider({
         setWishlist(data.wishlist);
       }
     } catch {
-      // silently ignore — user doesn't need to see this
     }
   };
 

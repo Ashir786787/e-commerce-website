@@ -33,7 +33,7 @@ export async function addToCart({
   }
 
   if (product.stock < quantity) {
-    throw new Error("Requested quantity exceeds available stock.");
+    throw new Error("Not enough stock available.");
   }
 
   let cart = await Cart.findOne({ user: userId });
@@ -58,7 +58,7 @@ export async function addToCart({
       const updatedQuantity = existingItem.quantity + quantity;
 
       if (updatedQuantity > product.stock) {
-        throw new Error("Requested quantity exceeds available stock.");
+        throw new Error("Adding that many would exceed available stock.");
       }
 
       existingItem.quantity = updatedQuantity;
@@ -79,7 +79,15 @@ export async function addToCart({
       path: "items.product",
       select: "name slug price images stock brand",
     })
-    .lean();
+    .lean()
+    .then((cart) => {
+      if (cart) {
+        cart.items = cart.items.filter(
+          (item) => item.product != null
+        );
+      }
+      return cart;
+    });
 }
 
 export async function clearCart(userId: string) {
@@ -90,7 +98,7 @@ export async function clearCart(userId: string) {
   const cart = await Cart.findOne({ user: userId });
 
   if (!cart) {
-    throw new Error("Cart not found.");
+    throw new Error("No active cart found.");
   }
 
   cart.items = [];
@@ -136,13 +144,19 @@ export async function removeCartItem({
       path: "items.product",
       select: "name slug price images stock brand",
     })
-    .lean();
+    .lean()
+    .then((cart) => {
+      if (cart) {
+        cart.items = cart.items.filter(
+          (item) => item.product != null
+        );
+      }
+      return cart;
+    });
 }
 
 export async function getCart(userId: string) {
-  const cart = await Cart.findOne({
-    user: userId,
-  })
+  const cart = await Cart.findOne({ user: userId })
     .populate({
       path: "items.product",
       select: "name slug price images stock brand",
@@ -154,6 +168,10 @@ export async function getCart(userId: string) {
       items: [],
     };
   }
+
+  cart.items = cart.items.filter(
+    (item) => item.product != null
+  );
 
   return cart;
 }
@@ -188,7 +206,7 @@ export async function updateCartItem({
   }
 
   if (quantity > product.stock) {
-    throw new Error("Requested quantity exceeds available stock.");
+    throw new Error("Not enough stock for that quantity.");
   }
 
   const cart = await Cart.findOne({ user: userId });
@@ -202,7 +220,7 @@ export async function updateCartItem({
   );
 
   if (!item) {
-    throw new Error("Product is not present in the cart.");
+    throw new Error("That product is not in your cart.");
   }
 
   item.quantity = quantity;
@@ -215,5 +233,13 @@ export async function updateCartItem({
       path: "items.product",
       select: "name slug price images stock brand",
     })
-    .lean();
+    .lean()
+    .then((cart) => {
+      if (cart) {
+        cart.items = cart.items.filter(
+          (item) => item.product != null
+        );
+      }
+      return cart;
+    });
 }

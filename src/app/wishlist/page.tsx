@@ -13,8 +13,8 @@ interface WishlistProduct {
   name: string;
   slug?: string;
   price: number;
-  discountPrice?: number;
-  images: string[];
+  originalPrice?: number;
+  images: { url: string; publicId?: string }[];
   brand?: string;
   stock?: number;
 }
@@ -62,7 +62,7 @@ export default function WishlistPage() {
 
   async function moveToCart(productId: string) {
     try {
-      const response = await fetch("/api/cart/add", {
+      const cartResponse = await fetch("/api/cart/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,22 +74,36 @@ export default function WishlistPage() {
         }),
       });
 
-      const data = await response.json();
+      const cartData = await cartResponse.json();
 
-      if (!response.ok || !data.success) {
+      if (!cartResponse.ok || !cartData.success) {
         throw new Error(
-          data.message || "Failed to add product to cart."
+          cartData.message || "Failed to add product to cart."
         );
       }
 
-      await fetch("/api/wishlist/remove", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ productId }),
-      });
+      const wishlistResponse = await fetch(
+        "/api/wishlist/remove",
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            productId,
+          }),
+        }
+      );
+
+      const wishlistData = await wishlistResponse.json();
+
+      if (!wishlistResponse.ok || !wishlistData.success) {
+        throw new Error(
+          wishlistData.message ||
+            "Product was added to cart, but could not be removed from wishlist."
+        );
+      }
 
       await Promise.all([
         refreshWishlist(),
@@ -169,8 +183,9 @@ export default function WishlistPage() {
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((product) => {
-            const finalPrice =
-              product.discountPrice ?? product.price;
+            const hasDiscount =
+              product.originalPrice &&
+              product.originalPrice > product.price;
 
             return (
               <article
@@ -188,7 +203,7 @@ export default function WishlistPage() {
                   <div className="relative aspect-square bg-slate-100">
                     <Image
                       src={
-                        product.images?.[0] ||
+                        product.images?.[0]?.url ||
                         "/products/placeholder.jpg"
                       }
                       alt={product.name}
@@ -220,17 +235,14 @@ export default function WishlistPage() {
 
                   <div className="mt-3 flex items-center gap-2">
                     <span className="text-xl font-bold text-slate-950">
-                      Rs. {finalPrice.toLocaleString()}
+                      Rs. {product.price.toLocaleString("en-PK")}
                     </span>
 
-                    {product.discountPrice &&
-                      product.discountPrice <
-                        product.price && (
-                        <span className="text-sm text-slate-400 line-through">
-                          Rs.{" "}
-                          {product.price.toLocaleString()}
-                        </span>
-                      )}
+                    {hasDiscount && (
+                      <span className="text-sm text-slate-400 line-through">
+                        Rs. {product.originalPrice?.toLocaleString("en-PK")}
+                      </span>
+                    )}
                   </div>
 
                   <p

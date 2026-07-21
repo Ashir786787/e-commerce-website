@@ -33,7 +33,7 @@ export async function addToCartController(request: NextRequest) {
     });
 
     return successResponse(
-      "Product added to cart successfully.",
+      "Item added to your cart.",
       cart
     );
   } catch (error) {
@@ -55,7 +55,7 @@ export async function clearCartController() {
     const cart = await clearCart(user.id.toString());
 
     return successResponse(
-      "Cart cleared successfully.",
+      "Cart cleared.",
       cart
     );
   } catch (error) {
@@ -88,7 +88,7 @@ export async function removeCartItemController(request: NextRequest) {
     });
 
     return successResponse(
-      "Product removed from cart successfully.",
+      "Item removed from cart.",
       cart
     );
   } catch (error) {
@@ -125,7 +125,7 @@ export async function updateCartItemController(request: NextRequest) {
     });
 
     return successResponse(
-      "Cart quantity updated successfully.",
+      "Cart quantity updated.",
       cart
     );
   } catch (error) {
@@ -147,7 +147,7 @@ export async function getCartController() {
     const cart = await getCart(user.id.toString());
 
     return successResponse(
-      "Cart fetched successfully.",
+      "Cart loaded.",
       cart
     );
   } catch (error) {

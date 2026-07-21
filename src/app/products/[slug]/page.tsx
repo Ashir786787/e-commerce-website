@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  Heart,
   PackageCheck,
   ShieldCheck,
   Star,
@@ -10,8 +9,7 @@ import {
 } from "lucide-react";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
-import AddToCartButton from "@/components/product/AddToCartButton";
-import { Button } from "@/components/ui/button";
+import ProductActions from "@/components/product/ProductActions";
 import { connectDB } from "@/lib/db";
 import "@/models/Category";
 import Product from "@/models/Product";
@@ -140,20 +138,10 @@ export default async function ProductDetailsPage({
                     : "This product is currently unavailable."}
                 </p>
               </div>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <AddToCartButton
-                  productId={product._id.toString()}
-                  disabled={product.stock <= 0}
-                />
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-12 flex-1"
-                >
-                  <Heart className="mr-2 h-5 w-5" />
-                  Add to Wishlist
-                </Button>
-              </div>
+              <ProductActions
+                productId={product._id.toString()}
+                stock={product.stock}
+              />
               <div className="mt-8 grid gap-4 border-t pt-8 sm:grid-cols-3">
                 <div className="flex items-center gap-3">
                   <Truck className="h-5 w-5 text-primary" />

@@ -70,7 +70,7 @@ export async function removeFromWishlist(userId: string, productId: string) {
   const wishlist = await Wishlist.findOne({ user: userId });
 
   if (!wishlist) {
-    throw new Error("Wishlist not found.");
+    throw new Error("No wishlist found for this user.");
   }
 
   wishlist.products = wishlist.products.filter(
@@ -95,7 +95,7 @@ export async function clearWishlist(userId: string) {
   const wishlist = await Wishlist.findOne({ user: userId });
 
   if (!wishlist) {
-    throw new Error("Wishlist not found.");
+    throw new Error("Nothing to clear — wishlist is empty.");
   }
 
   wishlist.products = [];
