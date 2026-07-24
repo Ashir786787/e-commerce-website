@@ -5,7 +5,6 @@ export function proxy(request: NextRequest) {
 
   const protectedRoutes = [
     "/profile",
-    "/cart",
     "/checkout",
     "/admin",
   ];
@@ -21,5 +20,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/profile/:path*", "/cart/:path*", "/checkout/:path*", "/admin/:path*"],
+  matcher: ["/profile/:path*", "/checkout/:path*", "/admin/:path*"],
 };
