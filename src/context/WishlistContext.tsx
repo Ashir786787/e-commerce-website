@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -38,7 +39,7 @@ export function WishlistProvider({
 }) {
   const [wishlist, setWishlist] = useState<Wishlist | null>(null);
 
-  const refreshWishlist = async () => {
+  const refreshWishlist = useCallback(async () => {
     try {
       const response = await fetch("/api/wishlist/get", {
         credentials: "include",
@@ -51,10 +52,23 @@ export function WishlistProvider({
       }
     } catch {
     }
-  };
+  }, []);
 
   useEffect(() => {
-    refreshWishlist();
+    let cancelled = false;
+
+    fetch("/api/wishlist/get", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled && data.success) {
+          setWishlist(data.wishlist);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const isWishlisted = (productId: string) => {

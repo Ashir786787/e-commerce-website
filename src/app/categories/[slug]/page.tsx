@@ -8,6 +8,8 @@ import Category from "@/models/Category";
 import Product from "@/models/Product";
 import { getCategoryName } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 interface CategoryPageProps {
   params: Promise<{
     slug: string;
@@ -102,7 +104,7 @@ export default async function CategoryPage({
                         reviews: product.reviewCount,
                         image:
                           product.images[0]?.url ||
-                          "/products/electronics/headphones.jpg",
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb7tmMiL9Bn2X8Iz5teTECetBoux8iSfOPd__XhLC0lw&s=10",
                         discount,
                       }}
                     />

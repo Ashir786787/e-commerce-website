@@ -13,6 +13,8 @@ import ProductActions from "@/components/product/ProductActions";
 import { connectDB } from "@/lib/db";
 import "@/models/Category";
 import Product from "@/models/Product";
+
+export const dynamic = "force-dynamic";
 import { getCategoryName, getCategorySlug } from "@/lib/utils";
 
 interface ProductDetailsPageProps {
@@ -82,7 +84,7 @@ export default async function ProductDetailsPage({
           <section className="grid gap-12 lg:grid-cols-2">
             <div className="relative aspect-square overflow-hidden rounded-3xl border bg-muted">
               <Image
-                src={product.images[0]?.url || "/products/electronics/headphones.jpg"}
+                src={product.images[0]?.url || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb7tmMiL9Bn2X8Iz5teTECetBoux8iSfOPd__XhLC0lw&s=10"}
                 alt={product.name}
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"

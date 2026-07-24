@@ -1,17 +1,13 @@
-import SiteHeader from "@/components/layout/SiteHeader";
-import SiteFooter from "@/components/layout/SiteFooter";
-import ComingSoon from "@/components/shared/ComingSoon";
-
 export default function OrdersPage() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
+    <main className="container mx-auto py-10">
+      <h1 className="text-3xl font-bold">
+        My Orders
+      </h1>
 
-      <div className="flex-1">
-        <ComingSoon title="Orders" />
-      </div>
-
-      <SiteFooter />
-    </div>
+      <p className="mt-4 text-muted-foreground">
+        Orders page coming next...
+      </p>
+    </main>
   );
 }

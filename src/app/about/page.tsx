@@ -1,6 +1,6 @@
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
-import ComingSoon from "@/components/shared/ComingSoon";
+import AboutContent from "@/components/about/AboutContent";
 
 export default function AboutPage() {
   return (
@@ -8,7 +8,7 @@ export default function AboutPage() {
       <SiteHeader />
 
       <div className="flex-1">
-        <ComingSoon title="About NovaCart" />
+        <AboutContent />
       </div>
 
       <SiteFooter />

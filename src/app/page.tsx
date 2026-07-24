@@ -4,6 +4,8 @@ import HeroSection from "@/components/home/HeroSection";
 import FeaturedCategories from "@/components/home/FeaturedCategories";
 import TrendingProducts from "@/components/home/TrendingProducts";
 
+export const dynamic = "force-dynamic";
+
 export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col">

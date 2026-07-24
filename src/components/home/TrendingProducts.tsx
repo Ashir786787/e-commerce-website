@@ -67,7 +67,7 @@ export default async function TrendingProducts() {
                   reviews: product.reviewCount,
                   image:
                     product.images[0]?.url ||
-                    "/products/electronics/headphones.jpg",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb7tmMiL9Bn2X8Iz5teTECetBoux8iSfOPd__XhLC0lw&s=10",
                   discount:
                     product.originalPrice &&
                     product.originalPrice > product.price

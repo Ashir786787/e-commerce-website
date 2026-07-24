@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 
 import CartItem from "@/components/cart/CartItem";
@@ -146,8 +147,42 @@ export default function CartPage() {
   };
 
   useEffect(() => {
-    void fetchCart();
-  }, [fetchCart]);
+    let cancelled = false;
+
+    fetch("/api/cart", {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store",
+    })
+      .then((res) => res.json())
+      .then((result: ApiResponse) => {
+        if (cancelled) return;
+
+        if (!result.success) {
+          throw new Error(result.message || "Failed to load cart.");
+        }
+
+        setCart(result.data);
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Something went wrong while loading your cart."
+        );
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-muted/20">
@@ -157,11 +192,9 @@ export default function CartPage() {
         <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="mb-8">
             <p className="text-sm font-medium text-primary">Your basket</p>
-
             <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
               Shopping Cart
             </h1>
-
             <p className="mt-2 text-muted-foreground">
               Review your products before proceeding to checkout.
             </p>
@@ -242,9 +275,7 @@ function CartErrorState({
   return (
     <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-8 text-center">
       <h2 className="text-xl font-semibold">Unable to load your cart</h2>
-
       <p className="mt-2 text-sm text-muted-foreground">{message}</p>
-
       <button
         type="button"
         onClick={() => void onRetry()}
@@ -262,19 +293,16 @@ function EmptyCart() {
       <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-muted text-3xl">
         🛒
       </div>
-
       <h2 className="mt-6 text-2xl font-semibold">Your cart is empty</h2>
-
       <p className="mx-auto mt-2 max-w-md text-muted-foreground">
         Browse our products and add something you like to your shopping cart.
       </p>
-
-      <a
+      <Link
         href="/products"
         className="mt-6 inline-flex rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
       >
         Continue Shopping
-      </a>
+      </Link>
     </div>
   );
 }

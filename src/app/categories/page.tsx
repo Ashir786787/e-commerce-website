@@ -5,6 +5,8 @@ import SiteFooter from "@/components/layout/SiteFooter";
 import { connectDB } from "@/lib/db";
 import Category from "@/models/Category";
 
+export const dynamic = "force-dynamic";
+
 export default async function CategoriesPage() {
   await connectDB();
 
@@ -57,7 +59,7 @@ export default async function CategoriesPage() {
                       <Image
                         src={
                           category.image ||
-                          "/products/electronics/headphones.jpg"
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb7tmMiL9Bn2X8Iz5teTECetBoux8iSfOPd__XhLC0lw&s=10"
                         }
                         alt={category.name}
                         fill

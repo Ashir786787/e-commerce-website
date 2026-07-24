@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 type Summary = {
   subtotal: number;
   deliveryFee: number;
@@ -60,11 +62,12 @@ export default function CartSummary({
           </span>
         </div>
 
-        <button
-          className="mt-6 w-full rounded-xl bg-primary py-3 font-semibold text-primary-foreground transition hover:opacity-90"
+        <Link
+          href="/checkout"
+          className="mt-6 block w-full rounded-xl bg-primary py-3 text-center font-semibold text-primary-foreground transition hover:opacity-90"
         >
           Proceed to Checkout
-        </button>
+        </Link>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
+import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -34,18 +35,20 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-dvh flex flex-col">
-        <CartProvider>
-          <WishlistProvider>
-            {children}
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              {children}
 
-            <Toaster
-              position="top-right"
-              richColors
-              closeButton
-              duration={3000}
-            />
-          </WishlistProvider>
-        </CartProvider>
+              <Toaster
+                position="top-right"
+                richColors
+                closeButton
+                duration={3000}
+              />
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

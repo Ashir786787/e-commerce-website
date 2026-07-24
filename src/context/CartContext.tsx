@@ -53,8 +53,24 @@ export function CartProvider({
   }, []);
 
   useEffect(() => {
-    refreshCart();
-  }, [refreshCart]);
+    let cancelled = false;
+
+    fetch("/api/cart", { credentials: "include" })
+      .then((res) => res.json())
+      .then((result: CartResponse) => {
+        if (cancelled) return;
+        setTotalItems(
+          result.success ? result.data.summary.totalItems : 0
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setTotalItems(0);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <CartContext.Provider

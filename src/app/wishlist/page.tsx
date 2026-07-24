@@ -127,20 +127,16 @@ export default function WishlistPage() {
           <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-violet-50">
             <Heart className="h-9 w-9 text-violet-600" />
           </div>
-
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-violet-600">
             Your Wishlist
           </p>
-
           <h1 className="text-4xl font-bold tracking-tight text-slate-950">
             Your wishlist is empty
           </h1>
-
           <p className="mt-4 max-w-md text-slate-600">
             Save products you love and return to them whenever
             you are ready.
           </p>
-
           <Link
             href="/products"
             className="mt-8 rounded-xl bg-violet-600 px-6 py-3 font-medium text-white transition hover:bg-violet-700"
@@ -159,19 +155,16 @@ export default function WishlistPage() {
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-violet-600">
             Saved Products
           </p>
-
           <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
                 My Wishlist
               </h1>
-
               <p className="mt-2 text-slate-600">
                 {totalItems} saved{" "}
                 {totalItems === 1 ? "product" : "products"}
               </p>
             </div>
-
             <Link
               href="/products"
               className="text-sm font-semibold text-violet-600 hover:text-violet-700"
@@ -204,7 +197,7 @@ export default function WishlistPage() {
                     <Image
                       src={
                         product.images?.[0]?.url ||
-                        "/products/placeholder.jpg"
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb7tmMiL9Bn2X8Iz5teTECetBoux8iSfOPd__XhLC0lw&s=10"
                       }
                       alt={product.name}
                       fill
@@ -213,14 +206,12 @@ export default function WishlistPage() {
                     />
                   </div>
                 </Link>
-
                 <div className="p-5">
                   {product.brand && (
                     <p className="text-xs font-semibold uppercase tracking-wider text-violet-600">
                       {product.brand}
                     </p>
                   )}
-
                   <Link
                     href={
                       product.slug
@@ -232,7 +223,6 @@ export default function WishlistPage() {
                       {product.name}
                     </h2>
                   </Link>
-
                   <div className="mt-3 flex items-center gap-2">
                     <span className="text-xl font-bold text-slate-950">
                       Rs. {product.price.toLocaleString("en-PK")}
@@ -244,7 +234,6 @@ export default function WishlistPage() {
                       </span>
                     )}
                   </div>
-
                   <p
                     className={`mt-2 text-sm font-medium ${
                       (product.stock ?? 0) > 0
@@ -256,7 +245,6 @@ export default function WishlistPage() {
                       ? "In stock"
                       : "Out of stock"}
                   </p>
-
                   <div className="mt-5 flex gap-2">
                     <button
                       type="button"
@@ -269,7 +257,6 @@ export default function WishlistPage() {
                       <ShoppingCart className="h-4 w-4" />
                       Move to Cart
                     </button>
-
                     <button
                       type="button"
                       onClick={() =>

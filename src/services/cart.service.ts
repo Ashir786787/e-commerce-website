@@ -3,6 +3,56 @@ import { Types } from "mongoose";
 import Cart from "@/models/Cart";
 import Product from "@/models/Product";
 
+type CartItemForSummary = {
+  quantity: number;
+  price: number;
+};
+
+function calculateCartSummary(items: CartItemForSummary[]) {
+  const subtotal = items.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
+
+  const totalItems = items.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
+
+  const deliveryFee =
+    subtotal === 0 || subtotal >= 5000 ? 0 : 300;
+
+  const total = subtotal + deliveryFee;
+
+  return {
+    subtotal,
+    deliveryFee,
+    tax: 0,
+    discount: 0,
+    total,
+    totalItems,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function formatCartResponse(cart: any) {
+  if (!cart) {
+    const items: CartItemForSummary[] = [];
+    return {
+      items,
+      summary: calculateCartSummary(items),
+    };
+  }
+  const rawItems = Array.isArray(cart.items) ? cart.items : [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const validItems = rawItems.filter((item: any) => item.product != null);
+  return {
+    ...cart,
+    items: validItems,
+    summary: calculateCartSummary(validItems),
+  };
+}
+
 type AddToCartInput = {
   userId: string;
   productId: string;
@@ -17,21 +67,16 @@ export async function addToCart({
   if (!Types.ObjectId.isValid(userId)) {
     throw new Error("Invalid user ID.");
   }
-
   if (!Types.ObjectId.isValid(productId)) {
     throw new Error("Invalid product ID.");
   }
-
   if (!Number.isInteger(quantity) || quantity < 1) {
     throw new Error("Quantity must be at least 1.");
   }
-
   const product = await Product.findById(productId);
-
   if (!product) {
     throw new Error("Product not found.");
   }
-
   if (product.stock < quantity) {
     throw new Error("Not enough stock available.");
   }
@@ -56,11 +101,9 @@ export async function addToCart({
 
     if (existingItem) {
       const updatedQuantity = existingItem.quantity + quantity;
-
       if (updatedQuantity > product.stock) {
         throw new Error("Adding that many would exceed available stock.");
       }
-
       existingItem.quantity = updatedQuantity;
       existingItem.price = product.price;
     } else {
@@ -74,39 +117,22 @@ export async function addToCart({
     await cart.save();
   }
 
-  return Cart.findOne({ user: userId })
-    .populate({
-      path: "items.product",
-      select: "name slug price images stock brand",
-    })
-    .lean()
-    .then((cart) => {
-      if (cart) {
-        cart.items = cart.items.filter(
-          (item) => item.product != null
-        );
-      }
-      return cart;
-    });
+  return getCart(userId);
 }
 
 export async function clearCart(userId: string) {
   if (!Types.ObjectId.isValid(userId)) {
     throw new Error("Invalid user ID.");
   }
-
   const cart = await Cart.findOne({ user: userId });
-
   if (!cart) {
     throw new Error("No active cart found.");
   }
-
   cart.items = [];
-
   await cart.save();
-
   return {
     items: [],
+    summary: calculateCartSummary([]),
   };
 }
 
@@ -122,58 +148,31 @@ export async function removeCartItem({
   if (!Types.ObjectId.isValid(userId)) {
     throw new Error("Invalid user ID.");
   }
-
   if (!Types.ObjectId.isValid(productId)) {
     throw new Error("Invalid product ID.");
   }
-
   const cart = await Cart.findOne({ user: userId });
-
   if (!cart) {
     throw new Error("Cart not found.");
   }
-
   cart.items = cart.items.filter(
     (item) => item.product.toString() !== productId
   );
-
   await cart.save();
-
-  return Cart.findOne({ user: userId })
-    .populate({
-      path: "items.product",
-      select: "name slug price images stock brand",
-    })
-    .lean()
-    .then((cart) => {
-      if (cart) {
-        cart.items = cart.items.filter(
-          (item) => item.product != null
-        );
-      }
-      return cart;
-    });
+  return getCart(userId);
 }
 
 export async function getCart(userId: string) {
+  if (!Types.ObjectId.isValid(userId)) {
+    throw new Error("Invalid user ID.");
+  }
   const cart = await Cart.findOne({ user: userId })
     .populate({
       path: "items.product",
       select: "name slug price images stock brand",
     })
     .lean();
-
-  if (!cart) {
-    return {
-      items: [],
-    };
-  }
-
-  cart.items = cart.items.filter(
-    (item) => item.product != null
-  );
-
-  return cart;
+  return formatCartResponse(cart);
 }
 
 type UpdateCartItemInput = {
@@ -190,56 +189,31 @@ export async function updateCartItem({
   if (!Types.ObjectId.isValid(userId)) {
     throw new Error("Invalid user ID.");
   }
-
   if (!Types.ObjectId.isValid(productId)) {
     throw new Error("Invalid product ID.");
   }
-
   if (!Number.isInteger(quantity) || quantity < 1) {
     throw new Error("Quantity must be at least 1.");
   }
-
   const product = await Product.findById(productId);
-
   if (!product) {
     throw new Error("Product not found.");
   }
-
   if (quantity > product.stock) {
     throw new Error("Not enough stock for that quantity.");
   }
-
   const cart = await Cart.findOne({ user: userId });
-
   if (!cart) {
     throw new Error("Cart not found.");
   }
-
   const item = cart.items.find(
     (cartItem) => cartItem.product.toString() === productId
   );
-
   if (!item) {
     throw new Error("That product is not in your cart.");
   }
-
   item.quantity = quantity;
   item.price = product.price;
-
   await cart.save();
-
-  return Cart.findOne({ user: userId })
-    .populate({
-      path: "items.product",
-      select: "name slug price images stock brand",
-    })
-    .lean()
-    .then((cart) => {
-      if (cart) {
-        cart.items = cart.items.filter(
-          (item) => item.product != null
-        );
-      }
-      return cart;
-    });
+  return getCart(userId);
 }
