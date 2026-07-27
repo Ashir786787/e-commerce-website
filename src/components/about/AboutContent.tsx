@@ -47,6 +47,38 @@ export default function AboutContent() {
       <OurStory />
       <MissionVision />
       <WhyChooseUs />
+
+      <section className="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-700 py-24">
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute left-[-10rem] top-[-8rem] h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute bottom-[-10rem] right-[-8rem] h-96 w-96 rounded-full bg-white/10 blur-3xl" />
+        </div>
+        <div className="mx-auto max-w-7xl px-6 text-center lg:px-8">
+          <h2 className="text-4xl font-bold tracking-tight text-white lg:text-5xl">
+            Ready to Experience NovaCart?
+          </h2>
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/80">
+            Discover premium products, secure shopping, and exceptional
+            service — all in one place.
+          </p>
+          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link
+              href="/products"
+              className="inline-flex items-center justify-center rounded-xl bg-white px-8 py-4 text-base font-semibold text-indigo-700 transition hover:bg-white/90"
+            >
+              <ShoppingBag className="mr-2 h-5 w-5" />
+              Shop Now
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center rounded-xl border border-white/40 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur transition hover:border-white hover:bg-white/20"
+            >
+              Contact Us
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

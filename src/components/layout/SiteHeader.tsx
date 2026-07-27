@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import {
   ChevronDown,
   Heart,
   LogOut,
   Menu,
   Package,
+  Search,
   Settings,
   ShoppingCart,
   UserRound,
@@ -17,6 +19,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { categories } from "@/data/categories";
 
 const navigation = [
   { label: "Home", href: "/" },
@@ -42,11 +45,16 @@ interface MeResponse {
 }
 
 export default function SiteHeader() {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isUserLoading, setIsUserLoading] = useState(true);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const categoryRef = useRef<HTMLDivElement>(null);
   const { totalItems } = useCart();
   const { totalItems: wishlistTotalItems } = useWishlist();
 
@@ -77,10 +85,34 @@ export default function SiteHeader() {
     loadCurrentUser();
   }, []);
 
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        categoryRef.current &&
+        !categoryRef.current.contains(e.target as Node)
+      ) {
+        setIsCategoryOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const displayName = user?.fullName
     .trim()
     .split(/\s+/)
     .at(-1);
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (searchQuery.trim()) params.set("search", searchQuery.trim());
+    if (selectedCategory !== "All") {
+      const cat = categories.find((c) => c.name === selectedCategory);
+      if (cat) params.set("category", cat.slug);
+    }
+    router.push(`/products?${params.toString()}`);
+  }
 
   async function handleLogout() {
     try {
@@ -103,173 +135,248 @@ export default function SiteHeader() {
       setIsLoggingOut(false);
     }
   }
+
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
-      <div className="border-b">
-        <div className="mx-auto flex min-h-20 max-w-7xl items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
-          <Link
-            href="/"
-            className="shrink-0 text-2xl font-bold tracking-tight text-primary"
-          >
-            NovaCart
-          </Link>
-          <div className="ml-auto hidden items-center gap-1 md:flex">
-            <Link
-              href="/wishlist"
-              aria-label={`Wishlist with ${wishlistTotalItems} items`}
-              className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
+      <div className="mx-auto flex min-h-16 max-w-7xl items-center gap-4 px-4 py-2 sm:px-6 lg:px-8">
+        <Link
+          href="/"
+          className="shrink-0 text-xl font-bold tracking-tight text-primary sm:text-2xl"
+        >
+          NovaCart
+        </Link>
+
+        <form
+          onSubmit={handleSearch}
+          className="ml-4 hidden flex-1 max-w-2xl md:flex"
+        >
+          <div className="relative flex items-center" ref={categoryRef}>
+            <button
+              type="button"
+              onClick={() => setIsCategoryOpen((c) => !c)}
+              className="flex h-10 items-center gap-1 rounded-l-lg border border-r-0 bg-muted/50 px-3 text-xs font-medium transition hover:bg-muted"
             >
-              <span className="relative">
-                <Heart className="h-5 w-5" />
-                {wishlistTotalItems > 0 && (
-                  <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-                    {wishlistTotalItems > 99 ? "99+" : wishlistTotalItems}
-                  </span>
-                )}
-              </span>
-            </Link>
-            <Link
-              href="/cart"
-              className="relative flex items-center gap-2 rounded-lg p-2 transition hover:bg-muted"
-              aria-label={`Shopping cart with ${totalItems} items`}
-            >
-              <ShoppingCart className="h-5 w-5" />
-
-              <span className="hidden text-sm font-medium sm:inline">
-                Cart
-              </span>
-
-              {totalItems > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground">
-                  {totalItems > 99 ? "99+" : totalItems}
-                </span>
-              )}
-            </Link>
-            {user ? (
-              <div className="relative ml-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="max-w-44 rounded-full"
-                  onClick={() =>
-                    setIsAccountMenuOpen((current) => !current)
-                  }
-                  aria-expanded={isAccountMenuOpen}
-                  aria-haspopup="menu"
-                >
-                  <div className="mr-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                    {displayName?.charAt(0).toUpperCase()}
-                  </div>
-
-                  <span className="truncate">{displayName}</span>
-
-                  <ChevronDown
-                    className={cn(
-                      "ml-2 h-4 w-4 transition-transform",
-                      isAccountMenuOpen && "rotate-180"
-                    )}
-                  />
-                </Button>
-
-                {isAccountMenuOpen && (
-                  <div
-                    role="menu"
-                    className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border bg-background p-2 shadow-xl"
-                  >
-                    <div className="border-b px-3 py-3">
-                      <p className="truncate text-sm font-semibold">
-                        {user.fullName}
-                      </p>
-                      <p className="mt-1 truncate text-xs text-muted-foreground">
-                        {user.email}
-                      </p>
-                    </div>
-
-                    <div className="py-2">
-                      <Link
-                        href="/account"
-                        onClick={() => setIsAccountMenuOpen(false)}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-muted"
-                      >
-                        <UserRound className="h-4 w-4" />
-                        My Profile
-                      </Link>
-
-                      <Link
-                        href="/account/orders"
-                        onClick={() => setIsAccountMenuOpen(false)}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-muted"
-                      >
-                        <Package className="h-4 w-4" />
-                        My Orders
-                      </Link>
-
-                      <Link
-                        href="/account/settings"
-                        onClick={() => setIsAccountMenuOpen(false)}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-muted"
-                      >
-                        <Settings className="h-4 w-4" />
-                        Settings
-                      </Link>
-
-                      <Link
-                        href="/wishlist"
-                        onClick={() => setIsAccountMenuOpen(false)}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-muted"
-                      >
-                        <Heart className="h-4 w-4" />
-                        Wishlist
-                      </Link>
-                    </div>
-
-                    <div className="border-t pt-2">
-                      <button
-                        type="button"
-                        onClick={handleLogout}
-                        disabled={isLoggingOut}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        {isLoggingOut ? "Logging out..." : "Logout"}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Link
-                href="/login"
+              {selectedCategory}
+              <ChevronDown
                 className={cn(
-                  buttonVariants({ variant: "outline" }),
-                  "ml-2 rounded-full"
+                  "h-3 w-3 transition-transform",
+                  isCategoryOpen && "rotate-180"
                 )}
-              >
-                <UserRound className="mr-2 h-4 w-4" />
-                {isUserLoading ? "Loading..." : "Account"}
-              </Link>
+              />
+            </button>
+            {isCategoryOpen && (
+              <div className="absolute left-0 top-full z-50 mt-1 w-44 overflow-hidden rounded-lg border bg-background shadow-xl">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory("All");
+                    setIsCategoryOpen(false);
+                  }}
+                  className={cn(
+                    "flex w-full items-center px-3 py-2 text-left text-sm transition hover:bg-muted",
+                    selectedCategory === "All" && "bg-muted font-medium"
+                  )}
+                >
+                  All Categories
+                </button>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategory(cat.name);
+                      setIsCategoryOpen(false);
+                    }}
+                    className={cn(
+                      "flex w-full items-center px-3 py-2 text-left text-sm transition hover:bg-muted",
+                      selectedCategory === cat.name && "bg-muted font-medium"
+                    )}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
             )}
           </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="ml-auto md:hidden"
-            onClick={() => setIsMenuOpen((current) => !current)}
-            aria-label="Toggle navigation"
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search NovaCart..."
+            className="h-10 flex-1 border border-l-0 border-r-0 bg-background px-3 text-sm outline-none placeholder:text-muted-foreground"
+          />
+          <button
+            type="submit"
+            className="flex h-10 w-12 items-center justify-center rounded-r-lg bg-primary text-primary-foreground transition hover:bg-primary/90"
           >
-            {isMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
+            <Search className="h-4 w-4" />
+          </button>
+        </form>
+
+        <div className="ml-auto flex items-center gap-1">
+          <Link
+            href="/wishlist"
+            aria-label={`Wishlist with ${wishlistTotalItems} items`}
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              "hidden sm:flex"
             )}
-          </Button>
+          >
+            <span className="relative">
+              <Heart className="h-5 w-5" />
+              {wishlistTotalItems > 0 && (
+                <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                  {wishlistTotalItems > 99 ? "99+" : wishlistTotalItems}
+                </span>
+              )}
+            </span>
+          </Link>
+          <Link
+            href="/cart"
+            className="relative flex items-center gap-1.5 rounded-lg p-2 transition hover:bg-muted"
+            aria-label={`Shopping cart with ${totalItems} items`}
+          >
+            <ShoppingCart className="h-5 w-5" />
+            <span className="hidden text-sm font-medium sm:inline">Cart</span>
+            {totalItems > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground">
+                {totalItems > 99 ? "99+" : totalItems}
+              </span>
+            )}
+          </Link>
+          {user ? (
+            <div className="relative ml-1">
+              <Button
+                type="button"
+                variant="outline"
+                className="max-w-40 rounded-full"
+                onClick={() => setIsAccountMenuOpen((c) => !c)}
+                aria-expanded={isAccountMenuOpen}
+                aria-haspopup="menu"
+              >
+                <div className="mr-2 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+                  {displayName?.charAt(0).toUpperCase()}
+                </div>
+                <span className="hidden truncate sm:inline">{displayName}</span>
+                <ChevronDown
+                  className={cn(
+                    "ml-1 h-4 w-4 transition-transform",
+                    isAccountMenuOpen && "rotate-180"
+                  )}
+                />
+              </Button>
+              {isAccountMenuOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-2xl border bg-background p-2 shadow-xl"
+                >
+                  <div className="border-b px-3 py-3">
+                    <p className="truncate text-sm font-semibold">
+                      {user.fullName}
+                    </p>
+                    <p className="mt-1 truncate text-xs text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                  <div className="py-2">
+                    <Link
+                      href="/account"
+                      onClick={() => setIsAccountMenuOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-muted"
+                    >
+                      <UserRound className="h-4 w-4" />
+                      My Profile
+                    </Link>
+                    <Link
+                      href="/account/orders"
+                      onClick={() => setIsAccountMenuOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-muted"
+                    >
+                      <Package className="h-4 w-4" />
+                      My Orders
+                    </Link>
+                    <Link
+                      href="/account/settings"
+                      onClick={() => setIsAccountMenuOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-muted"
+                    >
+                      <Settings className="h-4 w-4" />
+                      Settings
+                    </Link>
+                    <Link
+                      href="/wishlist"
+                      onClick={() => setIsAccountMenuOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-muted"
+                    >
+                      <Heart className="h-4 w-4" />
+                      Wishlist
+                    </Link>
+                  </div>
+                  <div className="border-t pt-2">
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      {isLoggingOut ? "Logging out..." : "Logout"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "ml-1 rounded-full"
+              )}
+            >
+              <UserRound className="mr-2 h-4 w-4" />
+              {isUserLoading ? "..." : "Account"}
+            </Link>
+          )}
         </div>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="ml-1 md:hidden"
+          onClick={() => setIsMenuOpen((c) => !c)}
+          aria-label="Toggle navigation"
+        >
+          {isMenuOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
+        </Button>
       </div>
 
-      <div className="hidden md:block">
-        <div className="mx-auto flex h-12 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-7">
+      <div className="border-t px-4 py-2 md:hidden">
+        <form onSubmit={handleSearch} className="flex">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search NovaCart..."
+            className="h-10 flex-1 rounded-l-lg border border-r-0 bg-background px-3 text-sm outline-none placeholder:text-muted-foreground"
+          />
+          <button
+            type="submit"
+            className="flex h-10 w-12 items-center justify-center rounded-r-lg bg-primary text-primary-foreground"
+          >
+            <Search className="h-4 w-4" />
+          </button>
+        </form>
+      </div>
+
+      <div className="hidden md:block border-t">
+        <div className="mx-auto flex h-10 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <nav className="flex items-center gap-6">
             {navigation.map((item) => (
               <Link
                 key={item.href}
@@ -280,7 +387,7 @@ export default function SiteHeader() {
               </Link>
             ))}
           </nav>
-          <p className="text-sm font-medium text-primary">
+          <p className="text-xs font-medium text-muted-foreground">
             Free delivery on qualifying orders
           </p>
         </div>

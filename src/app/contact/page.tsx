@@ -1,6 +1,6 @@
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
-import ComingSoon from "@/components/shared/ComingSoon";
+import ContactContent from "@/components/contact/ContactContent";
 
 export default function ContactPage() {
   return (
@@ -8,7 +8,7 @@ export default function ContactPage() {
       <SiteHeader />
 
       <div className="flex-1">
-        <ComingSoon title="Contact Us" />
+        <ContactContent />
       </div>
 
       <SiteFooter />

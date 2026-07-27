@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import ShippingForm from "./ShippingForm";
-import PaymentMethod from "./PaymentMethod";
+import PaymentMethod, {
+  type CheckoutPaymentMethod,
+} from "./PaymentMethod";
 import OrderSummary from "./OrderSummary";
 import PlaceOrderButton from "./PlaceOrderButton";
 
@@ -29,7 +31,7 @@ export default function CheckoutForm() {
       country: "Pakistan",
     });
   const [paymentMethod, setPaymentMethod] =
-    useState("cod");
+    useState<CheckoutPaymentMethod>("cod");
   const [isSubmitting, setIsSubmitting] =
     useState(false);
 

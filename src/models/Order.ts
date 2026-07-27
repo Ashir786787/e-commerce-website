@@ -37,6 +37,11 @@ export interface IOrder extends Document {
     | "pending"
     | "paid"
     | "failed";
+  orderNumber: string;
+  invoiceNumber?: string;
+  paymentIntentId?: string;
+  paidAt?: Date;
+  deliveredAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -138,6 +143,23 @@ const OrderSchema = new Schema<IOrder>(
         "failed",
       ],
       default: "pending",
+    },
+    orderNumber: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    invoiceNumber: {
+      type: String,
+    },
+    paymentIntentId: {
+      type: String,
+    },
+    paidAt: {
+      type: Date,
+    },
+    deliveredAt: {
+      type: Date,
     },
   },
   {

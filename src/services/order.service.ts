@@ -144,10 +144,16 @@ export async function createOrder({
       const summary =
         calculateOrderSummary(orderItems);
 
+      const now = new Date();
+      const datePart = now.toISOString().slice(0, 10).replace(/-/g, "");
+      const randomPart = Math.random().toString(36).substring(2, 7).toUpperCase();
+      const orderNumber = `NC-${datePart}-${randomPart}`;
+
       const createdOrders = await Order.create(
         [
           {
             user: new Types.ObjectId(userId),
+            orderNumber,
             items: orderItems,
             shippingAddress: {
               fullName: shippingAddress.fullName.trim(),

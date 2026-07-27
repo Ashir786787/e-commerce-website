@@ -6,13 +6,10 @@ import Product from "@/models/Product";
 import ProductCard from "@/components/product/ProductCard";
 import { getCategoryName } from "@/lib/utils";
 
-export default async function TrendingProducts() {
+export default async function NewArrivals() {
   await connectDB();
 
-  const products = await Product.find({
-    isTrending: true,
-    isActive: true,
-  })
+  const products = await Product.find({ isActive: true })
     .populate("category", "name slug image")
     .sort({ createdAt: -1, _id: -1 })
     .limit(10)
@@ -24,7 +21,7 @@ export default async function TrendingProducts() {
     <section className="py-5">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold sm:text-2xl">Trending Products</h2>
+          <h2 className="text-xl font-bold sm:text-2xl">Just Arrived</h2>
           <Link
             href="/products"
             className="hidden items-center gap-1.5 text-sm font-semibold text-primary hover:underline sm:flex"

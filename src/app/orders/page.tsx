@@ -1,13 +1,117 @@
-export default function OrdersPage() {
-  return (
-    <main className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold">
-        My Orders
-      </h1>
+import SiteFooter from "@/components/layout/SiteFooter";
+import SiteHeader from "@/components/layout/SiteHeader";
+import OrderCard from "@/components/orders/OrderCard";
+import { connectDB } from "@/lib/db";
+import Order from "@/models/Order";
+import { getCurrentUser } from "@/services/auth.service";
 
-      <p className="mt-4 text-muted-foreground">
-        Orders page coming next...
-      </p>
-    </main>
+export const dynamic = "force-dynamic";
+
+export default async function OrdersPage() {
+  await connectDB();
+
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <SiteHeader />
+
+        <main className="flex flex-1 items-center justify-center px-4">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold">
+              Please Login
+            </h1>
+
+            <p className="mt-3 text-muted-foreground">
+              You must be logged in to view your orders.
+            </p>
+          </div>
+        </main>
+
+        <SiteFooter />
+      </div>
+    );
+  }
+
+  const orders = await Order.find({
+    user: user.id,
+  })
+    .sort({
+      createdAt: -1,
+    })
+    .lean();
+
+  return (
+    <div className="flex min-h-screen flex-col bg-muted/20">
+      <SiteHeader />
+
+      <main className="flex-1">
+        <section className="border-b bg-background">
+          <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+              Account
+            </p>
+
+            <h1 className="mt-3 text-4xl font-bold tracking-tight">
+              My Orders
+            </h1>
+
+            <p className="mt-4 max-w-2xl text-muted-foreground">
+              Track your recent purchases and view the
+              status of every order.
+            </p>
+          </div>
+        </section>
+
+        <section className="py-12">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+            {orders.length === 0 ? (
+              <div className="rounded-2xl border border-dashed bg-background px-6 py-16 text-center">
+                <h2 className="text-2xl font-semibold">
+                  No Orders Yet
+                </h2>
+
+                <p className="mt-3 text-muted-foreground">
+                  Once you place your first order,
+                  it will appear here.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {orders.map((order) => (
+                  <OrderCard
+                    key={order._id.toString()}
+                    order={{
+                      _id: order._id.toString(),
+                      orderNumber:
+                        order.orderNumber ||
+                        `NC-${order._id
+                          .toString()
+                          .slice(-6)
+                          .toUpperCase()}`,
+                      createdAt:
+                        order.createdAt.toISOString(),
+                      total: order.total,
+                      paymentMethod:
+                        order.paymentMethod,
+                      paymentStatus:
+                        order.paymentStatus,
+                      orderStatus:
+                        order.orderStatus,
+                      items: order.items,
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+
+          </div>
+        </section>
+      </main>
+
+      <SiteFooter />
+    </div>
   );
 }
