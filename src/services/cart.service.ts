@@ -166,6 +166,27 @@ export async function getCart(userId: string) {
   if (!Types.ObjectId.isValid(userId)) {
     throw new Error("Invalid user ID.");
   }
+  const rawCart = await Cart.findOne({ user: userId }).lean();
+  if (rawCart && Array.isArray(rawCart.items) && rawCart.items.length > 0) {
+    const productIds = rawCart.items.map(
+      (item) => item.product
+    );
+    const existing = await Product.find({
+      _id: { $in: productIds },
+    }).select("_id").lean();
+    const existingSet = new Set(
+      existing.map((p) => p._id.toString())
+    );
+    const orphanIds = productIds.filter(
+      (id) => !existingSet.has(id.toString())
+    );
+    if (orphanIds.length > 0) {
+      await Cart.updateOne(
+        { user: userId },
+        { $pull: { items: { product: { $in: orphanIds } } } }
+      );
+    }
+  }
   const cart = await Cart.findOne({ user: userId })
     .populate({
       path: "items.product",
