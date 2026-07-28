@@ -51,9 +51,11 @@ export default function CheckoutForm() {
     event: React.FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
+
     try {
       setIsSubmitting(true);
-      const response = await fetch("/api/orders", {
+
+      const orderResponse = await fetch("/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -64,14 +66,76 @@ export default function CheckoutForm() {
           paymentMethod,
         }),
       });
-      const result = await response.json();
-      if (!response.ok || !result.success) {
+
+      const orderResult = await orderResponse.json();
+
+      if (!orderResponse.ok || !orderResult.success) {
         throw new Error(
-          result.message || "Unable to place order."
+          orderResult.message || "Unable to place order."
         );
       }
-      toast.success("Order placed successfully!");
-      window.location.href = "/orders";
+
+      const createdOrder = orderResult.data;
+      const orderId = createdOrder?._id;
+
+      if (!orderId) {
+        throw new Error(
+          "Order was created, but the order ID was not returned."
+        );
+      }
+
+      if (paymentMethod === "cod") {
+        toast.success("Order placed successfully!");
+        window.location.href = `/orders/${orderId}`;
+        return;
+      }
+
+      if (paymentMethod === "card") {
+        toast.success(
+          "Order created. Redirecting to secure payment..."
+        );
+
+        const stripeResponse = await fetch(
+          "/api/payments/create-checkout-session",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({ orderId }),
+          }
+        );
+
+        const stripeResult =
+          await stripeResponse.json();
+
+        if (
+          !stripeResponse.ok ||
+          !stripeResult.success
+        ) {
+          throw new Error(
+            stripeResult.message ||
+              "Unable to start Stripe Checkout."
+          );
+        }
+
+        const checkoutUrl =
+          stripeResult.data?.checkoutUrl;
+
+        if (!checkoutUrl) {
+          throw new Error(
+            "Stripe Checkout URL was not returned."
+          );
+        }
+
+        window.location.href = checkoutUrl;
+        return;
+      }
+
+      throw new Error(
+        "The selected payment method is currently unavailable."
+      );
     } catch (error) {
       toast.error(
         error instanceof Error
