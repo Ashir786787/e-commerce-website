@@ -16,7 +16,6 @@ export default function ContactHero() {
           to share feedback? Our team is here to help and will get back to you
           as soon as possible.
         </p>
-
       </div>
     </section>
   );

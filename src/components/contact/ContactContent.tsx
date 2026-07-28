@@ -93,7 +93,6 @@ export default function ContactContent() {
                   Every message matters to us and we strive to resolve all
                   inquiries promptly and professionally.
                 </p>
-
               </div>
             </div>
           </div>
