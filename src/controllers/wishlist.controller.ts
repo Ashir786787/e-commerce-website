@@ -6,10 +6,12 @@ import {
   removeFromWishlist,
   clearWishlist,
 } from "@/services/wishlist.service";
+import { connectDB } from "@/lib/db";
 import { resolveUserId } from "@/lib/user";
 
 export async function addToWishlistController(request: NextRequest) {
   try {
+    await connectDB();
     const userId = await resolveUserId();
     const body = await request.json();
     const { productId } = body;
@@ -38,6 +40,7 @@ export async function addToWishlistController(request: NextRequest) {
 
 export async function getWishlistController() {
   try {
+    await connectDB();
     const userId = await resolveUserId();
     const wishlist = await getWishlist(userId);
 
@@ -54,6 +57,7 @@ export async function getWishlistController() {
 
 export async function removeFromWishlistController(request: NextRequest) {
   try {
+    await connectDB();
     const userId = await resolveUserId();
     const body = await request.json();
     const { productId } = body;
@@ -82,6 +86,7 @@ export async function removeFromWishlistController(request: NextRequest) {
 
 export async function clearWishlistController() {
   try {
+    await connectDB();
     const userId = await resolveUserId();
     const wishlist = await clearWishlist(userId);
 

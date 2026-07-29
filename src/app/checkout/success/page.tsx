@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   CheckCircle2,
+  FileText,
   PackageCheck,
   ReceiptText,
 } from "lucide-react";
@@ -144,15 +145,26 @@ export default async function PaymentSuccessPage({
                   </div>
                 </div>
 
-                <div className="mt-6 flex items-start gap-3 rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-                  <PackageCheck className="mt-0.5 h-5 w-5 shrink-0 text-indigo-600" />
+                {paymentDetails?.orderId && paymentDetails.paymentStatus === "paid" ? (
+                  <div className="mt-6 flex items-start gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+                    <PackageCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
 
-                  <p className="text-sm leading-6 text-indigo-800">
-                    Your payment was received. Your order
-                    will appear in My Orders after payment
-                    verification is completed.
-                  </p>
-                </div>
+                    <p className="text-sm leading-6 text-emerald-800">
+                      Your payment was received and your
+                      order is confirmed. You can view your
+                      invoice below.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-6 flex items-start gap-3 rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
+                    <PackageCheck className="mt-0.5 h-5 w-5 shrink-0 text-indigo-600" />
+
+                    <p className="text-sm leading-6 text-indigo-800">
+                      Your payment was received. Your order
+                      will be confirmed shortly.
+                    </p>
+                  </div>
+                )}
               </>
             ) : (
               <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-center">
@@ -171,9 +183,10 @@ export default async function PaymentSuccessPage({
               {paymentDetails?.orderId ? (
                 <Link
                   href={`/orders/${paymentDetails.orderId}`}
-                  className="inline-flex h-12 items-center justify-center rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white transition hover:bg-indigo-700"
                 >
-                  View Order
+                  <FileText className="h-4 w-4" />
+                  View Invoice
                 </Link>
               ) : (
                 <Link

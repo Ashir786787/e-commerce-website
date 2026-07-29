@@ -3,39 +3,17 @@ import SiteHeader from "@/components/layout/SiteHeader";
 import OrderCard from "@/components/orders/OrderCard";
 import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
-import { getCurrentUser } from "@/services/auth.service";
+import { resolveUserId } from "@/lib/user";
 
 export const dynamic = "force-dynamic";
 
 export default async function OrdersPage() {
   await connectDB();
 
-  const user = await getCurrentUser();
-
-  if (!user) {
-    return (
-      <div className="flex min-h-screen flex-col">
-        <SiteHeader />
-
-        <main className="flex flex-1 items-center justify-center px-4">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold">
-              Please Login
-            </h1>
-
-            <p className="mt-3 text-muted-foreground">
-              You must be logged in to view your orders.
-            </p>
-          </div>
-        </main>
-
-        <SiteFooter />
-      </div>
-    );
-  }
+  const userId = await resolveUserId();
 
   const orders = await Order.find({
-    user: user.id,
+    user: userId,
   })
     .sort({
       createdAt: -1,
