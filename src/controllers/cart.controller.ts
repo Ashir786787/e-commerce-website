@@ -6,11 +6,13 @@ import {
   removeCartItem,
   clearCart,
 } from "@/services/cart.service";
+import { connectDB } from "@/lib/db";
 import { resolveUserId } from "@/lib/user";
 import { successResponse, errorResponse } from "@/utils/api-response";
 
 export async function addToCartController(request: NextRequest) {
   try {
+    await connectDB();
     const userId = await resolveUserId();
     const body = await request.json();
     const { productId, quantity } = body;
@@ -33,6 +35,7 @@ export async function addToCartController(request: NextRequest) {
 
 export async function clearCartController() {
   try {
+    await connectDB();
     const userId = await resolveUserId();
     const cart = await clearCart(userId);
     return successResponse("Cart cleared.", cart);
@@ -46,6 +49,7 @@ export async function clearCartController() {
 
 export async function removeCartItemController(request: NextRequest) {
   try {
+    await connectDB();
     const userId = await resolveUserId();
     const body = await request.json();
     const { productId } = body;
@@ -67,6 +71,7 @@ export async function removeCartItemController(request: NextRequest) {
 
 export async function updateCartItemController(request: NextRequest) {
   try {
+    await connectDB();
     const userId = await resolveUserId();
     const body = await request.json();
     const { productId, quantity } = body;
@@ -92,6 +97,7 @@ export async function updateCartItemController(request: NextRequest) {
 
 export async function getCartController() {
   try {
+    await connectDB();
     const userId = await resolveUserId();
     const cart = await getCart(userId);
     return successResponse("Cart loaded.", cart);
