@@ -6,7 +6,8 @@ import {
   PaymentMethod,
   ShippingAddressInput,
 } from "@/services/order.service";
-import { getCurrentUser } from "@/services/auth.service";
+import { connectDB } from "@/lib/db";
+import { resolveUserId } from "@/lib/user";
 import {
   successResponse,
   errorResponse,
@@ -21,10 +22,8 @@ export async function createOrderController(
   request: NextRequest
 ) {
   try {
-    const user = await getCurrentUser();
-    if (!user) {
-      return errorResponse("Not authenticated.", 401);
-    }
+    await connectDB();
+    const userId = await resolveUserId();
     const body = (await request.json()) as CreateOrderBody;
     const { shippingAddress, paymentMethod } = body;
     if (!shippingAddress) {
@@ -34,7 +33,7 @@ export async function createOrderController(
       return errorResponse("Payment method is required.", 400);
     }
     const order = await createOrder({
-      userId: user.id.toString(),
+      userId,
       shippingAddress,
       paymentMethod,
     });
@@ -49,11 +48,9 @@ export async function createOrderController(
 
 export async function getUserOrdersController() {
   try {
-    const user = await getCurrentUser();
-    if (!user) {
-      return errorResponse("Not authenticated.", 401);
-    }
-    const orders = await getUserOrders(user.id.toString());
+    await connectDB();
+    const userId = await resolveUserId();
+    const orders = await getUserOrders(userId);
     return successResponse("Orders loaded successfully.", orders);
   } catch (error) {
     return errorResponse(
@@ -67,15 +64,13 @@ export async function getOrderByIdController(
   orderId: string
 ) {
   try {
-    const user = await getCurrentUser();
-    if (!user) {
-      return errorResponse("Not authenticated.", 401);
-    }
+    await connectDB();
+    const userId = await resolveUserId();
     if (!orderId) {
       return errorResponse("Order ID is required.", 400);
     }
     const order = await getOrderById({
-      userId: user.id.toString(),
+      userId,
       orderId,
     });
     return successResponse("Order loaded successfully.", order);

@@ -32,23 +32,23 @@ export default function CartSummary({
 
         <div className="flex justify-between">
           <span>Subtotal</span>
-          <span>${summary.subtotal.toFixed(2)}</span>
+          <span>Rs. {summary.subtotal.toLocaleString("en-PK")}</span>
         </div>
 
         <div className="flex justify-between">
           <span>Delivery</span>
-          <span>${summary.deliveryFee.toFixed(2)}</span>
+          <span>Rs. {summary.deliveryFee.toLocaleString("en-PK")}</span>
         </div>
 
         <div className="flex justify-between">
           <span>Tax</span>
-          <span>${summary.tax.toFixed(2)}</span>
+          <span>Rs. {summary.tax.toLocaleString("en-PK")}</span>
         </div>
 
         <div className="flex justify-between">
           <span>Discount</span>
           <span>
-            -${summary.discount.toFixed(2)}
+            -Rs. {summary.discount.toLocaleString("en-PK")}
           </span>
         </div>
 
@@ -58,7 +58,7 @@ export default function CartSummary({
           <span>Total</span>
 
           <span className="text-primary">
-            ${summary.total.toFixed(2)}
+            Rs. {summary.total.toLocaleString("en-PK")}
           </span>
         </div>
 

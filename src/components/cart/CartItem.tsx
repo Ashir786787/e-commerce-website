@@ -79,7 +79,7 @@ export default function CartItem({
               </p>
 
               <p className="font-semibold">
-                ${item.price.toFixed(2)}
+                Rs. {item.price.toLocaleString("en-PK")}
               </p>
             </div>
 
@@ -102,7 +102,7 @@ export default function CartItem({
               </p>
 
               <p className="font-semibold text-primary">
-                ${(item.price * item.quantity).toFixed(2)}
+                Rs. {(item.price * item.quantity).toLocaleString("en-PK")}
               </p>
             </div>
           </div>
