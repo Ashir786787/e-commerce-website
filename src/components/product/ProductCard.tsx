@@ -122,8 +122,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <article className="group overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
-      <div className="relative aspect-square overflow-hidden bg-muted">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
+      <div className="relative aspect-square shrink-0 overflow-hidden bg-muted">
         <Link
           href={`/products/${product.slug}`}
           className="absolute inset-0 block"
@@ -164,7 +164,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         </button>
       </div>
-      <div className="space-y-3 p-4">
+      <div className="flex flex-1 flex-col space-y-3 p-4">
         <p className="text-xs uppercase tracking-widest text-muted-foreground">
           {product.category}
         </p>
@@ -185,7 +185,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             ({product.reviews})
           </span>
         </div>
-        <div className="flex items-end justify-between">
+        <div className="mt-auto flex items-end justify-between">
           <div>
             <p className="text-xl font-bold text-primary">
               Rs. {formatPrice(product.price)}

@@ -2,8 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
-import SiteFooter from "@/components/layout/SiteFooter";
-import SiteHeader from "@/components/layout/SiteHeader";
 import OrderStatusBadge from "@/components/orders/OrderStatusBadge";
 import InvoiceActions from "@/components/orders/InvoiceActions";
 import { connectDB } from "@/lib/db";
@@ -62,10 +60,7 @@ export default async function OrderPage({
     `INV-${order.orderNumber}`;
 
   return (
-    <div className="flex min-h-screen flex-col bg-neutral-100">
-      <SiteHeader />
-
-      <main className="flex-1 px-4 py-10 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-neutral-100 px-4 py-10 sm:px-6 lg:px-8 print:bg-white print:p-0">
         <div className="mx-auto max-w-5xl">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <Link
@@ -327,9 +322,6 @@ export default async function OrderPage({
             </div>
           </section>
         </div>
-      </main>
-
-      <SiteFooter />
-    </div>
+    </main>
   );
 }
