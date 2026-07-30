@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import {
   signupUser,
   verifyEmail,
@@ -10,7 +11,6 @@ import {
 } from "@/services/auth.service";
 import { successResponse, errorResponse } from "@/utils/api-response";
 import { connectDB } from "@/lib/db";
-import { cookies } from "next/headers";
 import { signToken } from "@/utils/jwt";
 
 export async function signupController(request: Request) {
@@ -41,15 +41,25 @@ export async function loginController(request: Request) {
     const body = await request.json();
     const user = await loginUser(body);
     const token = signToken({ userId: user.id, role: user.role });
-    const cookieStore = await cookies();
-    cookieStore.set("novacart_token", token, {
+
+    const response = NextResponse.json(
+      {
+        success: true,
+        message: "Login successful",
+        data: user,
+      },
+      { status: 200 }
+    );
+
+    response.cookies.set("novacart_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
       maxAge: 7 * 24 * 60 * 60,
     });
-    return successResponse("Login successful", user, 200);
+
+    return response;
   } catch (error) {
     return errorResponse(error instanceof Error ? error.message : "Login failed.", 400);
   }
@@ -102,8 +112,24 @@ export async function meController() {
 
 export async function logoutController() {
   try {
-    await logoutUser();
-    return successResponse("Logged out", null, 200);
+    const response = NextResponse.json(
+      {
+        success: true,
+        message: "Logged out",
+        data: null,
+      },
+      { status: 200 }
+    );
+
+    response.cookies.set("novacart_token", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 0,
+    });
+
+    return response;
   } catch {
     return errorResponse("Logout failed.", 400);
   }
