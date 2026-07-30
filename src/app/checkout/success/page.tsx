@@ -8,6 +8,8 @@ import {
 
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
+import { connectDB } from "@/lib/db";
+import Order from "@/models/Order";
 import stripe from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
@@ -62,6 +64,26 @@ export default async function PaymentSuccessPage({
     } catch (error) {
       console.error(
         "Unable to retrieve Stripe session:",
+        error
+      );
+    }
+  }
+
+  if (
+    paymentDetails?.orderId &&
+    paymentDetails.paymentStatus === "paid"
+  ) {
+    try {
+      await connectDB();
+
+      await Order.findByIdAndUpdate(paymentDetails.orderId, {
+        paymentStatus: "paid",
+        orderStatus: "confirmed",
+        paidAt: new Date(),
+      });
+    } catch (error) {
+      console.error(
+        "Failed to update order payment status:",
         error
       );
     }

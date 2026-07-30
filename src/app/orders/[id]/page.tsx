@@ -6,6 +6,7 @@ import OrderStatusBadge from "@/components/orders/OrderStatusBadge";
 import InvoiceActions from "@/components/orders/InvoiceActions";
 import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
+import "@/models/Product";
 import { resolveUserId } from "@/lib/user";
 
 export const dynamic = "force-dynamic";

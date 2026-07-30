@@ -4,6 +4,7 @@ import { Types } from "mongoose";
 import stripe from "@/lib/stripe";
 import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
+import "@/models/Product";
 import { getCurrentUser } from "@/services/auth.service";
 import {
   errorResponse,
@@ -68,9 +69,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const appUrl =
+    const appUrl = (
       process.env.NEXT_PUBLIC_APP_URL ||
-      request.nextUrl.origin;
+      request.nextUrl.origin
+    ).replace(/\/+$/, "");
 
     const lineItems = order.items.map((item) => {
       const product = item.product as unknown as {

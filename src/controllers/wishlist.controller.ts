@@ -8,6 +8,7 @@ import {
 } from "@/services/wishlist.service";
 import { connectDB } from "@/lib/db";
 import { resolveUserId } from "@/lib/user";
+import "@/models/Product";
 
 export async function addToWishlistController(request: NextRequest) {
   try {
