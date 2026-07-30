@@ -19,6 +19,11 @@ type CheckoutFormData = {
   country: string;
 };
 
+type AppliedDiscount = {
+  code: string;
+  percent: number;
+};
+
 export default function CheckoutForm() {
   const [shippingAddress, setShippingAddress] =
     useState<CheckoutFormData>({
@@ -34,6 +39,10 @@ export default function CheckoutForm() {
     useState<CheckoutPaymentMethod>("cod");
   const [isSubmitting, setIsSubmitting] =
     useState(false);
+  const [appliedDiscount, setAppliedDiscount] =
+    useState<AppliedDiscount | null>(null);
+  const [isApplyingDiscount, setIsApplyingDiscount] =
+    useState(false);
 
   function handleShippingChange(
     event: React.ChangeEvent<
@@ -47,6 +56,31 @@ export default function CheckoutForm() {
     }));
   }
 
+  async function handleApplyDiscount(code: string) {
+    setIsApplyingDiscount(true);
+    try {
+      const res = await fetch("/api/discount/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ code }),
+      });
+      const result = await res.json();
+      if (!res.ok || !result.success) throw new Error(result.message || "Invalid code");
+      setAppliedDiscount({ code: code.toUpperCase(), percent: result.data.discountPercent });
+      toast.success("Discount applied!");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to apply discount");
+    } finally {
+      setIsApplyingDiscount(false);
+    }
+  }
+
+  function handleRemoveDiscount() {
+    setAppliedDiscount(null);
+    toast.success("Discount removed");
+  }
+
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>
   ) {
@@ -55,93 +89,49 @@ export default function CheckoutForm() {
     try {
       setIsSubmitting(true);
 
-      const orderResponse = await fetch("/api/orders", {
+      const body: Record<string, unknown> = { shippingAddress, paymentMethod };
+      if (appliedDiscount?.code) body.discountCode = appliedDiscount.code;
+
+      const orderRes = await fetch("/api/orders", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          shippingAddress,
-          paymentMethod,
-        }),
+        body: JSON.stringify(body),
       });
 
-      const orderResult = await orderResponse.json();
+      const orderResult = await orderRes.json();
+      if (!orderRes.ok || !orderResult.success) throw new Error(orderResult.message || "Failed to place order");
 
-      if (!orderResponse.ok || !orderResult.success) {
-        throw new Error(
-          orderResult.message || "Unable to place order."
-        );
-      }
-
-      const createdOrder = orderResult.data;
-      const orderId = createdOrder?._id;
-
-      if (!orderId) {
-        throw new Error(
-          "Order was created, but the order ID was not returned."
-        );
-      }
+      const orderId = orderResult.data?._id;
+      if (!orderId) throw new Error("Order ID missing from response");
 
       if (paymentMethod === "cod") {
-        toast.success("Order placed successfully!");
+        toast.success("Order placed!");
         window.location.href = `/orders/${orderId}`;
         return;
       }
 
       if (paymentMethod === "card") {
-        toast.success(
-          "Order created. Redirecting to secure payment..."
-        );
+        toast.success("Redirecting to payment...");
 
-        const stripeResponse = await fetch(
-          "/api/payments/create-checkout-session",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify({ orderId }),
-          }
-        );
+        const stripeRes = await fetch("/api/payments/create-checkout-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ orderId }),
+        });
+        const stripeResult = await stripeRes.json();
+        if (!stripeRes.ok || !stripeResult.success) throw new Error(stripeResult.message || "Stripe failed");
 
-        const stripeResult =
-          await stripeResponse.json();
-
-        if (
-          !stripeResponse.ok ||
-          !stripeResult.success
-        ) {
-          throw new Error(
-            stripeResult.message ||
-              "Unable to start Stripe Checkout."
-          );
-        }
-
-        const checkoutUrl =
-          stripeResult.data?.checkoutUrl;
-
-        if (!checkoutUrl) {
-          throw new Error(
-            "Stripe Checkout URL was not returned."
-          );
-        }
-
+        const checkoutUrl = stripeResult.data?.checkoutUrl;
+        if (!checkoutUrl) throw new Error("No checkout URL returned");
         window.location.href = checkoutUrl;
         return;
       }
 
-      throw new Error(
-        "The selected payment method is currently unavailable."
-      );
+      throw new Error("Payment method unavailable");
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Unable to place order."
-      );
+      toast.error(error instanceof Error ? error.message : "Order failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -163,7 +153,12 @@ export default function CheckoutForm() {
         />
       </div>
       <aside className="h-fit space-y-0 lg:sticky lg:top-24">
-        <OrderSummary />
+        <OrderSummary
+          appliedDiscount={appliedDiscount}
+          onApplyDiscount={handleApplyDiscount}
+          onRemoveDiscount={handleRemoveDiscount}
+          isApplyingDiscount={isApplyingDiscount}
+        />
         <PlaceOrderButton
           isLoading={isSubmitting}
           disabled={isSubmitting}
