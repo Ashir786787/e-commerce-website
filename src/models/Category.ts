@@ -17,7 +17,6 @@ const CategorySchema = new Schema<ICategory>(
       trim: true,
       lowercase: true,
       unique: true,
-      index: true,
     },
     description: {
       type: String,

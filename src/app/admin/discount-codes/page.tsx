@@ -1,4 +1,5 @@
 import { CheckCircle2, Clock, Tag, XCircle } from "lucide-react";
+import AdminPagination from "@/components/admin/AdminPagination";
 import { connectDB } from "@/lib/db";
 import DiscountCode from "@/models/DiscountCode";
 import GenerateCodesForm from "./GenerateCodesForm";
@@ -15,12 +16,59 @@ function badge(active: boolean, expiresAt: Date | undefined) {
   return { label: "Active", icon: CheckCircle2, color: "text-emerald-700" };
 }
 
-export default async function AdminDiscountCodesPage() {
+interface AdminDiscountCodesPageProps {
+  searchParams: Promise<{
+    page?: string;
+  }>;
+}
+
+export default async function AdminDiscountCodesPage({
+  searchParams,
+}: AdminDiscountCodesPageProps) {
+  const { page: pageParam } = await searchParams;
+
   await connectDB();
-  const codes = await DiscountCode.find().sort({ createdAt: -1 }).lean();
+
   const now = new Date();
-  const active = codes.filter((c) => c.isActive && (!c.expiresAt || new Date(c.expiresAt) > now));
-  const totalUsed = codes.reduce((s, c) => s + c.usedBy.length, 0);
+  const limit = 15;
+  const requestedPage = Math.max(1, Number(pageParam) || 1);
+
+  const [totalCodes, activeCodes, totalUsedResult] =
+    await Promise.all([
+      DiscountCode.countDocuments(),
+      DiscountCode.countDocuments({
+        isActive: true,
+        $or: [
+          { expiresAt: null },
+          { expiresAt: { $gt: now } },
+        ],
+      }),
+      DiscountCode.aggregate<{ total: number }>([
+        {
+          $group: {
+            _id: null,
+            total: { $sum: { $size: "$usedBy" } },
+          },
+        },
+      ]),
+    ]);
+
+  const totalUsed = totalUsedResult[0]?.total ?? 0;
+  const totalPages = Math.max(
+    1,
+    Math.ceil(totalCodes / limit)
+  );
+  const currentPage = Math.min(
+    requestedPage,
+    totalPages
+  );
+  const skip = (currentPage - 1) * limit;
+
+  const codes = await DiscountCode.find()
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
 
   return (
     <div>
@@ -35,11 +83,11 @@ export default async function AdminDiscountCodesPage() {
       <div className="mt-8 grid gap-6 sm:grid-cols-3">
         <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-sm text-neutral-500">Total Codes</p>
-          <p className="mt-3 text-3xl font-bold text-neutral-950">{codes.length}</p>
+          <p className="mt-3 text-3xl font-bold text-neutral-950">{totalCodes}</p>
         </div>
         <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-sm text-neutral-500">Active</p>
-          <p className="mt-3 text-3xl font-bold text-emerald-600">{active.length}</p>
+          <p className="mt-3 text-3xl font-bold text-emerald-600">{activeCodes}</p>
         </div>
         <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-sm text-neutral-500">Times Used</p>
@@ -86,6 +134,11 @@ export default async function AdminDiscountCodesPage() {
           </div>
         )}
       </div>
+
+      <AdminPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+      />
     </div>
   );
 }

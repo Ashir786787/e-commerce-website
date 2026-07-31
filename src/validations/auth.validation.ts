@@ -31,7 +31,22 @@ export const resetPasswordSchema = z.object({
     .max(32, "Password cannot exceed 32 characters."),
 });
 
+export const updateProfileSchema = z.object({
+  fullName: z
+    .string()
+    .trim()
+    .min(3, "Full name must be at least 3 characters.")
+    .max(50, "Full name cannot exceed 50 characters."),
+  avatar: z
+    .string()
+    .trim()
+    .url("Please enter a valid image URL.")
+    .max(500, "Avatar URL cannot exceed 500 characters.")
+    .or(z.literal("")),
+});
+
 export type SignupInput = z.infer<typeof signupSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

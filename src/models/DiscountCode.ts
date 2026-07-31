@@ -35,8 +35,6 @@ const DiscountCodeSchema = new Schema<IDiscountCode>({
   }
 );
 
-DiscountCodeSchema.index({ code: 1 });
-
 const DiscountCode: Model<IDiscountCode> =
   mongoose.models.DiscountCode ||
   mongoose.model<IDiscountCode>("DiscountCode", DiscountCodeSchema);

@@ -4,7 +4,6 @@ export function proxy(request: NextRequest) {
   const token = request.cookies.get("novacart_token")?.value;
 
   const protectedRoutes = [
-    "/profile",
     "/checkout",
     "/admin",
   ];
@@ -20,5 +19,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/profile/:path*", "/checkout/:path*", "/admin/:path*"],
+  matcher: ["/checkout/:path*", "/admin/:path*"],
 };

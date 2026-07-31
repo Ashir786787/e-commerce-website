@@ -4,7 +4,6 @@ import {
   getCart,
   updateCartItem,
   removeCartItem,
-  clearCart,
 } from "@/services/cart.service";
 import { connectDB } from "@/lib/db";
 import { resolveUserId } from "@/lib/user";
@@ -28,20 +27,6 @@ export async function addToCartController(request: NextRequest) {
   } catch (error) {
     return errorResponse(
       error instanceof Error ? error.message : "Failed to add to cart.",
-      400
-    );
-  }
-}
-
-export async function clearCartController() {
-  try {
-    await connectDB();
-    const userId = await resolveUserId();
-    const cart = await clearCart(userId);
-    return successResponse("Cart cleared.", cart);
-  } catch (error) {
-    return errorResponse(
-      error instanceof Error ? error.message : "Could not clear cart.",
       400
     );
   }

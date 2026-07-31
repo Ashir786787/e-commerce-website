@@ -3,6 +3,8 @@ import { Types } from "mongoose";
 
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
+import Cart from "@/models/Cart";
+import Wishlist from "@/models/Wishlist";
 import { getCurrentUser } from "@/services/auth.service";
 
 type UpdateUserBody = {
@@ -228,6 +230,95 @@ export async function PATCH(
       {
         success: false,
         message: "Unable to update user.",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: AdminUserRouteProps
+) {
+  try {
+    await connectDB();
+
+    const currentUser = await getCurrentUser();
+
+    if (!currentUser || currentUser.role !== "admin") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Admin access is required.",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
+
+    const { id } = await params;
+
+    if (!Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid user ID.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const targetUser = await User.findById(id);
+
+    if (!targetUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "User not found.",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    if (targetUser._id.toString() === currentUser.id.toString()) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "You cannot delete your own account.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    await Promise.all([
+      User.findByIdAndDelete(id),
+      Cart.deleteMany({ user: id }),
+      Wishlist.deleteMany({ user: id }),
+    ]);
+
+    return NextResponse.json({
+      success: true,
+      message: "User deleted successfully.",
+      data: {
+        id,
+      },
+    });
+  } catch (error) {
+    console.error("Delete admin user error:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Unable to delete user.",
       },
       {
         status: 500,

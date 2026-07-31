@@ -86,20 +86,3 @@ export async function removeFromWishlist(userId: string, productId: string) {
     })
     .lean();
 }
-
-export async function clearWishlist(userId: string) {
-  if (!Types.ObjectId.isValid(userId)) {
-    throw new Error("Invalid user ID.");
-  }
-
-  const wishlist = await Wishlist.findOne({ user: userId });
-
-  if (!wishlist) {
-    throw new Error("Nothing to clear — wishlist is empty.");
-  }
-
-  wishlist.products = [];
-  await wishlist.save();
-
-  return { products: [] };
-}

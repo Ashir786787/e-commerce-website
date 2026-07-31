@@ -1,56 +1,9 @@
 import Link from "next/link";
-import {
-  BarChart3,
-  Boxes,
-  FolderTree,
-  LayoutDashboard,
-  LogOut,
-  PackageSearch,
-  ShoppingCart,
-  Tag,
-  Users,
-} from "lucide-react";
 
+import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
 import AdminMobileNav from "@/components/admin/AdminMobileNav";
 import { requireAdmin } from "@/lib/admin";
-
-const navigation = [
-  {
-    label: "Dashboard",
-    href: "/admin",
-    icon: LayoutDashboard,
-  },
-  {
-    label: "Users",
-    href: "/admin/users",
-    icon: Users,
-  },
-  {
-    label: "Products",
-    href: "/admin/products",
-    icon: PackageSearch,
-  },
-  {
-    label: "Categories",
-    href: "/admin/categories",
-    icon: FolderTree,
-  },
-  {
-    label: "Orders",
-    href: "/admin/orders",
-    icon: ShoppingCart,
-  },
-  {
-    label: "Discount Codes",
-    href: "/admin/discount-codes",
-    icon: Tag,
-  },
-  {
-    label: "Analytics",
-    href: "/admin/analytics",
-    icon: BarChart3,
-  },
-];
+import { adminNavigation } from "@/lib/admin-navigation";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -62,9 +15,8 @@ export default async function AdminLayout({
   const admin = await requireAdmin();
 
   return (
-    <div className="min-h-screen bg-neutral-100">
-      <div className="grid min-h-screen lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="hidden border-r border-neutral-800 bg-neutral-950 text-white lg:flex lg:flex-col">
+    <div className="flex h-screen overflow-hidden bg-neutral-100">
+      <aside className="hidden w-72 h-screen sticky top-0 flex-shrink-0 flex-col border-r border-neutral-800 bg-[#0b0b0b] text-white lg:flex">
           <div className="border-b border-white/10 px-6 py-6">
             <Link href="/admin" className="block">
               <p className="text-2xl font-bold text-white">
@@ -78,10 +30,23 @@ export default async function AdminLayout({
           </div>
 
           <nav className="flex-1 space-y-2 px-4 py-6">
-            {navigation.map((item) => {
+            {adminNavigation.map((item) => {
               const Icon = item.icon;
 
-              return (
+              return item.separator ? (
+                <div
+                  key={item.href}
+                  className="border-t border-white/10 pt-3"
+                >
+                  <Link
+                    href={item.href}
+                    className="flex items-center gap-3 rounded-xl bg-indigo-600/20 px-4 py-3 text-sm font-medium text-indigo-200 transition hover:bg-indigo-600/30 hover:text-white"
+                  >
+                    <Icon className="h-5 w-5" />
+                    {item.label}
+                  </Link>
+                </div>
+              ) : (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -109,19 +74,13 @@ export default async function AdminLayout({
                   Admin
                 </span>
 
-                <Link
-                  href="/api/auth/logout"
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-400 transition hover:text-white"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Logout
-                </Link>
+                <AdminLogoutButton />
               </div>
             </div>
           </div>
         </aside>
 
-        <div className="min-w-0">
+        <div className="flex flex-1 flex-col overflow-hidden">
           <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/95 backdrop-blur">
             <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
               <div className="flex items-center gap-3">
@@ -159,11 +118,10 @@ export default async function AdminLayout({
             </div>
           </header>
 
-          <main className="p-4 sm:p-6 lg:p-8">
+          <main className="flex-1 overflow-y-auto p-6">
             {children}
           </main>
         </div>
-      </div>
     </div>
   );
 }

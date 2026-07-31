@@ -120,22 +120,6 @@ export async function addToCart({
   return getCart(userId);
 }
 
-export async function clearCart(userId: string) {
-  if (!Types.ObjectId.isValid(userId)) {
-    throw new Error("Invalid user ID.");
-  }
-  const cart = await Cart.findOne({ user: userId });
-  if (!cart) {
-    throw new Error("No active cart found.");
-  }
-  cart.items = [];
-  await cart.save();
-  return {
-    items: [],
-    summary: calculateCartSummary([]),
-  };
-}
-
 type RemoveCartItemInput = {
   userId: string;
   productId: string;

@@ -4,10 +4,10 @@ import {
   verifyEmail,
   loginUser,
   getCurrentUser,
-  logoutUser,
   forgotPassword,
   resetPassword,
   resendOTP,
+  updateProfile,
 } from "@/services/auth.service";
 import { successResponse, errorResponse } from "@/utils/api-response";
 import { connectDB } from "@/lib/db";
@@ -107,6 +107,18 @@ export async function meController() {
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Failed to load user.";
     return errorResponse(msg, msg === "Not authenticated." ? 401 : 500);
+  }
+}
+
+export async function updateProfileController(request: Request) {
+  try {
+    await connectDB();
+    const body = await request.json();
+    const user = await updateProfile(body);
+    return successResponse("Profile updated", user, 200);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Failed to update profile.";
+    return errorResponse(msg, msg === "Not authenticated." ? 401 : 400);
   }
 }
 

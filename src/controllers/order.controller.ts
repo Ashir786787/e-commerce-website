@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { createOrder, getOrderById, getUserOrders, PaymentMethod, ShippingAddressInput } from "@/services/order.service";
+import { createOrder, getUserOrders, PaymentMethod, ShippingAddressInput } from "@/services/order.service";
 import { connectDB } from "@/lib/db";
 import { resolveUserId } from "@/lib/user";
 import { successResponse, errorResponse } from "@/utils/api-response";
@@ -32,18 +32,5 @@ export async function getUserOrdersController() {
     return successResponse("Orders loaded", orders);
   } catch (error) {
     return errorResponse(error instanceof Error ? error.message : "Failed to load orders", 400);
-  }
-}
-
-export async function getOrderByIdController(orderId: string) {
-  try {
-    await connectDB();
-    const userId = await resolveUserId();
-    if (!orderId) return errorResponse("Order ID is required", 400);
-    const order = await getOrderById({ userId, orderId });
-    return successResponse("Order loaded", order);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load order";
-    return errorResponse(message, message === "Order not found" ? 404 : 400);
   }
 }

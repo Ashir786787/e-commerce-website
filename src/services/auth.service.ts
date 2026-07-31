@@ -1,6 +1,6 @@
 import User from "@/models/User";
 import { hashPassword, comparePassword } from "@/utils/password";
-import { signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from "@/validations/auth.validation";
+import { signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema, updateProfileSchema } from "@/validations/auth.validation";
 import {
   generateOTP,
   hashToken,
@@ -83,7 +83,20 @@ export async function getCurrentUser() {
   const decoded = verifyToken(token) as { userId: string; role: string };
   const user = await User.findById(decoded.userId).select("-password");
   if (!user) throw new Error("User not found.");
-  return { id: user._id, fullName: user.fullName, email: user.email, role: user.role, isVerified: user.isVerified };
+  return { id: user._id, fullName: user.fullName, email: user.email, role: user.role, isVerified: user.isVerified, avatar: user.avatar || "", createdAt: user.createdAt };
+}
+
+export async function updateProfile(data: { fullName: string; avatar?: string }) {
+  const validatedData = updateProfileSchema.parse(data);
+  const currentUser = await getCurrentUser();
+  const user = await User.findById(currentUser.id);
+  if (!user) throw new Error("User not found.");
+
+  user.fullName = validatedData.fullName;
+  user.avatar = validatedData.avatar || "";
+  await user.save();
+
+  return { id: user._id, fullName: user.fullName, email: user.email, role: user.role, isVerified: user.isVerified, avatar: user.avatar, createdAt: user.createdAt };
 }
 
 export async function logoutUser() {

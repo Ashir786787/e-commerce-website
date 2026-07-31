@@ -4,7 +4,6 @@ import {
   addToWishlist,
   getWishlist,
   removeFromWishlist,
-  clearWishlist,
 } from "@/services/wishlist.service";
 import { connectDB } from "@/lib/db";
 import { resolveUserId } from "@/lib/user";
@@ -78,25 +77,6 @@ export async function removeFromWishlistController(request: NextRequest) {
     );
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Unable to remove product.";
-
-    const status = msg === "Wishlist not found." ? 404 : 500;
-
-    return NextResponse.json({ success: false, message: msg }, { status });
-  }
-}
-
-export async function clearWishlistController() {
-  try {
-    await connectDB();
-    const userId = await resolveUserId();
-    const wishlist = await clearWishlist(userId);
-
-    return NextResponse.json(
-      { success: true, message: "Wishlist cleared.", wishlist },
-      { status: 200 }
-    );
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : "Failed to clear wishlist.";
 
     const status = msg === "Wishlist not found." ? 404 : 500;
 

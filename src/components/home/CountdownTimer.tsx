@@ -1,8 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
-function getTimeLeft() {
+interface TimeLeft {
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+function getTimeLeft(): TimeLeft {
   const now = new Date();
   const endOfDay = new Date(now);
   endOfDay.setHours(23, 59, 59, 999);
@@ -17,18 +23,43 @@ function getTimeLeft() {
   };
 }
 
+let cached: TimeLeft | null = null;
+
+function getSnapshot(): TimeLeft {
+  const next = getTimeLeft();
+
+  if (
+    cached &&
+    cached.hours === next.hours &&
+    cached.minutes === next.minutes &&
+    cached.seconds === next.seconds
+  ) {
+    return cached;
+  }
+
+  cached = next;
+  return cached;
+}
+
+function getServerSnapshot() {
+  return null;
+}
+
+function subscribe(onStoreChange: () => void) {
+  const interval = setInterval(onStoreChange, 1000);
+  return () => clearInterval(interval);
+}
+
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
 export default function CountdownTimer() {
-  const [time, setTime] = useState<ReturnType<typeof getTimeLeft> | null>(null);
-
-  useEffect(() => {
-    setTime(getTimeLeft());
-    const interval = setInterval(() => setTime(getTimeLeft()), 1000);
-    return () => clearInterval(interval);
-  }, []);
+  const time = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot
+  );
 
   if (!time) {
     return (

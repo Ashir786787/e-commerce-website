@@ -7,23 +7,30 @@ import {
   XCircle,
 } from "lucide-react";
 
+import AdminPagination from "@/components/admin/AdminPagination";
+import DeleteUserButton from "@/components/admin/DeleteUserButton";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
+import { getCurrentUser } from "@/services/auth.service";
 
 export const dynamic = "force-dynamic";
 
 interface AdminUsersPageProps {
   searchParams: Promise<{
     search?: string;
+    page?: string;
   }>;
 }
 
 export default async function AdminUsersPage({
   searchParams,
 }: AdminUsersPageProps) {
-  const { search } = await searchParams;
+  const { search, page: pageParam } = await searchParams;
 
   await connectDB();
+
+  const limit = 10;
+  const requestedPage = Math.max(1, Number(pageParam) || 1);
 
   const query: Record<string, unknown> = {};
 
@@ -39,11 +46,29 @@ export default async function AdminUsersPage({
     ];
   }
 
+  const currentAdmin = await getCurrentUser().catch(
+    () => null
+  );
+  const currentAdminId = currentAdmin?.id.toString();
+
+  const totalUsers = await User.countDocuments(query);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(totalUsers / limit)
+  );
+  const currentPage = Math.min(
+    requestedPage,
+    totalPages
+  );
+  const skip = (currentPage - 1) * limit;
+
   const users = await User.find(query)
     .select(
       "fullName email role isVerified createdAt"
     )
     .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
     .lean();
 
   return (
@@ -148,13 +173,24 @@ export default async function AdminUsersPage({
                     )}
                   </td>
 
-                  <td className="px-5 py-4 text-right">
-                    <Link
-                      href={`/admin/users/${user._id.toString()}`}
-                      className="inline-flex h-9 items-center justify-center rounded-lg border border-neutral-300 bg-white px-4 text-xs font-semibold text-neutral-800 transition hover:border-indigo-300 hover:text-indigo-600"
-                    >
-                      Manage
-                    </Link>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        href={`/admin/users/${user._id.toString()}`}
+                        className="inline-flex h-9 items-center justify-center rounded-lg border border-neutral-300 bg-white px-4 text-xs font-semibold text-neutral-800 transition hover:border-indigo-300 hover:text-indigo-600"
+                      >
+                        Manage
+                      </Link>
+
+                      <DeleteUserButton
+                        userId={user._id.toString()}
+                        userName={user.fullName}
+                        disabled={
+                          user._id.toString() ===
+                          currentAdminId
+                        }
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -176,6 +212,11 @@ export default async function AdminUsersPage({
           </div>
         )}
       </div>
+
+      <AdminPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+      />
     </div>
   );
 }

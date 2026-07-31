@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Mail,
   ShieldCheck,
+  Trash2,
   UserRound,
   XCircle,
 } from "lucide-react";
@@ -13,6 +14,7 @@ import {
   redirect,
 } from "next/navigation";
 
+import DeleteUserButton from "@/components/admin/DeleteUserButton";
 import UserManagementForm from "@/components/admin/UserManagementForm";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
@@ -191,6 +193,35 @@ export default async function AdminUserDetailsPage({
           }}
           isCurrentAdmin={isCurrentAdmin}
         />
+
+        <section className="rounded-2xl border border-red-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="flex items-center gap-3">
+            <Trash2 className="h-5 w-5 text-red-600" />
+
+            <div>
+              <h2 className="text-xl font-semibold text-neutral-950">
+                Delete User
+              </h2>
+
+              <p className="mt-1 text-sm text-neutral-500">
+                Permanently remove this account and its
+                cart and wishlist data.
+              </p>
+            </div>
+          </div>
+
+          {isCurrentAdmin ? (
+            <p className="mt-4 text-sm font-medium text-amber-700">
+              You cannot delete your own account.
+            </p>
+          ) : (
+            <DeleteUserButton
+              userId={user._id.toString()}
+              userName={user.fullName}
+              variant="full"
+            />
+          )}
+        </section>
       </div>
     </div>
   );

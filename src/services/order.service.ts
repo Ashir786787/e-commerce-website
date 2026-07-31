@@ -129,13 +129,3 @@ export async function getUserOrders(userId: string) {
     .sort({ createdAt: -1 })
     .lean();
 }
-
-export async function getOrderById({ userId, orderId }: { userId: string; orderId: string }) {
-  if (!Types.ObjectId.isValid(userId)) throw new Error("Invalid user ID");
-  if (!Types.ObjectId.isValid(orderId)) throw new Error("Invalid order ID");
-  const order = await Order.findOne({ _id: orderId, user: userId })
-    .populate({ path: "items.product", select: "name slug images brand price" })
-    .lean();
-  if (!order) throw new Error("Order not found");
-  return order;
-}

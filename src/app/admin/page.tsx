@@ -34,6 +34,7 @@ export default async function AdminDashboardPage() {
       {
         $match: {
           paymentStatus: "paid",
+          orderStatus: { $ne: "cancelled" },
         },
       },
       {

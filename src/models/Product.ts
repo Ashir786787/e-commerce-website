@@ -24,7 +24,6 @@ const ProductSchema = new Schema<IProduct>(
       unique: true,
       lowercase: true,
       trim: true,
-      index: true,
     },
     description: {
       type: String,

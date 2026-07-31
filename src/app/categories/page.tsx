@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
+import CategoryImage from "@/components/admin/CategoryImage";
 import { connectDB } from "@/lib/db";
 import Category from "@/models/Category";
 
@@ -56,15 +56,23 @@ export default async function CategoriesPage() {
                     className="group overflow-hidden rounded-2xl border bg-card transition duration-300 hover:-translate-y-1 hover:shadow-xl"
                   >
                     <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-                      <Image
+                      <CategoryImage
                         src={
                           category.image ||
                           "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb7tmMiL9Bn2X8Iz5teTECetBoux8iSfOPd__XhLC0lw&s=10"
                         }
                         alt={category.name}
-                        fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className="object-cover transition duration-500 group-hover:scale-105"
+                        fallback={
+                          <div className="flex h-full w-full items-center justify-center bg-indigo-50">
+                            <span className="text-5xl font-bold text-indigo-600/30">
+                              {category.name
+                                .charAt(0)
+                                .toUpperCase()}
+                            </span>
+                          </div>
+                        }
                       />
                     </div>
                     <div className="p-5">
