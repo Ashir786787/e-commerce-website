@@ -95,7 +95,10 @@ export default async function EditProductPage({
             brand: product.brand,
             stock: product.stock,
             images: product.images.map(
-              (image: { url: string }) => image.url
+              (image: { url: string; publicId?: string }) => ({
+                url: image.url,
+                publicId: image.publicId,
+              })
             ),
             isFeatured: product.isFeatured,
             isTrending: product.isTrending,

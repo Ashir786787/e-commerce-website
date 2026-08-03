@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ImagePlus, Plus, Save, Trash2 } from "lucide-react";
+import { ImagePlus, Loader2, Plus, Save, Trash2, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 
 type CategoryOption = {
   id: string;
   name: string;
+};
+
+type ProductImage = {
+  url: string;
+  publicId?: string;
 };
 
 interface ProductFormProps {
@@ -22,7 +27,7 @@ interface ProductFormProps {
     category: string;
     brand: string;
     stock: number;
-    images: string[];
+    images: ProductImage[];
     isFeatured: boolean;
     isTrending: boolean;
     isActive: boolean;
@@ -38,7 +43,7 @@ type ProductFormState = {
   category: string;
   brand: string;
   stock: string;
-  images: string[];
+  images: ProductImage[];
   isFeatured: boolean;
   isTrending: boolean;
   isActive: boolean;
@@ -73,13 +78,20 @@ export default function ProductForm({
     images:
       product?.images && product.images.length > 0
         ? product.images
-        : [""],
+        : [{ url: "", publicId: undefined }],
     isFeatured: product?.isFeatured || false,
     isTrending: product?.isTrending || false,
     isActive: product?.isActive ?? true,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadingIndex, setUploadingIndex] = useState<
+    number | null
+  >(null);
+
+  const fileInputRefs = useRef<Array<HTMLInputElement | null>>(
+    []
+  );
 
   function updateField<K extends keyof ProductFormState>(
     field: K,
@@ -107,15 +119,74 @@ export default function ProductForm({
     setForm((current) => ({
       ...current,
       images: current.images.map((image, imageIndex) =>
-        imageIndex === index ? value : image
+        imageIndex === index
+          ? { ...image, url: value }
+          : image
       ),
     }));
+  }
+
+  async function handleFileUpload(
+    index: number,
+    file: File
+  ) {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file.");
+      return;
+    }
+
+    if (file.size > 4 * 1024 * 1024) {
+      toast.error("Image must be 4MB or smaller.");
+      return;
+    }
+
+    setUploadingIndex(index);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/admin/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.message || "Unable to upload image."
+        );
+      }
+
+      const { url, publicId } = result.data;
+
+      setForm((current) => ({
+        ...current,
+        images: current.images.map((image, imageIndex) =>
+          imageIndex === index
+            ? { url, publicId }
+            : image
+        ),
+      }));
+
+      toast.success("Image uploaded.");
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Unable to upload image."
+      );
+    } finally {
+      setUploadingIndex(null);
+    }
   }
 
   function addImageField() {
     setForm((current) => ({
       ...current,
-      images: [...current.images, ""],
+      images: [...current.images, { url: "", publicId: undefined }],
     }));
   }
 
@@ -140,8 +211,11 @@ export default function ProductForm({
     event.preventDefault();
 
     const cleanImages = form.images
-      .map((url) => url.trim())
-      .filter(Boolean);
+      .map((image) => ({
+        url: image.url.trim(),
+        publicId: image.publicId?.trim() || undefined,
+      }))
+      .filter((image) => image.url);
 
     if (cleanImages.length === 0) {
       toast.error("Add at least one product image URL.");
@@ -172,9 +246,7 @@ export default function ProductForm({
             category: form.category,
             brand: form.brand,
             stock: Number(form.stock),
-            images: cleanImages.map((url) => ({
-              url,
-            })),
+            images: cleanImages,
             isFeatured: form.isFeatured,
             isTrending: form.isTrending,
             isActive: form.isActive,
@@ -437,7 +509,8 @@ export default function ProductForm({
             </h2>
 
             <p className="mt-2 text-sm text-neutral-500">
-              Add one or more publicly accessible image URLs.
+              Upload images to Cloudinary or paste publicly accessible
+              image URLs.
             </p>
           </div>
 
@@ -452,37 +525,99 @@ export default function ProductForm({
         </div>
 
         <div className="mt-6 space-y-4">
-          {form.images.map((image, index) => (
-            <div
-              key={index}
-              className="flex flex-col gap-3 sm:flex-row"
-            >
-              <div className="relative flex-1">
-                <ImagePlus className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          {form.images.map((image, index) => {
+            const isUploading = uploadingIndex === index;
 
-                <input
-                  type="url"
-                  required={index === 0}
-                  value={image}
-                  onChange={(event) =>
-                    updateImage(index, event.target.value)
-                  }
-                  placeholder="https://example.com/product-image.jpg"
-                  className="h-11 w-full rounded-xl border border-neutral-300 pl-10 pr-4 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
-                />
-              </div>
-
-              <button
-                type="button"
-                disabled={form.images.length === 1}
-                onClick={() => removeImageField(index)}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-red-200 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+            return (
+              <div
+                key={index}
+                className="rounded-xl border border-neutral-200 bg-neutral-50/60 p-4"
               >
-                <Trash2 className="h-4 w-4" />
-                Remove
-              </button>
-            </div>
-          ))}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                  <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-neutral-200 bg-white">
+                    {image.url ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- arbitrary preview URLs are not covered by next/image remote patterns
+                      <img
+                        src={image.url}
+                        alt={`Product image ${index + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-neutral-100 text-neutral-400">
+                        <ImagePlus className="h-8 w-8" />
+                      </div>
+                    )}
+
+                    {isUploading && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                        <Loader2 className="h-6 w-6 animate-spin text-white" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="min-w-0 flex-1 space-y-3">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRefs.current[index]?.click()}
+                        disabled={isUploading}
+                        className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <UploadCloud className="h-4 w-4" />
+                        {isUploading
+                          ? "Uploading..."
+                          : "Upload to Cloudinary"}
+                      </button>
+
+                      <input
+                        ref={(element) => {
+                          fileInputRefs.current[index] = element;
+                        }}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                        className="hidden"
+                        disabled={isUploading}
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (file) {
+                            handleFileUpload(index, file);
+                          }
+                          event.target.value = "";
+                        }}
+                      />
+
+                      <button
+                        type="button"
+                        disabled={form.images.length === 1}
+                        onClick={() => removeImageField(index)}
+                        className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-red-200 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Remove
+                      </button>
+                    </div>
+
+                    <div className="relative">
+                      <input
+                        type="url"
+                        value={image.url}
+                        onChange={(event) =>
+                          updateImage(index, event.target.value)
+                        }
+                        placeholder="https://res.cloudinary.com/.../product.jpg"
+                        className="h-11 w-full rounded-xl border border-neutral-300 bg-white px-4 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                      />
+                    </div>
+
+                    <p className="text-xs text-neutral-500">
+                      Upload from your computer or paste an image URL
+                      directly.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 

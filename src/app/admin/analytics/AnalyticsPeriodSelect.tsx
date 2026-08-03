@@ -5,6 +5,7 @@ import { CalendarRange } from "lucide-react";
 
 interface AnalyticsPeriodSelectProps {
   period: string;
+  basePath?: string;
 }
 
 const options = [
@@ -17,14 +18,13 @@ const options = [
 
 export default function AnalyticsPeriodSelect({
   period,
+  basePath = "/admin/analytics",
 }: AnalyticsPeriodSelectProps) {
   const router = useRouter();
 
   function handleChange(value: string) {
     router.push(
-      value === "all"
-        ? "/admin/analytics"
-        : `/admin/analytics?period=${value}`
+      value === "all" ? basePath : `${basePath}?period=${value}`
     );
   }
 

@@ -7,7 +7,7 @@ import { createPortal } from "react-dom";
 import { Menu, X } from "lucide-react";
 
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
-import { adminNavigation } from "@/lib/admin-navigation";
+import { adminNavigation, isAdminNavActive } from "@/lib/admin-navigation";
 
 interface AdminMobileNavProps {
   adminName: string;
@@ -98,6 +98,7 @@ export default function AdminMobileNav({
               <nav className="flex-1 space-y-2 overflow-y-auto px-4 py-6">
                 {adminNavigation.map((item) => {
                   const Icon = item.icon;
+                  const isActive = isAdminNavActive(item.href, pathname);
 
                   return item.separator ? (
                     <div
@@ -118,9 +119,10 @@ export default function AdminMobileNav({
                       key={item.href}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
+                      aria-current={isActive ? "page" : undefined}
                       className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
-                        pathname === item.href
-                          ? "bg-white/10 text-white"
+                        isActive
+                          ? "bg-indigo-600 text-white"
                           : "text-neutral-300 hover:bg-white/10 hover:text-white"
                       }`}
                     >

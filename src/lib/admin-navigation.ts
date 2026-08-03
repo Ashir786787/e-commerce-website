@@ -9,6 +9,20 @@ import {
   Users,
 } from "lucide-react";
 
+export function isAdminNavActive(
+  href: string,
+  pathname: string
+): boolean {
+  if (href === "/admin") {
+    return pathname === href;
+  }
+
+  return (
+    pathname === href ||
+    pathname.startsWith(href.replace(/\/$/, "") + "/")
+  );
+}
+
 export const adminNavigation = [
   {
     label: "Dashboard",
