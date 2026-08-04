@@ -19,9 +19,7 @@ async function fixCategoryImages() {
     }
 
     if (!imageBySlug.has("home")) {
-      const homeCategory = defaultCategories.find(
-        (category) => category.slug === "home-living"
-      );
+      const homeCategory = defaultCategories.find((category) => category.slug === "home-living");
       if (homeCategory) {
         imageBySlug.set("home", homeCategory.image);
       }
@@ -43,18 +41,12 @@ async function fixCategoryImages() {
         continue;
       }
 
-      const replacement =
-        imageBySlug.get(category.slug) || DEFAULT_IMAGE;
+      const replacement = imageBySlug.get(category.slug) || DEFAULT_IMAGE;
 
-      await Category.updateOne(
-        { _id: category._id },
-        { $set: { image: replacement } }
-      );
+      await Category.updateOne({ _id: category._id }, { $set: { image: replacement } });
 
       console.log(
-        `Updated "${category.name}" (${
-          category.slug
-        }): ${currentImage || "(empty)"} -> ${replacement}`
+        `Updated "${category.name}" (${category.slug}): ${currentImage || "(empty)"} -> ${replacement}`
       );
 
       updated++;

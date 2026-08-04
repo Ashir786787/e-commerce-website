@@ -21,6 +21,8 @@
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.10.0",
     "clsx": "^2.1.1",
+    "firebase": "^12.17.0",
+    "firebase-admin": "^14.2.0",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.23.0",
     "mongoose": "^9.7.4",

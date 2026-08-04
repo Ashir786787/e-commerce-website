@@ -49,12 +49,35 @@ export interface IOrder extends Document {
 }
 
 const OrderItemSchema = new Schema<IOrderItem>(
-  { product: { type: Schema.Types.ObjectId, ref: "Product", required: true }, quantity: { type: Number, required: true, min: 1 }, price: { type: Number, required: true } },
+  {
+    product: {
+      type: Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+  },
   { _id: false }
 );
 
 const ShippingAddressSchema = new Schema<IShippingAddress>(
-  { fullName: { type: String, required: true }, email: { type: String, required: true }, phone: { type: String, required: true }, address: { type: String, required: true }, city: { type: String, required: true }, postalCode: { type: String, required: true }, country: { type: String, required: true } },
+  {
+    fullName: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: { type: String, required: true },
+    address: { type: String, required: true },
+    city: { type: String, required: true },
+    postalCode: { type: String, required: true },
+    country: { type: String, required: true },
+  },
   { _id: false }
 );
 
@@ -69,8 +92,16 @@ const OrderSchema = new Schema<IOrder>(
     tax: { type: Number, default: 0 },
     discount: { type: Number, default: 0 },
     total: { type: Number, required: true },
-    orderStatus: { type: String, enum: ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"], default: "pending" },
-    paymentStatus: { type: String, enum: ["pending", "paid", "failed"], default: "pending" },
+    orderStatus: {
+      type: String,
+      enum: ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"],
+      default: "pending",
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "paid", "failed"],
+      default: "pending",
+    },
     orderNumber: { type: String, unique: true, required: true },
     invoiceNumber: { type: String },
     paymentIntentId: { type: String },

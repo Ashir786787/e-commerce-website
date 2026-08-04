@@ -43,11 +43,7 @@ export async function loginController(request: Request) {
     const token = signToken({ userId: user.id, role: user.role });
 
     const response = NextResponse.json(
-      {
-        success: true,
-        message: "Login successful",
-        data: user,
-      },
+      { success: true, message: "Login successful", data: user },
       { status: 200 }
     );
 

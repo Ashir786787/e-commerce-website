@@ -19,9 +19,7 @@ export async function addToWishlist(userId: string, productId: string) {
       products: [productId],
     });
   } else {
-    const alreadyExists = wishlist.products.some(
-      (p) => p.toString() === productId
-    );
+    const alreadyExists = wishlist.products.some((p) => p.toString() === productId);
 
     if (alreadyExists) {
       throw new Error("Product is already in your wishlist.");
@@ -73,9 +71,7 @@ export async function removeFromWishlist(userId: string, productId: string) {
     throw new Error("No wishlist found for this user.");
   }
 
-  wishlist.products = wishlist.products.filter(
-    (p) => p.toString() !== productId
-  );
+  wishlist.products = wishlist.products.filter((p) => p.toString() !== productId);
 
   await wishlist.save();
 

@@ -55,18 +55,13 @@ export default function CartItem({
               className="object-cover"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-4xl">
-              📦
-            </div>
+            <div className="flex h-full items-center justify-center text-4xl">📦</div>
           )}
         </div>
 
         <div className="flex flex-1 flex-col justify-between">
           <div>
-            <h3 className="text-lg font-semibold">
-              {item.product.name}
-            </h3>
-
+            <h3 className="text-lg font-semibold">{item.product.name}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Brand: {item.product.brand || "N/A"}
             </p>
@@ -74,20 +69,12 @@ export default function CartItem({
 
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <div>
-              <p className="text-xs uppercase text-muted-foreground">
-                Price
-              </p>
-
-              <p className="font-semibold">
-                Rs. {item.price.toLocaleString("en-PK")}
-              </p>
+              <p className="text-xs uppercase text-muted-foreground">Price</p>
+              <p className="font-semibold">Rs. {item.price.toLocaleString("en-PK")}</p>
             </div>
 
             <div>
-              <p className="text-xs uppercase text-muted-foreground">
-                Quantity
-              </p>
-
+              <p className="text-xs uppercase text-muted-foreground">Quantity</p>
               <QuantitySelector
                 quantity={item.quantity}
                 onIncrease={onIncrease}
@@ -97,10 +84,7 @@ export default function CartItem({
             </div>
 
             <div>
-              <p className="text-xs uppercase text-muted-foreground">
-                Subtotal
-              </p>
-
+              <p className="text-xs uppercase text-muted-foreground">Subtotal</p>
               <p className="font-semibold text-primary">
                 Rs. {(item.price * item.quantity).toLocaleString("en-PK")}
               </p>
@@ -108,10 +92,7 @@ export default function CartItem({
           </div>
 
           <div className="mt-5">
-            <RemoveButton
-              onRemove={onRemove}
-              loading={loading}
-            />
+            <RemoveButton onRemove={onRemove} loading={loading} />
           </div>
         </div>
       </div>

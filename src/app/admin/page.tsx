@@ -29,53 +29,31 @@ interface AdminDashboardPageProps {
   }>;
 }
 
-export default async function AdminDashboardPage({
-  searchParams,
-}: AdminDashboardPageProps) {
+export default async function AdminDashboardPage({ searchParams }: AdminDashboardPageProps) {
   const { period } = await searchParams;
   const activePeriod = parsePeriod(period);
 
-  const {
-    totals,
-    orderStatusBreakdown,
-    paymentStatusBreakdown,
-    revenueTrend,
-    topSellingProducts,
-  } = await getAdminStatistics(activePeriod);
+  const { totals, orderStatusBreakdown, paymentStatusBreakdown, revenueTrend, topSellingProducts } =
+    await getAdminStatistics(activePeriod);
 
   await connectDB();
 
-  const [totalProducts, totalOrders, revenueResult] =
-    await Promise.all([
-      Product.countDocuments({ isActive: true }),
-      Order.countDocuments(),
-      Order.aggregate<{ _id: null; totalRevenue: number }>([
-        {
-          $match: {
-            paymentStatus: "paid",
-            orderStatus: { $ne: "cancelled" },
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            totalRevenue: { $sum: "$total" },
-          },
-        },
-      ]),
-    ]);
+  const [totalProducts, totalOrders, revenueResult] = await Promise.all([
+    Product.countDocuments({ isActive: true }),
+    Order.countDocuments(),
+    Order.aggregate<{ _id: null; totalRevenue: number }>([
+      { $match: { paymentStatus: "paid", orderStatus: { $ne: "cancelled" } } },
+      { $group: { _id: null, totalRevenue: { $sum: "$total" } } },
+    ]),
+  ]);
 
-  const allTimeRevenue =
-    revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
+  const allTimeRevenue = revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
 
   const cards = [
     {
       title: "Paid Revenue",
       value: `Rs. ${formatPrice(totals.revenue)}`,
-      description:
-        activePeriod === "all"
-          ? "Revenue from paid orders"
-          : "Paid revenue in selected period",
+      description: activePeriod === "all" ? "Revenue from paid orders" : "Paid revenue in selected period",
       icon: CircleDollarSign,
       iconBg: "bg-emerald-50 text-emerald-600",
       accent: "from-emerald-500 to-teal-400",
@@ -83,10 +61,7 @@ export default async function AdminDashboardPage({
     {
       title: "Total Orders",
       value: totals.orders.toLocaleString("en-PK"),
-      description:
-        activePeriod === "all"
-          ? "All customer orders"
-          : "Orders in selected period",
+      description: activePeriod === "all" ? "All customer orders" : "Orders in selected period",
       icon: ShoppingCart,
       iconBg: "bg-indigo-50 text-indigo-600",
       accent: "from-indigo-500 to-violet-400",
@@ -110,47 +85,19 @@ export default async function AdminDashboardPage({
   ];
 
   const marketplaceStats = [
-    {
-      label: "Users",
-      value: totals.users,
-      icon: Users,
-      iconBg: "bg-sky-50 text-sky-600",
-    },
-    {
-      label: "Active Products",
-      value: totalProducts,
-      icon: Boxes,
-      iconBg: "bg-indigo-50 text-indigo-600",
-    },
-    {
-      label: "Orders",
-      value: totalOrders,
-      icon: ShoppingCart,
-      iconBg: "bg-violet-50 text-violet-600",
-    },
-    {
-      label: "Categories",
-      value: totals.categories,
-      icon: FolderTree,
-      iconBg: "bg-amber-50 text-amber-600",
-    },
+    { label: "Users", value: totals.users, icon: Users, iconBg: "bg-sky-50 text-sky-600" },
+    { label: "Active Products", value: totalProducts, icon: Boxes, iconBg: "bg-indigo-50 text-indigo-600" },
+    { label: "Orders", value: totalOrders, icon: ShoppingCart, iconBg: "bg-violet-50 text-violet-600" },
+    { label: "Categories", value: totals.categories, icon: FolderTree, iconBg: "bg-amber-50 text-amber-600" },
   ];
 
   return (
     <div>
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
-            Overview
-          </p>
-
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">
-            Admin Dashboard
-          </h1>
-
-          <p className="mt-3 text-neutral-600">
-            Monitor NovaCart activity and manage the marketplace.
-          </p>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">Overview</p>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">Admin Dashboard</h1>
+          <p className="mt-3 text-neutral-600">Monitor NovaCart activity and manage the marketplace.</p>
         </div>
 
         <AnalyticsPeriodSelect period={activePeriod} basePath="/admin" />
@@ -165,28 +112,18 @@ export default async function AdminDashboardPage({
               key={card.title}
               className="group relative overflow-hidden rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              <div
-                className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${card.accent}`}
-              />
+              <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${card.accent}`} />
 
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-neutral-500">
-                    {card.title}
-                  </p>
-
+                  <p className="text-sm font-medium text-neutral-500">{card.title}</p>
                   <p className="mt-3 break-words text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">
                     {card.value}
                   </p>
-
-                  <p className="mt-1.5 text-sm text-neutral-500">
-                    {card.description}
-                  </p>
+                  <p className="mt-1.5 text-sm text-neutral-500">{card.description}</p>
                 </div>
 
-                <span
-                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${card.iconBg}`}
-                >
+                <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${card.iconBg}`}>
                   <Icon className="h-6 w-6" />
                 </span>
               </div>
@@ -197,20 +134,13 @@ export default async function AdminDashboardPage({
 
       <div className="mt-6 grid gap-6 xl:grid-cols-3">
         <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm xl:col-span-2">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold text-neutral-950">
-                Revenue Trend
-              </h2>
-
-              <p className="mt-2 text-sm text-neutral-500">
-                {activePeriod === "7d" || activePeriod === "30d"
-                  ? `Daily revenue — last ${revenueTrend.length} days`
-                  : `Monthly revenue — last ${revenueTrend.length} months`}{" "}
-                from paid orders.
-              </p>
-            </div>
-          </div>
+          <h2 className="text-xl font-semibold text-neutral-950">Revenue Trend</h2>
+          <p className="mt-2 text-sm text-neutral-500">
+            {activePeriod === "7d" || activePeriod === "30d"
+              ? `Daily revenue — last ${revenueTrend.length} days`
+              : `Monthly revenue — last ${revenueTrend.length} months`}{" "}
+            from paid orders.
+          </p>
 
           <div className="mt-6">
             <RevenueChart data={revenueTrend} />
@@ -218,13 +148,8 @@ export default async function AdminDashboardPage({
         </section>
 
         <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-neutral-950">
-            Order Status
-          </h2>
-
-          <p className="mt-2 text-sm text-neutral-500">
-            Share of total orders across fulfillment statuses.
-          </p>
+          <h2 className="text-xl font-semibold text-neutral-950">Order Status</h2>
+          <p className="mt-2 text-sm text-neutral-500">Share of total orders across fulfillment statuses.</p>
 
           <div className="mt-6">
             <OrderStatusChart data={orderStatusBreakdown} />
@@ -234,32 +159,19 @@ export default async function AdminDashboardPage({
 
       <div className="mt-6 grid gap-6 xl:grid-cols-3">
         <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm xl:col-span-2">
-          <h2 className="text-xl font-semibold text-neutral-950">
-            Top-Selling Products
-          </h2>
-
-          <p className="mt-2 text-sm text-neutral-500">
-            Ranked by units sold.
-          </p>
+          <h2 className="text-xl font-semibold text-neutral-950">Top-Selling Products</h2>
+          <p className="mt-2 text-sm text-neutral-500">Ranked by units sold.</p>
 
           <div className="mt-6">
             <TopProductsChart
-              data={topSellingProducts.map((product) => ({
-                name: product.name,
-                sold: product.sold,
-              }))}
+              data={topSellingProducts.map((product) => ({ name: product.name, sold: product.sold }))}
             />
           </div>
         </section>
 
         <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-neutral-950">
-            Payment Status
-          </h2>
-
-          <p className="mt-2 text-sm text-neutral-500">
-            Overview of successful, pending and failed payments.
-          </p>
+          <h2 className="text-xl font-semibold text-neutral-950">Payment Status</h2>
+          <p className="mt-2 text-sm text-neutral-500">Overview of successful, pending and failed payments.</p>
 
           <div className="mt-6">
             <PaymentStatusChart data={paymentStatusBreakdown} />
@@ -268,13 +180,10 @@ export default async function AdminDashboardPage({
       </div>
 
       <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-neutral-950">
-          Marketplace Overview
-        </h2>
-
+        <h2 className="text-xl font-semibold text-neutral-950">Marketplace Overview</h2>
         <p className="mt-2 text-sm text-neutral-500">
-          These statistics are loaded directly from MongoDB and update whenever
-          users, products, orders, or paid revenue change.
+          These statistics are loaded directly from MongoDB and update whenever users, products, orders, or paid
+          revenue change.
         </p>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -282,20 +191,12 @@ export default async function AdminDashboardPage({
             const Icon = stat.icon;
 
             return (
-              <div
-                key={stat.label}
-                className="rounded-2xl border border-neutral-100 bg-neutral-50/70 p-5"
-              >
+              <div key={stat.label} className="rounded-2xl border border-neutral-100 bg-neutral-50/70 p-5">
                 <div className="flex items-center gap-2.5">
-                  <span
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${stat.iconBg}`}
-                  >
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${stat.iconBg}`}>
                     <Icon className="h-4 w-4" />
                   </span>
-
-                  <p className="text-sm font-medium text-neutral-500">
-                    {stat.label}
-                  </p>
+                  <p className="text-sm font-medium text-neutral-500">{stat.label}</p>
                 </div>
 
                 <p className="mt-4 text-2xl font-bold tracking-tight text-neutral-950">
@@ -308,10 +209,7 @@ export default async function AdminDashboardPage({
 
         <div className="mt-4 flex items-center justify-between gap-4 overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-6 shadow-lg shadow-indigo-600/20">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/70">
-              All-Time Paid Revenue
-            </p>
-
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/70">All-Time Paid Revenue</p>
             <p className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
               Rs. {formatPrice(allTimeRevenue)}
             </p>

@@ -8,11 +8,9 @@ export default function CheckoutPage() {
           <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
             Secure Checkout
           </p>
-
           <h1 className="text-3xl font-bold tracking-tight text-neutral-950">
             Complete your order
           </h1>
-
           <p className="mt-2 text-sm text-neutral-500">
             Enter your delivery details and choose your payment method.
           </p>

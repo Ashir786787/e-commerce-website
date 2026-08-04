@@ -15,20 +15,20 @@ export interface IDiscountCode extends Document {
 const DiscountCodeSchema = new Schema<IDiscountCode>({
   code: { type: String, required: true, unique: true, uppercase: true, trim: true },
   discountPercent: { type: Number, required: true, min: 1, max: 100 },
-    isActive: { type: Boolean, default: true },
-    expiresAt: { type: Date },
-    usedBy: [
-      {
-        userId: {
-          type: Schema.Types.ObjectId,
-          ref: "User",
-        },
-        usedAt: {
-          type: Date,
-          default: Date.now,
-        },
+  isActive: { type: Boolean, default: true },
+  expiresAt: { type: Date },
+  usedBy: [
+    {
+      userId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
       },
-    ],
+      usedAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
   },
   {
     timestamps: true,

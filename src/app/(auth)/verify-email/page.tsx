@@ -36,10 +36,7 @@ function VerifyEmailContent() {
     try {
       setIsSubmitting(true);
 
-      await api.post("/auth/verify-email", {
-        email,
-        otp,
-      });
+      await api.post("/auth/verify-email", { email, otp, });
 
       toast.success("Email verified successfully.");
       router.push("/login");
@@ -96,9 +93,7 @@ function VerifyEmailContent() {
       <form onSubmit={handleVerify} className="space-y-6">
         <OTPInput value={otp} onChange={setOtp} />
 
-        <SubmitButton isLoading={isSubmitting}>
-          Verify Email
-        </SubmitButton>
+        <SubmitButton isLoading={isSubmitting}>Verify Email</SubmitButton>
 
         <div className="text-center text-sm text-muted-foreground">
           {resendTimer > 0 ? (

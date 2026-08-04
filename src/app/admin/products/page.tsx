@@ -1,11 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Edit3,
-  PackageOpen,
-  Plus,
-  Search,
-} from "lucide-react";
+import { Edit3, PackageOpen, Plus, Search } from "lucide-react";
 import { Types } from "mongoose";
 
 import { connectDB } from "@/lib/db";
@@ -31,16 +26,8 @@ export default async function AdminProductsPage({
 }: AdminProductsPageProps) {
   const params = await searchParams;
 
-  const search =
-    typeof params.search === "string"
-      ? params.search.trim()
-      : "";
-
-  const selectedCategory =
-    typeof params.category === "string"
-      ? params.category
-      : "";
-
+  const search = typeof params.search === "string" ? params.search.trim() : "";
+  const selectedCategory = typeof params.category === "string" ? params.category : "";
   const status =
     params.status === "active" ||
     params.status === "inactive" ||
@@ -55,31 +42,13 @@ export default async function AdminProductsPage({
 
   if (search) {
     query.$or = [
-      {
-        name: {
-          $regex: search,
-          $options: "i",
-        },
-      },
-      {
-        brand: {
-          $regex: search,
-          $options: "i",
-        },
-      },
-      {
-        slug: {
-          $regex: search,
-          $options: "i",
-        },
-      },
+      { name: { $regex: search, $options: "i" } },
+      { brand: { $regex: search, $options: "i" } },
+      { slug: { $regex: search, $options: "i" } },
     ];
   }
 
-  if (
-    selectedCategory &&
-    Types.ObjectId.isValid(selectedCategory)
-  ) {
+  if (selectedCategory && Types.ObjectId.isValid(selectedCategory)) {
     query.category = selectedCategory;
   }
 
@@ -99,27 +68,14 @@ export default async function AdminProductsPage({
     query.isTrending = true;
   }
 
-  const [products, categories, totalProducts] =
-    await Promise.all([
-      Product.find(query)
-        .populate({
-          path: "category",
-          select: "name slug",
-        })
-        .sort({
-          createdAt: -1,
-        })
-        .lean(),
-
-      Category.find()
-        .select("name slug isActive")
-        .sort({
-          name: 1,
-        })
-        .lean(),
-
-      Product.countDocuments(),
-    ]);
+  const [products, categories, totalProducts] = await Promise.all([
+    Product.find(query)
+      .populate({ path: "category", select: "name slug" })
+      .sort({ createdAt: -1 })
+      .lean(),
+    Category.find().select("name slug isActive").sort({ name: 1 }).lean(),
+    Product.countDocuments(),
+  ]);
 
   return (
     <div>
@@ -128,17 +84,13 @@ export default async function AdminProductsPage({
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
             Product Management
           </p>
-
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">
             Products
           </h1>
-
           <p className="mt-3 text-neutral-600">
-            Create, edit and manage the NovaCart product
-            catalogue.
+            Create, edit and manage the NovaCart product catalogue.
           </p>
         </div>
-
         <Link
           href="/admin/products/new"
           className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 text-sm font-semibold text-white transition hover:bg-indigo-700 sm:w-fit"
@@ -150,30 +102,21 @@ export default async function AdminProductsPage({
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-neutral-500">
-            Total Products
-          </p>
-
+          <p className="text-sm text-neutral-500">Total Products</p>
           <p className="mt-2 text-3xl font-bold text-neutral-950">
             {totalProducts}
           </p>
         </div>
 
         <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-neutral-500">
-            Current Results
-          </p>
-
+          <p className="text-sm text-neutral-500">Current Results</p>
           <p className="mt-2 text-3xl font-bold text-neutral-950">
             {products.length}
           </p>
         </div>
 
         <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-neutral-500">
-            Categories
-          </p>
-
+          <p className="text-sm text-neutral-500">Categories</p>
           <p className="mt-2 text-3xl font-bold text-neutral-950">
             {categories.length}
           </p>
@@ -183,7 +126,6 @@ export default async function AdminProductsPage({
       <form className="mt-6 grid gap-4 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm lg:grid-cols-[minmax(0,1fr)_220px_200px_auto]">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-
           <input
             type="search"
             name="search"
@@ -199,7 +141,6 @@ export default async function AdminProductsPage({
           className="h-11 rounded-xl border border-neutral-300 bg-white px-4 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
         >
           <option value="">All categories</option>
-
           {categories.map((category) => (
             <option
               key={category._id.toString()}
@@ -229,7 +170,6 @@ export default async function AdminProductsPage({
           >
             Apply
           </button>
-
           <Link
             href="/admin/products"
             className="inline-flex h-11 flex-1 items-center justify-center rounded-xl border border-neutral-300 bg-white px-5 text-sm font-semibold text-neutral-700 transition hover:border-indigo-300 hover:text-indigo-600"
@@ -243,14 +183,11 @@ export default async function AdminProductsPage({
         {products.length === 0 ? (
           <div className="px-6 py-16 text-center">
             <PackageOpen className="mx-auto h-12 w-12 text-neutral-300" />
-
             <h2 className="mt-4 text-xl font-semibold text-neutral-950">
               No products found
             </h2>
-
             <p className="mt-2 text-sm text-neutral-500">
-              Try changing the current search or filter
-              options.
+              Try changing the current search or filter options.
             </p>
           </div>
         ) : (
@@ -261,23 +198,18 @@ export default async function AdminProductsPage({
                   <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     Product
                   </th>
-
                   <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     Category
                   </th>
-
                   <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     Price
                   </th>
-
                   <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     Stock
                   </th>
-
                   <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     Status
                   </th>
-
                   <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     Actions
                   </th>
@@ -286,12 +218,10 @@ export default async function AdminProductsPage({
 
               <tbody className="divide-y divide-neutral-200">
                 {products.map((product) => {
-                  const category =
-                    product.category as unknown as {
-                      name?: string;
-                      slug?: string;
-                    };
-
+                  const category = product.category as unknown as {
+                    name?: string;
+                    slug?: string;
+                  };
                   const image =
                     product.images?.[0]?.url ||
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb7tmMiL9Bn2X8Iz5teTECetBoux8iSfOPd__XhLC0lw&s=10";
@@ -312,16 +242,13 @@ export default async function AdminProductsPage({
                               className="object-cover"
                             />
                           </div>
-
                           <div className="min-w-0">
                             <p className="max-w-[280px] truncate font-semibold text-neutral-950">
                               {product.name}
                             </p>
-
                             <p className="mt-1 text-sm text-neutral-500">
                               {product.brand}
                             </p>
-
                             <p className="mt-1 max-w-[280px] truncate text-xs text-neutral-400">
                               {product.slug}
                             </p>
@@ -330,25 +257,18 @@ export default async function AdminProductsPage({
                       </td>
 
                       <td className="px-6 py-5 text-sm text-neutral-700">
-                        {category?.name ||
-                          "Uncategorized"}
+                        {category?.name || "Uncategorized"}
                       </td>
 
                       <td className="px-6 py-5">
                         <p className="font-semibold text-neutral-950">
                           Rs. {formatPrice(product.price)}
                         </p>
-
-                        {product.originalPrice &&
-                          product.originalPrice >
-                            product.price && (
-                            <p className="mt-1 text-xs text-neutral-400 line-through">
-                              Rs.{" "}
-                              {formatPrice(
-                                product.originalPrice
-                              )}
-                            </p>
-                          )}
+                        {product.originalPrice && product.originalPrice > product.price && (
+                          <p className="mt-1 text-xs text-neutral-400 line-through">
+                            Rs. {formatPrice(product.originalPrice)}
+                          </p>
+                        )}
                       </td>
 
                       <td className="px-6 py-5">
@@ -376,9 +296,7 @@ export default async function AdminProductsPage({
                                 : "bg-neutral-200 text-neutral-600"
                             }`}
                           >
-                            {product.isActive
-                              ? "Active"
-                              : "Inactive"}
+                            {product.isActive ? "Active" : "Inactive"}
                           </span>
 
                           {product.isFeatured && (

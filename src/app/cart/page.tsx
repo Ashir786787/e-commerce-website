@@ -88,10 +88,7 @@ export default function CartPage() {
     }
   }, []);
 
-  const updateQuantity = async (
-    productId: string,
-    quantity: number
-  ) => {
+  const updateQuantity = async (productId: string, quantity: number) => {
     setUpdatingId(productId);
 
     try {
@@ -101,10 +98,7 @@ export default function CartPage() {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({
-          productId,
-          quantity,
-        }),
+        body: JSON.stringify({ productId, quantity, }),
       });
 
       const result = await response.json();
@@ -220,18 +214,8 @@ export default function CartPage() {
                       key={item.product._id}
                       item={item}
                       loading={updatingId === item.product._id}
-                      onIncrease={() =>
-                        updateQuantity(
-                          item.product._id,
-                          item.quantity + 1
-                        )
-                      }
-                      onDecrease={() =>
-                        updateQuantity(
-                          item.product._id,
-                          item.quantity - 1
-                        )
-                      }
+                      onIncrease={() => updateQuantity(item.product._id, item.quantity + 1)}
+                      onDecrease={() => updateQuantity(item.product._id, item.quantity - 1)}
                       onRemove={() => removeItem(item.product._id)}
                     />
                   ))}

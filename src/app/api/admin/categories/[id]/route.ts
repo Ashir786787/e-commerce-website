@@ -38,10 +38,7 @@ async function requireAdmin() {
   return currentUser;
 }
 
-export async function GET(
-  _request: NextRequest,
-  { params }: CategoryRouteProps
-) {
+export async function GET(_request: NextRequest, { params }: CategoryRouteProps) {
   try {
     await connectDB();
     await requireAdmin();
@@ -50,13 +47,8 @@ export async function GET(
 
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid category ID.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Invalid category ID." },
+        { status: 400 }
       );
     }
 
@@ -64,19 +56,12 @@ export async function GET(
 
     if (!category) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Category not found.",
-        },
-        {
-          status: 404,
-        }
+        { success: false, message: "Category not found." },
+        { status: 404 }
       );
     }
 
-    const productCount = await Product.countDocuments({
-      category: category._id,
-    });
+    const productCount = await Product.countDocuments({ category: category._id });
 
     return NextResponse.json({
       success: true,
@@ -95,30 +80,16 @@ export async function GET(
   } catch (error) {
     console.error("Load admin category error:", error);
 
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Unable to load category.";
+    const message = error instanceof Error ? error.message : "Unable to load category.";
 
     return NextResponse.json(
-      {
-        success: false,
-        message,
-      },
-      {
-        status:
-          message === "Admin access is required."
-            ? 403
-            : 500,
-      }
+      { success: false, message },
+      { status: message === "Admin access is required." ? 403 : 500 }
     );
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: CategoryRouteProps
-) {
+export async function PATCH(request: NextRequest, { params }: CategoryRouteProps) {
   try {
     await connectDB();
     await requireAdmin();
@@ -127,13 +98,8 @@ export async function PATCH(
 
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid category ID.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Invalid category ID." },
+        { status: 400 }
       );
     }
 
@@ -141,96 +107,51 @@ export async function PATCH(
 
     if (!category) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Category not found.",
-        },
-        {
-          status: 404,
-        }
+        { success: false, message: "Category not found." },
+        { status: 404 }
       );
     }
 
-    const body =
-      (await request.json()) as UpdateCategoryBody;
+    const body = (await request.json()) as UpdateCategoryBody;
 
     const name = body.name?.trim();
-    const slug = normalizeSlug(
-      body.slug || body.name || category.slug
-    );
-    const description =
-      body.description?.trim() || "";
+    const slug = normalizeSlug(body.slug || body.name || category.slug);
+    const description = body.description?.trim() || "";
     const image = body.image?.trim() || "";
 
     if (!name || name.length < 2) {
       return NextResponse.json(
-        {
-          success: false,
-          message:
-            "Category name must contain at least 2 characters.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Category name must contain at least 2 characters." },
+        { status: 400 }
       );
     }
 
     if (!slug) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "A valid category slug is required.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "A valid category slug is required." },
+        { status: 400 }
       );
     }
 
     if (description.length > 500) {
       return NextResponse.json(
-        {
-          success: false,
-          message:
-            "Description cannot exceed 500 characters.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Description cannot exceed 500 characters." },
+        { status: 400 }
       );
     }
 
-    const duplicateCategory =
-      await Category.findOne({
-        _id: {
-          $ne: id,
-        },
-        $or: [
-          {
-            name: {
-              $regex: `^${name.replace(
-                /[.*+?^${}()|[\]\\]/g,
-                "\\$&"
-              )}$`,
-              $options: "i",
-            },
-          },
-          {
-            slug,
-          },
-        ],
-      }).lean();
+    const duplicateCategory = await Category.findOne({
+      _id: { $ne: id },
+      $or: [
+        { name: { $regex: `^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" } },
+        { slug },
+      ],
+    }).lean();
 
     if (duplicateCategory) {
       return NextResponse.json(
-        {
-          success: false,
-          message:
-            "Another category already uses this name or slug.",
-        },
-        {
-          status: 409,
-        }
+        { success: false, message: "Another category already uses this name or slug." },
+        { status: 409 }
       );
     }
 
@@ -238,8 +159,7 @@ export async function PATCH(
     category.slug = slug;
     category.description = description;
     category.image = image;
-    category.isActive =
-      body.isActive ?? category.isActive;
+    category.isActive = body.isActive ?? category.isActive;
 
     await category.save();
 
@@ -258,30 +178,16 @@ export async function PATCH(
   } catch (error) {
     console.error("Update admin category error:", error);
 
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Unable to update category.";
+    const message = error instanceof Error ? error.message : "Unable to update category.";
 
     return NextResponse.json(
-      {
-        success: false,
-        message,
-      },
-      {
-        status:
-          message === "Admin access is required."
-            ? 403
-            : 500,
-      }
+      { success: false, message },
+      { status: message === "Admin access is required." ? 403 : 500 }
     );
   }
 }
 
-export async function DELETE(
-  _request: NextRequest,
-  { params }: CategoryRouteProps
-) {
+export async function DELETE(_request: NextRequest, { params }: CategoryRouteProps) {
   try {
     await connectDB();
     await requireAdmin();
@@ -290,13 +196,8 @@ export async function DELETE(
 
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid category ID.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Invalid category ID." },
+        { status: 400 }
       );
     }
 
@@ -304,32 +205,20 @@ export async function DELETE(
 
     if (!category) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Category not found.",
-        },
-        {
-          status: 404,
-        }
+        { success: false, message: "Category not found." },
+        { status: 404 }
       );
     }
 
-    const productCount =
-      await Product.countDocuments({
-        category: category._id,
-      });
+    const productCount = await Product.countDocuments({ category: category._id });
 
     if (productCount > 0) {
       return NextResponse.json(
         {
           success: false,
-          message: `This category contains ${productCount} product${
-            productCount === 1 ? "" : "s"
-          }. Move or delete those products before deleting the category.`,
+          message: `This category contains ${productCount} product${productCount === 1 ? "" : "s"}. Move or delete those products before deleting the category.`,
         },
-        {
-          status: 409,
-        }
+        { status: 409 }
       );
     }
 
@@ -342,22 +231,11 @@ export async function DELETE(
   } catch (error) {
     console.error("Delete admin category error:", error);
 
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Unable to delete category.";
+    const message = error instanceof Error ? error.message : "Unable to delete category.";
 
     return NextResponse.json(
-      {
-        success: false,
-        message,
-      },
-      {
-        status:
-          message === "Admin access is required."
-            ? 403
-            : 500,
-      }
+      { success: false, message },
+      { status: message === "Admin access is required." ? 403 : 500 }
     );
   }
 }

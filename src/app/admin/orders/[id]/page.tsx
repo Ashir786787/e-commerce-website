@@ -22,9 +22,7 @@ import { getCurrentUser } from "@/services/auth.service";
 export const dynamic = "force-dynamic";
 
 interface AdminOrderDetailsPageProps {
-  params: Promise<{
-    id: string;
-  }>;
+  params: Promise<{ id: string }>;
 }
 
 interface PopulatedProduct {
@@ -154,14 +152,10 @@ export default async function AdminOrderDetailsPage({
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
           Order Management
         </p>
-
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">
           Order Details
         </h1>
-
-        <p className="mt-3 text-neutral-600">
-          Review and manage this customer order.
-        </p>
+        <p className="mt-3 text-neutral-600">Review and manage this customer order.</p>
       </div>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
@@ -172,15 +166,12 @@ export default async function AdminOrderDetailsPage({
                 <h2 className="text-2xl font-bold text-neutral-950">
                   {order.orderNumber}
                 </h2>
-
                 <p className="mt-2 text-sm text-neutral-500">
                   Placed on {formatDateTime(order.createdAt)}
                 </p>
               </div>
-
               <div className="flex flex-wrap items-center gap-2">
                 <OrderStatusBadge status={order.orderStatus} />
-
                 <span
                   className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold capitalize ${paymentStatusStyles[order.paymentStatus]}`}
                 >
@@ -197,16 +188,13 @@ export default async function AdminOrderDetailsPage({
                     Customer
                   </p>
                 </div>
-
                 <p className="mt-3 text-sm font-semibold text-neutral-950">
                   {order.user?.fullName || "Guest"}
                 </p>
-
                 <p className="mt-1 break-all text-sm text-neutral-500">
                   {order.user?.email || "No account"}
                 </p>
               </div>
-
               <div className="rounded-xl bg-neutral-50 p-4">
                 <div className="flex items-center gap-2 text-neutral-500">
                   <CreditCard className="h-4 w-4" />
@@ -214,12 +202,10 @@ export default async function AdminOrderDetailsPage({
                     Payment Method
                   </p>
                 </div>
-
                 <p className="mt-3 text-sm font-semibold text-neutral-950">
                   {formatPaymentMethod(order.paymentMethod)}
                 </p>
               </div>
-
               <div className="rounded-xl bg-neutral-50 p-4">
                 <div className="flex items-center gap-2 text-neutral-500">
                   <Package className="h-4 w-4" />
@@ -227,7 +213,6 @@ export default async function AdminOrderDetailsPage({
                     Items
                   </p>
                 </div>
-
                 <p className="mt-3 text-sm font-semibold text-neutral-950">
                   {order.items.reduce(
                     (total, item) => total + item.quantity,
@@ -236,7 +221,6 @@ export default async function AdminOrderDetailsPage({
                   units
                 </p>
               </div>
-
               <div className="rounded-xl bg-neutral-50 p-4">
                 <div className="flex items-center gap-2 text-neutral-500">
                   <CalendarDays className="h-4 w-4" />
@@ -244,11 +228,8 @@ export default async function AdminOrderDetailsPage({
                     Delivered
                   </p>
                 </div>
-
                 <p className="mt-3 text-sm font-semibold text-neutral-950">
-                  {order.deliveredAt
-                    ? formatDate(order.deliveredAt)
-                    : "Not yet"}
+                  {order.deliveredAt ? formatDate(order.deliveredAt) : "Not yet"}
                 </p>
               </div>
             </div>
@@ -257,12 +238,10 @@ export default async function AdminOrderDetailsPage({
           <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6">
             <div className="flex items-center gap-3">
               <MapPin className="h-5 w-5 text-indigo-600" />
-
               <div>
                 <h2 className="text-xl font-semibold text-neutral-950">
                   Shipping Address
                 </h2>
-
                 <p className="mt-1 text-sm text-neutral-500">
                   Delivery destination for this order.
                 </p>
@@ -274,34 +253,25 @@ export default async function AdminOrderDetailsPage({
                 <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
                   Recipient
                 </p>
-
                 <p className="mt-3 text-sm font-semibold text-neutral-950">
                   {order.shippingAddress.fullName}
                 </p>
-
                 <p className="mt-1 break-all text-sm text-neutral-500">
                   {order.shippingAddress.email}
                 </p>
-
-                <p className="mt-1 text-sm text-neutral-500">
-                  {order.shippingAddress.phone}
-                </p>
+                <p className="mt-1 text-sm text-neutral-500">{order.shippingAddress.phone}</p>
               </div>
-
               <div className="rounded-xl bg-neutral-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
                   Address
                 </p>
-
                 <p className="mt-3 text-sm font-semibold text-neutral-950">
                   {order.shippingAddress.address}
                 </p>
-
                 <p className="mt-1 text-sm text-neutral-500">
                   {order.shippingAddress.city},{" "}
                   {order.shippingAddress.postalCode}
                 </p>
-
                 <p className="mt-1 text-sm text-neutral-500">
                   {order.shippingAddress.country}
                 </p>
@@ -311,13 +281,8 @@ export default async function AdminOrderDetailsPage({
 
           <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
             <div className="p-5 sm:p-6">
-              <h2 className="text-xl font-semibold text-neutral-950">
-                Order Items
-              </h2>
-
-              <p className="mt-1 text-sm text-neutral-500">
-                Products in this order.
-              </p>
+              <h2 className="text-xl font-semibold text-neutral-950">Order Items</h2>
+              <p className="mt-1 text-sm text-neutral-500">Products in this order.</p>
             </div>
 
             <div className="overflow-x-auto">
@@ -327,57 +292,43 @@ export default async function AdminOrderDetailsPage({
                     <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                       Product
                     </th>
-
                     <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-neutral-500">
                       Qty
                     </th>
-
                     <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-neutral-500">
                       Unit Price
                     </th>
-
                     <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-neutral-500">
                       Total
                     </th>
                   </tr>
                 </thead>
-
                 <tbody>
                   {order.items.map((item, index) => {
                     const product = item.product;
 
                     return (
                       <tr
-                        key={
-                          product?._id?.toString() ||
-                          `${index}-${item.price}`
-                        }
+                        key={product?._id?.toString() || `${index}-${item.price}`}
                         className="border-t"
                       >
                         <td className="px-6 py-5">
                           <p className="font-semibold text-neutral-950">
-                            {product?.name ||
-                              "Product unavailable"}
+                            {product?.name || "Product unavailable"}
                           </p>
-
                           <p className="mt-1 text-sm text-neutral-500">
                             {product?.brand || "NovaCart"}
                           </p>
                         </td>
-
                         <td className="px-6 py-5 text-center text-sm text-neutral-700">
                           {item.quantity}
                         </td>
-
                         <td className="px-6 py-5 text-right text-sm text-neutral-700">
                           Rs. {formatPrice(item.price)}
                         </td>
-
                         <td className="px-6 py-5 text-right font-semibold text-neutral-950">
                           Rs.{" "}
-                          {formatPrice(
-                            item.price * item.quantity
-                          )}
+                          {formatPrice(item.price * item.quantity)}
                         </td>
                       </tr>
                     );
@@ -390,40 +341,25 @@ export default async function AdminOrderDetailsPage({
               <div className="ml-auto max-w-sm space-y-3 text-sm">
                 <div className="flex justify-between gap-4 text-neutral-600">
                   <span>Subtotal</span>
-                  <span>
-                    Rs. {formatPrice(order.subtotal)}
-                  </span>
+                  <span>Rs. {formatPrice(order.subtotal)}</span>
                 </div>
-
                 <div className="flex justify-between gap-4 text-neutral-600">
                   <span>Delivery</span>
-                  <span>
-                    Rs. {formatPrice(order.deliveryFee)}
-                  </span>
+                  <span>Rs. {formatPrice(order.deliveryFee)}</span>
                 </div>
-
                 <div className="flex justify-between gap-4 text-neutral-600">
                   <span>Tax</span>
-                  <span>
-                    Rs. {formatPrice(order.tax)}
-                  </span>
+                  <span>Rs. {formatPrice(order.tax)}</span>
                 </div>
-
                 {order.discount > 0 && (
                   <div className="flex justify-between gap-4 text-emerald-600">
                     <span>Discount</span>
-                    <span>
-                      - Rs. {formatPrice(order.discount)}
-                    </span>
+                    <span>- Rs. {formatPrice(order.discount)}</span>
                   </div>
                 )}
-
                 <div className="border-t border-neutral-300 pt-4">
                   <div className="flex items-center justify-between gap-4">
-                    <span className="text-base font-semibold text-neutral-950">
-                      Grand Total
-                    </span>
-
+                    <span className="text-base font-semibold text-neutral-950">Grand Total</span>
                     <span className="text-2xl font-bold text-indigo-600">
                       Rs. {formatPrice(order.total)}
                     </span>
@@ -444,43 +380,27 @@ export default async function AdminOrderDetailsPage({
           <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6">
             <div className="flex items-center gap-3">
               <Banknote className="h-5 w-5 text-indigo-600" />
-
               <div>
                 <h2 className="text-xl font-semibold text-neutral-950">
                   Payment & Fulfillment
                 </h2>
-
-                <p className="mt-1 text-sm text-neutral-500">
-                  Payment and delivery timeline.
-                </p>
+                <p className="mt-1 text-sm text-neutral-500">Payment and delivery timeline.</p>
               </div>
             </div>
 
             <div className="mt-6 space-y-4 text-sm">
               <div className="flex justify-between gap-4">
-                <span className="text-neutral-500">
-                  Paid At
-                </span>
-
+                <span className="text-neutral-500">Paid At</span>
                 <span className="font-semibold text-neutral-950">
-                  {order.paidAt
-                    ? formatDateTime(order.paidAt)
-                    : "Not paid"}
+                  {order.paidAt ? formatDateTime(order.paidAt) : "Not paid"}
                 </span>
               </div>
-
               <div className="flex justify-between gap-4">
-                <span className="text-neutral-500">
-                  Delivered At
-                </span>
-
+                <span className="text-neutral-500">Delivered At</span>
                 <span className="font-semibold text-neutral-950">
-                  {order.deliveredAt
-                    ? formatDateTime(order.deliveredAt)
-                    : "Not delivered"}
+                  {order.deliveredAt ? formatDateTime(order.deliveredAt) : "Not delivered"}
                 </span>
               </div>
-
               {order.discountCode && (
                 <div className="rounded-xl bg-neutral-50 p-4">
                   <div className="flex items-center gap-2 text-neutral-500">
@@ -489,11 +409,9 @@ export default async function AdminOrderDetailsPage({
                       Discount Code
                     </p>
                   </div>
-
                   <p className="mt-3 text-sm font-bold uppercase text-neutral-950">
                     {order.discountCode}
                   </p>
-
                   {order.discountPercent && (
                     <p className="mt-1 text-sm text-neutral-500">
                       {order.discountPercent}% off subtotal

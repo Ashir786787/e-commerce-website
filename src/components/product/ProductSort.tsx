@@ -20,13 +20,9 @@ export default function ProductSort() {
 
   return (
     <div className="flex items-center gap-3">
-      <label
-        htmlFor="sort"
-        className="text-sm font-medium whitespace-nowrap"
-      >
+      <label htmlFor="sort" className="text-sm font-medium whitespace-nowrap">
         Sort:
       </label>
-
       <select
         id="sort"
         value={currentSort}

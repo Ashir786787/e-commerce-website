@@ -10,13 +10,9 @@ export const dynamic = "force-dynamic";
 export default async function NewProductPage() {
   await connectDB();
 
-  const categories = await Category.find({
-    isActive: true,
-  })
+  const categories = await Category.find({ isActive: true })
     .select("name")
-    .sort({
-      name: 1,
-    })
+    .sort({ name: 1 })
     .lean();
 
   const categoryOptions = categories.map((category) => ({
@@ -38,11 +34,9 @@ export default async function NewProductPage() {
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
           Product Management
         </p>
-
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">
           Add New Product
         </h1>
-
         <p className="mt-3 text-neutral-600">
           Add a new item to the NovaCart catalogue.
         </p>
@@ -53,12 +47,9 @@ export default async function NewProductPage() {
           <h2 className="text-lg font-semibold text-amber-950">
             No active categories available
           </h2>
-
           <p className="mt-2 text-sm text-amber-800">
-            Create or activate a category before adding a
-            product.
+            Create or activate a category before adding a product.
           </p>
-
           <Link
             href="/admin/categories"
             className="mt-5 inline-flex rounded-xl bg-amber-900 px-5 py-2.5 text-sm font-semibold text-white"

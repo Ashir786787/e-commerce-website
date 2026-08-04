@@ -9,9 +9,7 @@ export default function ProductSearch() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [value, setValue] = useState(
-    searchParams.get("search") ?? ""
-  );
+  const [value, setValue] = useState(searchParams.get("search") ?? "");
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,14 +26,11 @@ export default function ProductSearch() {
 
     router.push(`${pathname}?${params.toString()}`);
   }
+
   return (
-    <form
-      onSubmit={submit}
-      className="mb-8 flex gap-3"
-    >
+    <form onSubmit={submit} className="mb-8 flex gap-3">
       <div className="relative flex-1">
         <Search className="absolute left-4 top-3 h-5 w-5 text-gray-400" />
-
         <input
           value={value}
           onChange={(e) => setValue(e.target.value)}
@@ -44,11 +39,7 @@ export default function ProductSearch() {
         />
       </div>
 
-      <button
-        className="rounded-xl bg-primary px-6 text-white"
-      >
-        Search
-      </button>
+      <button className="rounded-xl bg-primary px-6 text-white">Search</button>
     </form>
   );
 }

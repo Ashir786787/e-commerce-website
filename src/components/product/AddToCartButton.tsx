@@ -20,14 +20,9 @@ export default function AddToCartButton({
     try {
       const response = await fetch("/api/cart/add", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          productId,
-          quantity: 1,
-        }),
+        body: JSON.stringify({ productId, quantity: 1 }),
       });
 
       const result = await response.json();
@@ -40,11 +35,7 @@ export default function AddToCartButton({
 
       toast.success("Product added to cart.");
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to add product to cart."
-      );
+      toast.error(error instanceof Error ? error.message : "Failed to add product to cart.");
     }
   };
 

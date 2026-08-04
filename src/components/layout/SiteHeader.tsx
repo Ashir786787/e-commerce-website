@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { categories } from "@/data/categories";
+import ChatButton from "@/components/chat/ChatButton";
 
 const navigation = [
   { label: "Home", href: "/" },
@@ -137,7 +138,8 @@ export default function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
+    <>
+      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
       <div className="mx-auto flex min-h-16 max-w-7xl items-center gap-4 px-4 py-2 sm:px-6 lg:px-8">
         <Link
           href="/"
@@ -466,5 +468,16 @@ export default function SiteHeader() {
         </div>
       )}
     </header>
+
+    {user && user.role !== "admin" && (
+      <ChatButton
+        user={{
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+        }}
+      />
+    )}
+    </>
   );
 }

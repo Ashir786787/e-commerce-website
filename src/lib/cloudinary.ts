@@ -28,7 +28,6 @@ function getCloudinary() {
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
   });
-
   return cloudinary;
 }
 
@@ -40,25 +39,14 @@ export function uploadImage(
 
   return new Promise<CloudinaryImage>((resolve, reject) => {
     const stream = cloudinaryClient.uploader.upload_stream(
-      {
-        folder,
-        resource_type: "image",
-        format: "auto",
-      },
+      { folder, resource_type: "image", format: "auto" },
       (error, result) => {
         if (error || !result) {
-          reject(
-            error instanceof Error
-              ? error
-              : new Error("Cloudinary upload failed.")
-          );
+          reject(error instanceof Error ? error : new Error("Cloudinary upload failed."));
           return;
         }
 
-        resolve({
-          url: result.secure_url || result.url,
-          publicId: result.public_id,
-        });
+        resolve({ url: result.secure_url || result.url, publicId: result.public_id });
       }
     );
 
@@ -70,18 +58,13 @@ export function uploadImage(
   });
 }
 
-export async function deleteImage(
-  publicId: string
-): Promise<void> {
+export async function deleteImage(publicId: string): Promise<void> {
   if (!publicId) {
     return;
   }
 
   const cloudinaryClient = getCloudinary();
-
-  await cloudinaryClient.uploader.destroy(publicId, {
-    resource_type: "image",
-  });
+  await cloudinaryClient.uploader.destroy(publicId, { resource_type: "image" });
 }
 
 export type { UploadApiResponse };

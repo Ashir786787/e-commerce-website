@@ -1,11 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  Heart,
-  Package,
-  Settings,
-  ShoppingCart,
-} from "lucide-react";
+import { Heart, Package, Settings, ShoppingCart } from "lucide-react";
 
 import ProfileForm from "@/components/account/ProfileForm";
 import UserAvatar from "@/components/account/UserAvatar";
@@ -33,37 +28,30 @@ export default async function AccountPage() {
 
   await connectDB();
 
-  const [orderStats, cart, wishlist, recentOrders] =
-    await Promise.all([
-      Order.aggregate<{
-        _id: null;
-        count: number;
-        totalSpent: number;
-      }>([
-        {
-          $match: {
-            user: user.id,
-            orderStatus: { $ne: "cancelled" },
-          },
+  const [orderStats, cart, wishlist, recentOrders] = await Promise.all([
+    Order.aggregate<{
+      _id: null;
+      count: number;
+      totalSpent: number;
+    }>([
+      {
+        $match: {
+          user: user.id,
+          orderStatus: { $ne: "cancelled" },
         },
-        {
-          $group: {
-            _id: null,
-            count: { $sum: 1 },
-            totalSpent: { $sum: "$total" },
-          },
+      },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+          totalSpent: { $sum: "$total" },
         },
-      ]),
-
-      Cart.findOne({ user: user.id }).lean(),
-
-      Wishlist.findOne({ user: user.id }).lean(),
-
-      Order.find({ user: user.id })
-        .sort({ createdAt: -1 })
-        .limit(3)
-        .lean(),
-    ]);
+      },
+    ]),
+    Cart.findOne({ user: user.id }).lean(),
+    Wishlist.findOne({ user: user.id }).lean(),
+    Order.find({ user: user.id }).sort({ createdAt: -1 }).limit(3).lean(),
+  ]);
 
   const stats = orderStats[0] || {
     count: 0,
@@ -71,17 +59,10 @@ export default async function AccountPage() {
   };
 
   const cartItemCount =
-    cart?.items.reduce(
-      (total, item) => total + item.quantity,
-      0
-    ) || 0;
+    cart?.items.reduce((total, item) => total + item.quantity, 0) || 0;
+  const wishlistCount = wishlist?.products.length || 0;
 
-  const wishlistCount =
-    wishlist?.products.length || 0;
-
-  const memberSince = new Date(
-    user.createdAt
-  ).toLocaleDateString("en-PK", {
+  const memberSince = new Date(user.createdAt).toLocaleDateString("en-PK", {
     year: "numeric",
     month: "long",
   });
@@ -94,9 +75,7 @@ export default async function AccountPage() {
     },
     {
       label: "Total Spent",
-      value: `Rs. ${priceFormatter.format(
-        stats.totalSpent
-      )}`,
+      value: `Rs. ${priceFormatter.format(stats.totalSpent)}`,
       icon: ShoppingCart,
     },
     {
@@ -121,14 +100,11 @@ export default async function AccountPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
               Account
             </p>
-
             <h1 className="mt-3 text-4xl font-bold tracking-tight">
               My Profile
             </h1>
-
             <p className="mt-4 max-w-2xl text-muted-foreground">
-              View your profile summary, recent orders and
-              account details.
+              View your profile summary, recent orders and account details.
             </p>
           </div>
         </section>
@@ -144,21 +120,14 @@ export default async function AccountPage() {
 
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-3">
-                  <h2 className="text-2xl font-bold">
-                    {user.fullName}
-                  </h2>
-
+                  <h2 className="text-2xl font-bold">{user.fullName}</h2>
                   {user.isVerified && (
                     <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700">
                       Verified
                     </span>
                   )}
                 </div>
-
-                <p className="mt-1 text-muted-foreground">
-                  {user.email}
-                </p>
-
+                <p className="mt-1 text-muted-foreground">{user.email}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Member since {memberSince}
                 </p>
@@ -170,7 +139,6 @@ export default async function AccountPage() {
                 <h2 className="text-xl font-semibold">
                   Personal Information
                 </h2>
-
                 <p className="mt-1 text-sm text-muted-foreground">
                   Update your name and profile photo.
                 </p>
@@ -188,9 +156,7 @@ export default async function AccountPage() {
 
               <aside className="space-y-6">
                 <div className="rounded-2xl border bg-background p-6">
-                  <h2 className="text-lg font-semibold">
-                    Quick Links
-                  </h2>
+                  <h2 className="text-lg font-semibold">Quick Links</h2>
 
                   <div className="mt-4 space-y-2">
                     <Link
@@ -229,11 +195,7 @@ export default async function AccountPage() {
                         className="rounded-2xl border bg-background p-4"
                       >
                         <Icon className="h-4 w-4 text-primary" />
-
-                        <p className="mt-3 text-lg font-bold">
-                          {stat.value}
-                        </p>
-
+                        <p className="mt-3 text-lg font-bold">{stat.value}</p>
                         <p className="mt-1 text-xs text-muted-foreground">
                           {stat.label}
                         </p>
@@ -246,10 +208,7 @@ export default async function AccountPage() {
 
             <div className="mt-10">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">
-                  Recent Orders
-                </h2>
-
+                <h2 className="text-2xl font-bold">Recent Orders</h2>
                 <Link
                   href="/account/orders"
                   className="text-sm font-semibold text-primary hover:underline"
@@ -261,14 +220,9 @@ export default async function AccountPage() {
               {recentOrders.length === 0 ? (
                 <div className="mt-6 rounded-2xl border border-dashed bg-background px-6 py-16 text-center">
                   <Package className="mx-auto h-10 w-10 text-neutral-300" />
-
-                  <h3 className="mt-4 text-xl font-semibold">
-                    No Orders Yet
-                  </h3>
-
+                  <h3 className="mt-4 text-xl font-semibold">No Orders Yet</h3>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Once you place your first order, it will
-                    appear here.
+                    Once you place your first order, it will appear here.
                   </p>
                 </div>
               ) : (
@@ -280,17 +234,11 @@ export default async function AccountPage() {
                         _id: order._id.toString(),
                         orderNumber:
                           order.orderNumber ||
-                          `NC-${order._id
-                            .toString()
-                            .slice(-6)
-                            .toUpperCase()}`,
-                        createdAt:
-                          order.createdAt.toISOString(),
+                          `NC-${order._id.toString().slice(-6).toUpperCase()}`,
+                        createdAt: order.createdAt.toISOString(),
                         total: order.total,
-                        paymentMethod:
-                          order.paymentMethod,
-                        paymentStatus:
-                          order.paymentStatus,
+                        paymentMethod: order.paymentMethod,
+                        paymentStatus: order.paymentStatus,
                         orderStatus: order.orderStatus,
                         items: order.items,
                       }}

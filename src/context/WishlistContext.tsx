@@ -32,26 +32,17 @@ const WishlistContext = createContext<WishlistContextType | undefined>(
   undefined
 );
 
-export function WishlistProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export function WishlistProvider({ children }: { children: ReactNode }) {
   const [wishlist, setWishlist] = useState<Wishlist | null>(null);
 
   const refreshWishlist = useCallback(async () => {
     try {
-      const response = await fetch("/api/wishlist/get", {
-        credentials: "include",
-      });
-
+      const response = await fetch("/api/wishlist/get", { credentials: "include" });
       const data = await response.json();
-
       if (data.success) {
         setWishlist(data.wishlist);
       }
-    } catch {
-    }
+    } catch {}
   }, []);
 
   useEffect(() => {
@@ -74,9 +65,7 @@ export function WishlistProvider({
   const isWishlisted = (productId: string) => {
     if (!wishlist) return false;
 
-    return wishlist.products.some(
-      (product) => product._id === productId
-    );
+    return wishlist.products.some((product) => product._id === productId);
   };
 
   return (
@@ -97,9 +86,7 @@ export function useWishlist() {
   const context = useContext(WishlistContext);
 
   if (!context) {
-    throw new Error(
-      "useWishlist must be used within WishlistProvider"
-    );
+    throw new Error("useWishlist must be used within WishlistProvider");
   }
 
   return context;

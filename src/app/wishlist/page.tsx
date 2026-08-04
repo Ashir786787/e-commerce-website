@@ -20,11 +20,7 @@ interface WishlistProduct {
 }
 
 export default function WishlistPage() {
-  const {
-    wishlist,
-    refreshWishlist,
-    totalItems,
-  } = useWishlist();
+  const { wishlist, refreshWishlist, totalItems, } = useWishlist();
 
   const { refreshCart } = useCart();
 
@@ -44,19 +40,13 @@ export default function WishlistPage() {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(
-          data.message || "Failed to remove product."
-        );
+        throw new Error(data.message || "Failed to remove product.");
       }
 
       await refreshWishlist();
       toast.success("Product removed from wishlist.");
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Something went wrong."
-      );
+      toast.error(error instanceof Error ? error.message : "Something went wrong.");
     }
   }
 
@@ -68,33 +58,23 @@ export default function WishlistPage() {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({
-          productId,
-          quantity: 1,
-        }),
+        body: JSON.stringify({ productId, quantity: 1, }),
       });
 
       const cartData = await cartResponse.json();
 
       if (!cartResponse.ok || !cartData.success) {
-        throw new Error(
-          cartData.message || "Failed to add product to cart."
-        );
+        throw new Error(cartData.message || "Failed to add product to cart.");
       }
 
-      const wishlistResponse = await fetch(
-        "/api/wishlist/remove",
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            productId,
-          }),
-        }
-      );
+      const wishlistResponse = await fetch("/api/wishlist/remove", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ productId, }),
+      });
 
       const wishlistData = await wishlistResponse.json();
 
@@ -105,18 +85,11 @@ export default function WishlistPage() {
         );
       }
 
-      await Promise.all([
-        refreshWishlist(),
-        refreshCart(),
-      ]);
+      await Promise.all([refreshWishlist(), refreshCart(),]);
 
       toast.success("Product moved to cart.");
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Something went wrong."
-      );
+      toast.error(error instanceof Error ? error.message : "Something went wrong.");
     }
   }
 
@@ -134,8 +107,7 @@ export default function WishlistPage() {
             Your wishlist is empty
           </h1>
           <p className="mt-4 max-w-md text-slate-600">
-            Save products you love and return to them whenever
-            you are ready.
+            Save products you love and return to them whenever you are ready.
           </p>
           <Link
             href="/products"
@@ -161,8 +133,7 @@ export default function WishlistPage() {
                 My Wishlist
               </h1>
               <p className="mt-2 text-slate-600">
-                {totalItems} saved{" "}
-                {totalItems === 1 ? "product" : "products"}
+                {totalItems} saved{" "}{totalItems === 1 ? "product" : "products"}
               </p>
             </div>
             <Link
@@ -177,8 +148,7 @@ export default function WishlistPage() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((product) => {
             const hasDiscount =
-              product.originalPrice &&
-              product.originalPrice > product.price;
+              product.originalPrice && product.originalPrice > product.price;
 
             return (
               <article
@@ -186,11 +156,7 @@ export default function WishlistPage() {
                 className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
               >
                 <Link
-                  href={
-                    product.slug
-                      ? `/products/${product.slug}`
-                      : `/products/${product._id}`
-                  }
+                  href={product.slug ? `/products/${product.slug}` : `/products/${product._id}`}
                   className="block"
                 >
                   <div className="relative aspect-square bg-slate-100">
@@ -213,11 +179,7 @@ export default function WishlistPage() {
                     </p>
                   )}
                   <Link
-                    href={
-                      product.slug
-                        ? `/products/${product.slug}`
-                        : `/products/${product._id}`
-                    }
+                    href={product.slug ? `/products/${product.slug}` : `/products/${product._id}`}
                   >
                     <h2 className="mt-2 line-clamp-2 min-h-12 text-lg font-semibold text-slate-950 hover:text-violet-600">
                       {product.name}
@@ -236,21 +198,15 @@ export default function WishlistPage() {
                   </div>
                   <p
                     className={`mt-2 text-sm font-medium ${
-                      (product.stock ?? 0) > 0
-                        ? "text-emerald-600"
-                        : "text-red-600"
+                      (product.stock ?? 0) > 0 ? "text-emerald-600" : "text-red-600"
                     }`}
                   >
-                    {(product.stock ?? 0) > 0
-                      ? "In stock"
-                      : "Out of stock"}
+                    {(product.stock ?? 0) > 0 ? "In stock" : "Out of stock"}
                   </p>
                   <div className="mt-5 flex gap-2">
                     <button
                       type="button"
-                      onClick={() =>
-                        moveToCart(product._id)
-                      }
+                      onClick={() => moveToCart(product._id)}
                       disabled={(product.stock ?? 0) < 1}
                       className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
@@ -259,9 +215,7 @@ export default function WishlistPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
-                        removeProduct(product._id)
-                      }
+                      onClick={() => removeProduct(product._id)}
                       aria-label={`Remove ${product.name} from wishlist`}
                       className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                     >

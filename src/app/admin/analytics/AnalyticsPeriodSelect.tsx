@@ -23,21 +23,16 @@ export default function AnalyticsPeriodSelect({
   const router = useRouter();
 
   function handleChange(value: string) {
-    router.push(
-      value === "all" ? basePath : `${basePath}?period=${value}`
-    );
+    router.push(value === "all" ? basePath : `${basePath}?period=${value}`);
   }
 
   return (
     <div className="relative">
       <CalendarRange className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-
       <select
         aria-label="Analytics period"
         value={period}
-        onChange={(event) =>
-          handleChange(event.target.value)
-        }
+        onChange={(event) => handleChange(event.target.value)}
         className="h-11 w-full appearance-none rounded-xl border border-neutral-300 bg-white pl-9 pr-8 text-sm font-medium text-neutral-800 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 sm:w-auto"
       >
         {options.map((option) => (
@@ -46,7 +41,6 @@ export default function AnalyticsPeriodSelect({
           </option>
         ))}
       </select>
-
       <svg
         className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
         viewBox="0 0 24 24"

@@ -28,12 +28,8 @@ export default function AdminOrderStatusForm({
 }: AdminOrderStatusFormProps) {
   const router = useRouter();
 
-  const [orderStatus, setOrderStatus] =
-    useState<OrderStatus>(initialOrderStatus);
-
-  const [paymentStatus, setPaymentStatus] =
-    useState<PaymentStatus>(initialPaymentStatus);
-
+  const [orderStatus, setOrderStatus] = useState<OrderStatus>(initialOrderStatus);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(initialPaymentStatus);
   const [isSaving, setIsSaving] = useState(false);
 
   async function handleSubmit(
@@ -105,11 +101,7 @@ export default function AdminOrderStatusForm({
           <select
             id="orderStatus"
             value={orderStatus}
-            onChange={(event) =>
-              setOrderStatus(
-                event.target.value as OrderStatus
-              )
-            }
+            onChange={(event) => setOrderStatus(event.target.value as OrderStatus)}
             className="h-11 w-full rounded-xl border border-neutral-300 bg-white px-4 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
           >
             <option value="pending">Pending</option>
@@ -132,11 +124,7 @@ export default function AdminOrderStatusForm({
           <select
             id="paymentStatus"
             value={paymentStatus}
-            onChange={(event) =>
-              setPaymentStatus(
-                event.target.value as PaymentStatus
-              )
-            }
+            onChange={(event) => setPaymentStatus(event.target.value as PaymentStatus)}
             className="h-11 w-full rounded-xl border border-neutral-300 bg-white px-4 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
           >
             <option value="pending">Pending</option>

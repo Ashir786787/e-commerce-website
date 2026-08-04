@@ -97,6 +97,7 @@ export default function ProductFilters({
     setMaxPrice("");
     router.push(pathname);
   }
+
   return (
     <aside className={cn("h-fit rounded-2xl border bg-card p-5 lg:sticky lg:top-24", className)}>
       <h2 className="text-lg font-semibold">Filters</h2>
@@ -107,23 +108,17 @@ export default function ProductFilters({
         </h3>
 
         {categories.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No categories available.
-          </p>
+          <p className="text-sm text-muted-foreground">No categories available.</p>
         ) : (
           <div className="space-y-3">
             {categories.map((category) => (
-              <label
-                key={category.id}
-                className="flex cursor-pointer items-center gap-3"
-              >
+              <label key={category.id} className="flex cursor-pointer items-center gap-3">
                 <input
                   type="checkbox"
                   checked={selectedCategories.includes(category.slug)}
                   onChange={() => toggleCategory(category.slug)}
                   className="h-4 w-4 rounded border-gray-300 accent-primary"
                 />
-
                 <span className="text-sm">{category.name}</span>
               </label>
             ))}
@@ -137,23 +132,17 @@ export default function ProductFilters({
         </h3>
 
         {brands.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No brands available.
-          </p>
+          <p className="text-sm text-muted-foreground">No brands available.</p>
         ) : (
           <div className="max-h-56 space-y-3 overflow-y-auto pr-1">
             {brands.map((brand) => (
-              <label
-                key={brand}
-                className="flex cursor-pointer items-center gap-3"
-              >
+              <label key={brand} className="flex cursor-pointer items-center gap-3">
                 <input
                   type="checkbox"
                   checked={selectedBrands.includes(brand)}
                   onChange={() => toggleBrand(brand)}
                   className="h-4 w-4 rounded border-gray-300 accent-primary"
                 />
-
                 <span className="text-sm">{brand}</span>
               </label>
             ))}
@@ -168,10 +157,7 @@ export default function ProductFilters({
 
         <div className="space-y-4">
           <div>
-            <label className="mb-1 block text-xs font-medium">
-              Minimum Price
-            </label>
-
+            <label className="mb-1 block text-xs font-medium">Minimum Price</label>
             <Input
               type="number"
               placeholder="0"
@@ -182,10 +168,7 @@ export default function ProductFilters({
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium">
-              Maximum Price
-            </label>
-
+            <label className="mb-1 block text-xs font-medium">Maximum Price</label>
             <Input
               type="number"
               placeholder="100000"
@@ -207,12 +190,9 @@ export default function ProductFilters({
             <input
               type="checkbox"
               checked={searchParams.get("featured") === "true"}
-              onChange={(event) =>
-                handleBooleanFilter("featured", event.target.checked)
-              }
+              onChange={(event) => handleBooleanFilter("featured", event.target.checked)}
               className="h-4 w-4 rounded accent-primary"
             />
-
             <span className="text-sm">Featured Products</span>
           </label>
 
@@ -220,12 +200,9 @@ export default function ProductFilters({
             <input
               type="checkbox"
               checked={searchParams.get("trending") === "true"}
-              onChange={(event) =>
-                handleBooleanFilter("trending", event.target.checked)
-              }
+              onChange={(event) => handleBooleanFilter("trending", event.target.checked)}
               className="h-4 w-4 rounded accent-primary"
             />
-
             <span className="text-sm">Trending Products</span>
           </label>
         </div>

@@ -48,10 +48,7 @@ async function requireAdmin() {
   return currentUser;
 }
 
-export async function GET(
-  _request: NextRequest,
-  { params }: ProductRouteProps
-) {
+export async function GET(_request: NextRequest, { params }: ProductRouteProps) {
   try {
     await connectDB();
     await requireAdmin();
@@ -60,47 +57,29 @@ export async function GET(
 
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid product ID.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Invalid product ID." },
+        { status: 400 }
       );
     }
 
     const product = await Product.findById(id)
-      .populate({
-        path: "category",
-        select: "name slug",
-      })
+      .populate({ path: "category", select: "name slug" })
       .lean();
 
     if (!product) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Product not found.",
-        },
-        {
-          status: 404,
-        }
+        { success: false, message: "Product not found." },
+        { status: 404 }
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      data: product,
-    });
+    return NextResponse.json({ success: true, data: product });
   } catch (error) {
     return NextResponse.json(
       {
         success: false,
         message:
-          error instanceof Error
-            ? error.message
-            : "Unable to load product.",
+          error instanceof Error ? error.message : "Unable to load product.",
       },
       {
         status:
@@ -113,10 +92,7 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: ProductRouteProps
-) {
+export async function PATCH(request: NextRequest, { params }: ProductRouteProps) {
   try {
     await connectDB();
     await requireAdmin();
@@ -125,13 +101,8 @@ export async function PATCH(
 
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid product ID.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Invalid product ID." },
+        { status: 400 }
       );
     }
 
@@ -139,13 +110,8 @@ export async function PATCH(
 
     if (!product) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Product not found.",
-        },
-        {
-          status: 404,
-        }
+        { success: false, message: "Product not found." },
+        { status: 404 }
       );
     }
 
@@ -159,108 +125,64 @@ export async function PATCH(
 
     if (!name || name.length < 3) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Product name must contain at least 3 characters.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Product name must contain at least 3 characters." },
+        { status: 400 }
       );
     }
 
     if (!slug) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "A valid product slug is required.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "A valid product slug is required." },
+        { status: 400 }
       );
     }
 
     if (!description || description.length < 10) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Description must contain at least 10 characters.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Description must contain at least 10 characters." },
+        { status: 400 }
       );
     }
 
     if (!brand) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Product brand is required.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Product brand is required." },
+        { status: 400 }
       );
     }
 
     if (!categoryId || !Types.ObjectId.isValid(categoryId)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Please select a valid category.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Please select a valid category." },
+        { status: 400 }
       );
     }
 
     const price = Number(body.price);
     const originalPrice =
-      body.originalPrice === null ||
-      body.originalPrice === undefined
+      body.originalPrice === null || body.originalPrice === undefined
         ? undefined
         : Number(body.originalPrice);
     const stock = Number(body.stock);
 
     if (!Number.isFinite(price) || price < 0) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Please provide a valid price.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Please provide a valid price." },
+        { status: 400 }
       );
     }
 
-    if (
-      originalPrice !== undefined &&
-      (!Number.isFinite(originalPrice) || originalPrice < 0)
-    ) {
+    if (originalPrice !== undefined && (!Number.isFinite(originalPrice) || originalPrice < 0)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Please provide a valid original price.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Please provide a valid original price." },
+        { status: 400 }
       );
     }
 
     if (!Number.isInteger(stock) || stock < 0) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Stock must be a non-negative whole number.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Stock must be a non-negative whole number." },
+        { status: 400 }
       );
     }
 
@@ -273,50 +195,27 @@ export async function PATCH(
 
     if (images.length === 0) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "At least one product image URL is required.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "At least one product image URL is required." },
+        { status: 400 }
       );
     }
 
     const [duplicateProduct, category] = await Promise.all([
-      Product.findOne({
-        slug,
-        _id: {
-          $ne: id,
-        },
-      }).lean(),
-
-      Category.findById(categoryId)
-        .select("_id name")
-        .lean(),
+      Product.findOne({ slug, _id: { $ne: id } }).lean(),
+      Category.findById(categoryId).select("_id name").lean(),
     ]);
 
     if (duplicateProduct) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Another product already uses this slug.",
-        },
-        {
-          status: 409,
-        }
+        { success: false, message: "Another product already uses this slug." },
+        { status: 409 }
       );
     }
 
     if (!category) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Selected category was not found.",
-        },
-        {
-          status: 404,
-        }
+        { success: false, message: "Selected category was not found." },
+        { status: 404 }
       );
     }
 
@@ -351,9 +250,7 @@ export async function PATCH(
       {
         success: false,
         message:
-          error instanceof Error
-            ? error.message
-            : "Unable to update product.",
+          error instanceof Error ? error.message : "Unable to update product.",
       },
       {
         status:
@@ -366,10 +263,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  _request: NextRequest,
-  { params }: ProductRouteProps
-) {
+export async function DELETE(_request: NextRequest, { params }: ProductRouteProps) {
   try {
     await connectDB();
     await requireAdmin();
@@ -378,13 +272,8 @@ export async function DELETE(
 
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid product ID.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Invalid product ID." },
+        { status: 400 }
       );
     }
 
@@ -392,13 +281,8 @@ export async function DELETE(
 
     if (!product) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Product not found.",
-        },
-        {
-          status: 404,
-        }
+        { success: false, message: "Product not found." },
+        { status: 404 }
       );
     }
 
@@ -413,9 +297,7 @@ export async function DELETE(
       {
         success: false,
         message:
-          error instanceof Error
-            ? error.message
-            : "Unable to delete product.",
+          error instanceof Error ? error.message : "Unable to delete product.",
       },
       {
         status:

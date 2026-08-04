@@ -1,11 +1,7 @@
 import User from "@/models/User";
 import { hashPassword, comparePassword } from "@/utils/password";
 import { signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema, updateProfileSchema } from "@/validations/auth.validation";
-import {
-  generateOTP,
-  hashToken,
-  generateExpiry,
-} from "@/utils/token";
+import { generateOTP, hashToken, generateExpiry } from "@/utils/token";
 import { sendVerificationEmail, sendResetPasswordEmail } from "@/services/email.service";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/utils/jwt";

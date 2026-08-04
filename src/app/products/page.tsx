@@ -141,10 +141,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
             <div className="mt-6 grid items-start gap-8 lg:grid-cols-[260px_minmax(0,1fr)]">
               <div className="hidden lg:block">
-                <ProductFilters
-                  categories={filterCategories}
-                  brands={sortedBrands}
-                />
+                <ProductFilters categories={filterCategories} brands={sortedBrands} />
               </div>
 
               <div className="min-w-0">

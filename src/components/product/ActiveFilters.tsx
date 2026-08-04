@@ -26,31 +26,19 @@ export default function ActiveFilters() {
   const search = searchParams.get("search");
 
   if (search) {
-    activeFilters.push({
-      key: "search",
-      value: search,
-      label: `Search: ${search}`,
-    });
+    activeFilters.push({ key: "search", value: search, label: `Search: ${search}` });
   }
 
   const categories = searchParams.getAll("category");
 
   categories.forEach((category) => {
-    activeFilters.push({
-      key: "category",
-      value: category,
-      label: formatCategoryLabel(category),
-    });
+    activeFilters.push({ key: "category", value: category, label: formatCategoryLabel(category) });
   });
 
   const brands = searchParams.getAll("brand");
 
   brands.forEach((brand) => {
-    activeFilters.push({
-      key: "brand",
-      value: brand,
-      label: brand,
-    });
+    activeFilters.push({ key: "brand", value: brand, label: brand });
   });
 
   const minPrice = searchParams.get("minPrice");
@@ -65,19 +53,11 @@ export default function ActiveFilters() {
   }
 
   if (searchParams.get("featured") === "true") {
-    activeFilters.push({
-      key: "featured",
-      value: "true",
-      label: "Featured",
-    });
+    activeFilters.push({ key: "featured", value: "true", label: "Featured" });
   }
 
   if (searchParams.get("trending") === "true") {
-    activeFilters.push({
-      key: "trending",
-      value: "true",
-      label: "Trending",
-    });
+    activeFilters.push({ key: "trending", value: "true", label: "Trending" });
   }
 
   if (activeFilters.length === 0) {
@@ -106,16 +86,13 @@ export default function ActiveFilters() {
 
     params.delete("page");
 
-    router.push(
-      params.toString()
-        ? `${pathname}?${params.toString()}`
-        : pathname
-    );
+    router.push(params.toString() ? `${pathname}?${params.toString()}` : pathname);
   }
 
   function clearAllFilters() {
     router.push(pathname);
   }
+
   return (
     <div className="mb-6 flex flex-wrap items-center gap-2">
       {activeFilters.map((filter) => (

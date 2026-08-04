@@ -1,10 +1,5 @@
 import Link from "next/link";
-import {
-  CheckCircle2,
-  FileText,
-  PackageCheck,
-  ReceiptText,
-} from "lucide-react";
+import { CheckCircle2, FileText, PackageCheck, ReceiptText, } from "lucide-react";
 
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
@@ -45,8 +40,7 @@ export default async function PaymentSuccessPage({
 
   if (sessionId) {
     try {
-      const session =
-        await stripe.checkout.sessions.retrieve(sessionId);
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
 
       paymentDetails = {
         orderId:
@@ -62,10 +56,7 @@ export default async function PaymentSuccessPage({
         currency: session.currency || "pkr",
       };
     } catch (error) {
-      console.error(
-        "Unable to retrieve Stripe session:",
-        error
-      );
+      console.error("Unable to retrieve Stripe session:", error);
     }
   }
 
@@ -82,10 +73,7 @@ export default async function PaymentSuccessPage({
         paidAt: new Date(),
       });
     } catch (error) {
-      console.error(
-        "Failed to update order payment status:",
-        error
-      );
+      console.error("Failed to update order payment status:", error);
     }
   }
 
@@ -99,11 +87,9 @@ export default async function PaymentSuccessPage({
             <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white/20">
               <CheckCircle2 className="h-11 w-11" />
             </div>
-
             <h1 className="mt-6 text-3xl font-bold sm:text-4xl">
               Payment Successful
             </h1>
-
             <p className="mt-3 text-emerald-50">
               Thank you for shopping with NovaCart.
             </p>
@@ -115,13 +101,11 @@ export default async function PaymentSuccessPage({
                 <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
                   <div className="flex items-start gap-4">
                     <ReceiptText className="mt-1 h-6 w-6 shrink-0 text-indigo-600" />
-
                     <div className="min-w-0 flex-1 space-y-4">
                       <div className="flex items-center justify-between gap-4">
                         <span className="text-sm text-neutral-500">
                           Payment status
                         </span>
-
                         <span className="font-semibold capitalize text-emerald-600">
                           {paymentDetails.paymentStatus}
                         </span>
@@ -131,12 +115,8 @@ export default async function PaymentSuccessPage({
                         <span className="text-sm text-neutral-500">
                           Amount paid
                         </span>
-
                         <span className="font-semibold text-neutral-950">
-                          {formatPrice(
-                            paymentDetails.amountTotal,
-                            paymentDetails.currency
-                          )}
+                          {formatPrice(paymentDetails.amountTotal, paymentDetails.currency)}
                         </span>
                       </div>
 
@@ -145,7 +125,6 @@ export default async function PaymentSuccessPage({
                           <span className="text-sm text-neutral-500">
                             Order ID
                           </span>
-
                           <span className="max-w-[240px] truncate font-mono text-sm font-medium text-neutral-950">
                             {paymentDetails.orderId}
                           </span>
@@ -157,7 +136,6 @@ export default async function PaymentSuccessPage({
                           <span className="text-sm text-neutral-500">
                             Confirmation email
                           </span>
-
                           <span className="max-w-[260px] truncate text-sm font-medium text-neutral-950">
                             {paymentDetails.customerEmail}
                           </span>
@@ -170,20 +148,16 @@ export default async function PaymentSuccessPage({
                 {paymentDetails?.orderId && paymentDetails.paymentStatus === "paid" ? (
                   <div className="mt-6 flex items-start gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
                     <PackageCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
-
                     <p className="text-sm leading-6 text-emerald-800">
-                      Your payment was received and your
-                      order is confirmed. You can view your
+                      Your payment was received and your order is confirmed. You can view your
                       invoice below.
                     </p>
                   </div>
                 ) : (
                   <div className="mt-6 flex items-start gap-3 rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
                     <PackageCheck className="mt-0.5 h-5 w-5 shrink-0 text-indigo-600" />
-
                     <p className="text-sm leading-6 text-indigo-800">
-                      Your payment was received. Your order
-                      will be confirmed shortly.
+                      Your payment was received. Your order will be confirmed shortly.
                     </p>
                   </div>
                 )}
@@ -191,10 +165,8 @@ export default async function PaymentSuccessPage({
             ) : (
               <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-center">
                 <p className="font-medium text-amber-900">
-                  Payment completed, but the Checkout
-                  Session details could not be loaded.
+                  Payment completed, but the Checkout Session details could not be loaded.
                 </p>
-
                 <p className="mt-2 text-sm text-amber-700">
                   Open My Orders to review your order.
                 </p>

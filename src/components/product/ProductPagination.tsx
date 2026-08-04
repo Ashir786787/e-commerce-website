@@ -30,19 +30,13 @@ export default function ProductPagination({
       params.set("page", String(page));
     }
 
-    router.push(
-      params.toString()
-        ? `${pathname}?${params.toString()}`
-        : pathname
-    );
+    router.push(params.toString() ? `${pathname}?${params.toString()}` : pathname);
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+
   return (
     <nav
       aria-label="Product pagination"
@@ -66,9 +60,7 @@ export default function ProductPagination({
           aria-current={page === currentPage ? "page" : undefined}
           className={cn(
             "flex h-10 min-w-10 items-center justify-center rounded-lg border px-3 text-sm font-medium transition",
-            page === currentPage
-              ? "border-primary bg-primary text-primary-foreground"
-              : "hover:bg-muted"
+            page === currentPage ? "border-primary bg-primary text-primary-foreground" : "hover:bg-muted"
           )}
         >
           {page}

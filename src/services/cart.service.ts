@@ -9,48 +9,24 @@ type CartItemForSummary = {
 };
 
 function calculateCartSummary(items: CartItemForSummary[]) {
-  const subtotal = items.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-
-  const totalItems = items.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
-
-  const deliveryFee =
-    subtotal === 0 || subtotal >= 5000 ? 0 : 300;
-
+  const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
+  const totalItems = items.reduce((total, item) => total + item.quantity, 0);
+  const deliveryFee = subtotal === 0 || subtotal >= 5000 ? 0 : 300;
   const total = subtotal + deliveryFee;
 
-  return {
-    subtotal,
-    deliveryFee,
-    tax: 0,
-    discount: 0,
-    total,
-    totalItems,
-  };
+  return { subtotal, deliveryFee, tax: 0, discount: 0, total, totalItems };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function formatCartResponse(cart: any) {
   if (!cart) {
     const items: CartItemForSummary[] = [];
-    return {
-      items,
-      summary: calculateCartSummary(items),
-    };
+    return { items, summary: calculateCartSummary(items) };
   }
   const rawItems = Array.isArray(cart.items) ? cart.items : [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const validItems = rawItems.filter((item: any) => item.product != null);
-  return {
-    ...cart,
-    items: validItems,
-    summary: calculateCartSummary(validItems),
-  };
+  return { ...cart, items: validItems, summary: calculateCartSummary(validItems) };
 }
 
 type AddToCartInput = {
@@ -86,19 +62,10 @@ export async function addToCart({
   if (!cart) {
     cart = await Cart.create({
       user: userId,
-      items: [
-        {
-          product: product._id,
-          quantity,
-          price: product.price,
-        },
-      ],
+      items: [{ product: product._id, quantity, price: product.price }],
     });
   } else {
-    const existingItem = cart.items.find(
-      (item) => item.product.toString() === productId
-    );
-
+    const existingItem = cart.items.find((item) => item.product.toString() === productId);
     if (existingItem) {
       const updatedQuantity = existingItem.quantity + quantity;
       if (updatedQuantity > product.stock) {
@@ -107,11 +74,7 @@ export async function addToCart({
       existingItem.quantity = updatedQuantity;
       existingItem.price = product.price;
     } else {
-      cart.items.push({
-        product: product._id,
-        quantity,
-        price: product.price,
-      });
+      cart.items.push({ product: product._id, quantity, price: product.price });
     }
 
     await cart.save();
@@ -139,9 +102,7 @@ export async function removeCartItem({
   if (!cart) {
     throw new Error("Cart not found.");
   }
-  cart.items = cart.items.filter(
-    (item) => item.product.toString() !== productId
-  );
+  cart.items = cart.items.filter((item) => item.product.toString() !== productId);
   await cart.save();
   return getCart(userId);
 }
@@ -152,23 +113,12 @@ export async function getCart(userId: string) {
   }
   const rawCart = await Cart.findOne({ user: userId }).lean();
   if (rawCart && Array.isArray(rawCart.items) && rawCart.items.length > 0) {
-    const productIds = rawCart.items.map(
-      (item) => item.product
-    );
-    const existing = await Product.find({
-      _id: { $in: productIds },
-    }).select("_id").lean();
-    const existingSet = new Set(
-      existing.map((p) => p._id.toString())
-    );
-    const orphanIds = productIds.filter(
-      (id) => !existingSet.has(id.toString())
-    );
+    const productIds = rawCart.items.map((item) => item.product);
+    const existing = await Product.find({ _id: { $in: productIds } }).select("_id").lean();
+    const existingSet = new Set(existing.map((p) => p._id.toString()));
+    const orphanIds = productIds.filter((id) => !existingSet.has(id.toString()));
     if (orphanIds.length > 0) {
-      await Cart.updateOne(
-        { user: userId },
-        { $pull: { items: { product: { $in: orphanIds } } } }
-      );
+      await Cart.updateOne({ user: userId }, { $pull: { items: { product: { $in: orphanIds } } } });
     }
   }
   const cart = await Cart.findOne({ user: userId })
@@ -211,9 +161,7 @@ export async function updateCartItem({
   if (!cart) {
     throw new Error("Cart not found.");
   }
-  const item = cart.items.find(
-    (cartItem) => cartItem.product.toString() === productId
-  );
+  const item = cart.items.find((cartItem) => cartItem.product.toString() === productId);
   if (!item) {
     throw new Error("That product is not in your cart.");
   }

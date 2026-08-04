@@ -16,9 +16,7 @@ async function seedProducts() {
       process.exit(1);
     }
 
-    const categoryMap = new Map(
-      categories.map((c) => [c.slug, c._id])
-    );
+    const categoryMap = new Map(categories.map((c) => [c.slug, c._id]));
 
     const products = sampleProducts.map(({ categorySlug, image, ...rest }) => {
       const categoryId = categoryMap.get(categorySlug);

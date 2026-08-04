@@ -12,9 +12,7 @@ import Product from "@/models/Product";
 export const dynamic = "force-dynamic";
 
 interface EditProductPageProps {
-  params: Promise<{
-    id: string;
-  }>;
+  params: Promise<{ id: string }>;
 }
 
 export default async function EditProductPage({
@@ -30,14 +28,9 @@ export default async function EditProductPage({
 
   const [product, categories] = await Promise.all([
     Product.findById(id).lean(),
-
-    Category.find({
-      isActive: true,
-    })
+    Category.find({ isActive: true })
       .select("name")
-      .sort({
-        name: 1,
-      })
+      .sort({ name: 1 })
       .lean(),
   ]);
 
@@ -65,11 +58,9 @@ export default async function EditProductPage({
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
             Product Management
           </p>
-
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">
             Edit Product
           </h1>
-
           <p className="mt-3 text-neutral-600">
             Update product information, inventory and visibility.
           </p>

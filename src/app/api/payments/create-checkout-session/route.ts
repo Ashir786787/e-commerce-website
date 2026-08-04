@@ -6,10 +6,7 @@ import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
 import "@/models/Product";
 import { getCurrentUser } from "@/services/auth.service";
-import {
-  errorResponse,
-  successResponse,
-} from "@/utils/api-response";
+import { errorResponse, successResponse } from "@/utils/api-response";
 
 type CreateCheckoutSessionBody = {
   orderId?: string;
@@ -25,8 +22,7 @@ export async function POST(request: NextRequest) {
       return errorResponse("Not authenticated.", 401);
     }
 
-    const body =
-      (await request.json()) as CreateCheckoutSessionBody;
+    const body = (await request.json()) as CreateCheckoutSessionBody;
 
     if (!body.orderId) {
       return errorResponse("Order ID is required.", 400);
@@ -49,30 +45,18 @@ export async function POST(request: NextRequest) {
     }
 
     if (order.paymentMethod !== "card") {
-      return errorResponse(
-        "This order is not configured for card payment.",
-        400
-      );
+      return errorResponse("This order is not configured for card payment.", 400);
     }
 
     if (order.paymentStatus === "paid") {
-      return errorResponse(
-        "This order has already been paid.",
-        400
-      );
+      return errorResponse("This order has already been paid.", 400);
     }
 
     if (order.orderStatus === "cancelled") {
-      return errorResponse(
-        "A cancelled order cannot be paid.",
-        400
-      );
+      return errorResponse("A cancelled order cannot be paid.", 400);
     }
 
-    const appUrl = (
-      process.env.NEXT_PUBLIC_APP_URL ||
-      request.nextUrl.origin
-    ).replace(/\/+$/, "");
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin).replace(/\/+$/, "");
 
     const lineItems = order.items.map((item) => {
       const product = item.product as unknown as {
@@ -104,66 +88,43 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const session =
-      await stripe.checkout.sessions.create({
-        mode: "payment",
-        line_items: lineItems,
-        customer_email: order.shippingAddress.email,
-
-        client_reference_id: order._id.toString(),
-
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: lineItems,
+      customer_email: order.shippingAddress.email,
+      client_reference_id: order._id.toString(),
+      metadata: {
+        orderId: order._id.toString(),
+        userId: user.id.toString(),
+      },
+      payment_intent_data: {
         metadata: {
           orderId: order._id.toString(),
           userId: user.id.toString(),
         },
-
-        payment_intent_data: {
-          metadata: {
-            orderId: order._id.toString(),
-            userId: user.id.toString(),
-          },
-        },
-
-        success_url:
-          `${appUrl}/checkout/success` +
-          `?session_id={CHECKOUT_SESSION_ID}`,
-
-        cancel_url:
-          `${appUrl}/checkout/cancel` +
-          `?order_id=${order._id.toString()}`,
-      });
+      },
+      success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl}/checkout/cancel?order_id=${order._id.toString()}`,
+    });
 
     if (!session.url) {
-      return errorResponse(
-        "Stripe checkout URL could not be created.",
-        500
-      );
+      return errorResponse("Stripe checkout URL could not be created.", 500);
     }
 
     order.paymentIntentId =
-      typeof session.payment_intent === "string"
-        ? session.payment_intent
-        : undefined;
+      typeof session.payment_intent === "string" ? session.payment_intent : undefined;
 
     await order.save();
 
-    return successResponse(
-      "Stripe checkout session created.",
-      {
-        checkoutUrl: session.url,
-        sessionId: session.id,
-      }
-    );
+    return successResponse("Stripe checkout session created.", {
+      checkoutUrl: session.url,
+      sessionId: session.id,
+    });
   } catch (error) {
-    console.error(
-      "Create Stripe checkout session error:",
-      error
-    );
+    console.error("Create Stripe checkout session error:", error);
 
     return errorResponse(
-      error instanceof Error
-        ? error.message
-        : "Failed to create Stripe checkout session.",
+      error instanceof Error ? error.message : "Failed to create Stripe checkout session.",
       500
     );
   }

@@ -40,13 +40,8 @@ export async function POST(request: NextRequest) {
 
     if (!currentUser || currentUser.role !== "admin") {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Admin access is required.",
-        },
-        {
-          status: 403,
-        }
+        { success: false, message: "Admin access is required." },
+        { status: 403 }
       );
     }
 
@@ -60,109 +55,64 @@ export async function POST(request: NextRequest) {
 
     if (!name || name.length < 3) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Product name must contain at least 3 characters.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Product name must contain at least 3 characters." },
+        { status: 400 }
       );
     }
 
     if (!slug) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "A valid product slug is required.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "A valid product slug is required." },
+        { status: 400 }
       );
     }
 
     if (!description || description.length < 10) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Description must contain at least 10 characters.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Description must contain at least 10 characters." },
+        { status: 400 }
       );
     }
 
     if (!brand) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Product brand is required.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Product brand is required." },
+        { status: 400 }
       );
     }
 
     if (!categoryId || !Types.ObjectId.isValid(categoryId)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Please select a valid category.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Please select a valid category." },
+        { status: 400 }
       );
     }
 
     const price = Number(body.price);
     const originalPrice =
-      body.originalPrice === null ||
-      body.originalPrice === undefined
+      body.originalPrice === null || body.originalPrice === undefined
         ? undefined
         : Number(body.originalPrice);
-
     const stock = Number(body.stock);
 
     if (!Number.isFinite(price) || price < 0) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Please provide a valid price.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Please provide a valid price." },
+        { status: 400 }
       );
     }
 
-    if (
-      originalPrice !== undefined &&
-      (!Number.isFinite(originalPrice) || originalPrice < 0)
-    ) {
+    if (originalPrice !== undefined && (!Number.isFinite(originalPrice) || originalPrice < 0)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Please provide a valid original price.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Please provide a valid original price." },
+        { status: 400 }
       );
     }
 
     if (!Number.isInteger(stock) || stock < 0) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Stock must be a non-negative whole number.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Stock must be a non-negative whole number." },
+        { status: 400 }
       );
     }
 
@@ -175,47 +125,27 @@ export async function POST(request: NextRequest) {
 
     if (images.length === 0) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "At least one product image URL is required.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "At least one product image URL is required." },
+        { status: 400 }
       );
     }
 
     const [existingProduct, category] = await Promise.all([
-      Product.findOne({
-        slug,
-      }).lean(),
-
-      Category.findById(categoryId)
-        .select("_id name isActive")
-        .lean(),
+      Product.findOne({ slug }).lean(),
+      Category.findById(categoryId).select("_id name isActive").lean(),
     ]);
 
     if (existingProduct) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "A product with this slug already exists.",
-        },
-        {
-          status: 409,
-        }
+        { success: false, message: "A product with this slug already exists." },
+        { status: 409 }
       );
     }
 
     if (!category) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Selected category was not found.",
-        },
-        {
-          status: 404,
-        }
+        { success: false, message: "Selected category was not found." },
+        { status: 404 }
       );
     }
 
@@ -247,9 +177,7 @@ export async function POST(request: NextRequest) {
           slug: product.slug,
         },
       },
-      {
-        status: 201,
-      }
+      { status: 201 }
     );
   } catch (error) {
     console.error("Create admin product error:", error);
@@ -258,13 +186,9 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         message:
-          error instanceof Error
-            ? error.message
-            : "Unable to create product.",
+          error instanceof Error ? error.message : "Unable to create product.",
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }

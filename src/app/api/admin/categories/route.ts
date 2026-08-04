@@ -34,9 +34,7 @@ export async function GET() {
     await connectDB();
     await requireAdmin();
 
-    const categories = await Category.find()
-      .sort({ createdAt: -1 })
-      .lean();
+    const categories = await Category.find().sort({ createdAt: -1 }).lean();
 
     const data = await Promise.all(
       categories.map(async (category) => ({
@@ -46,34 +44,18 @@ export async function GET() {
         description: category.description || "",
         image: category.image || "",
         isActive: category.isActive,
-        productCount: await Product.countDocuments({
-          category: category._id,
-        }),
+        productCount: await Product.countDocuments({ category: category._id }),
         createdAt: category.createdAt,
       }))
     );
 
-    return NextResponse.json({
-      success: true,
-      data,
-    });
+    return NextResponse.json({ success: true, data });
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Unable to load categories.";
+    const message = error instanceof Error ? error.message : "Unable to load categories.";
 
     return NextResponse.json(
-      {
-        success: false,
-        message,
-      },
-      {
-        status:
-          message === "Admin access is required."
-            ? 403
-            : 500,
-      }
+      { success: false, message },
+      { status: message === "Admin access is required." ? 403 : 500 }
     );
   }
 }
@@ -83,85 +65,44 @@ export async function POST(request: NextRequest) {
     await connectDB();
     await requireAdmin();
 
-    const body =
-      (await request.json()) as CreateCategoryBody;
+    const body = (await request.json()) as CreateCategoryBody;
 
     const name = body.name?.trim();
-    const slug = normalizeSlug(
-      body.slug || body.name || ""
-    );
-    const description =
-      body.description?.trim() || "";
+    const slug = normalizeSlug(body.slug || body.name || "");
+    const description = body.description?.trim() || "";
     const image = body.image?.trim() || "";
 
     if (!name || name.length < 2) {
       return NextResponse.json(
-        {
-          success: false,
-          message:
-            "Category name must contain at least 2 characters.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Category name must contain at least 2 characters." },
+        { status: 400 }
       );
     }
 
     if (!slug) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "A valid category slug is required.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "A valid category slug is required." },
+        { status: 400 }
       );
     }
 
     if (description.length > 500) {
       return NextResponse.json(
-        {
-          success: false,
-          message:
-            "Description cannot exceed 500 characters.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Description cannot exceed 500 characters." },
+        { status: 400 }
       );
     }
 
-    const escapedName = name.replace(
-      /[.*+?^${}()|[\]\\]/g,
-      "\\$&"
-    );
+    const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-    const existingCategory =
-      await Category.findOne({
-        $or: [
-          {
-            name: {
-              $regex: `^${escapedName}$`,
-              $options: "i",
-            },
-          },
-          {
-            slug,
-          },
-        ],
-      }).lean();
+    const existingCategory = await Category.findOne({
+      $or: [{ name: { $regex: `^${escapedName}$`, $options: "i" } }, { slug }],
+    }).lean();
 
     if (existingCategory) {
       return NextResponse.json(
-        {
-          success: false,
-          message:
-            "A category with this name or slug already exists.",
-        },
-        {
-          status: 409,
-        }
+        { success: false, message: "A category with this name or slug already exists." },
+        { status: 409 }
       );
     }
 
@@ -183,29 +124,16 @@ export async function POST(request: NextRequest) {
           slug: category.slug,
         },
       },
-      {
-        status: 201,
-      }
+      { status: 201 }
     );
   } catch (error) {
     console.error("Create category error:", error);
 
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Unable to create category.";
+    const message = error instanceof Error ? error.message : "Unable to create category.";
 
     return NextResponse.json(
-      {
-        success: false,
-        message,
-      },
-      {
-        status:
-          message === "Admin access is required."
-            ? 403
-            : 500,
-      }
+      { success: false, message },
+      { status: message === "Admin access is required." ? 403 : 500 }
     );
   }
 }

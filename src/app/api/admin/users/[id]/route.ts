@@ -18,10 +18,7 @@ interface AdminUserRouteProps {
   }>;
 }
 
-export async function GET(
-  _request: NextRequest,
-  { params }: AdminUserRouteProps
-) {
+export async function GET(_request: NextRequest, { params }: AdminUserRouteProps) {
   try {
     await connectDB();
 
@@ -29,13 +26,8 @@ export async function GET(
 
     if (!currentUser || currentUser.role !== "admin") {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Admin access is required.",
-        },
-        {
-          status: 403,
-        }
+        { success: false, message: "Admin access is required." },
+        { status: 403 }
       );
     }
 
@@ -43,31 +35,19 @@ export async function GET(
 
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid user ID.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Invalid user ID." },
+        { status: 400 }
       );
     }
 
     const user = await User.findById(id)
-      .select(
-        "fullName email role avatar isVerified createdAt updatedAt"
-      )
+      .select("fullName email role avatar isVerified createdAt updatedAt")
       .lean();
 
     if (!user) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "User not found.",
-        },
-        {
-          status: 404,
-        }
+        { success: false, message: "User not found." },
+        { status: 404 }
       );
     }
 
@@ -88,21 +68,13 @@ export async function GET(
     console.error("Load admin user error:", error);
 
     return NextResponse.json(
-      {
-        success: false,
-        message: "Unable to load user.",
-      },
-      {
-        status: 500,
-      }
+      { success: false, message: "Unable to load user." },
+      { status: 500 }
     );
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: AdminUserRouteProps
-) {
+export async function PATCH(request: NextRequest, { params }: AdminUserRouteProps) {
   try {
     await connectDB();
 
@@ -110,13 +82,8 @@ export async function PATCH(
 
     if (!currentUser || currentUser.role !== "admin") {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Admin access is required.",
-        },
-        {
-          status: 403,
-        }
+        { success: false, message: "Admin access is required." },
+        { status: 403 }
       );
     }
 
@@ -124,46 +91,24 @@ export async function PATCH(
 
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid user ID.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Invalid user ID." },
+        { status: 400 }
       );
     }
 
     const body = (await request.json()) as UpdateUserBody;
 
-    if (
-      body.role !== undefined &&
-      body.role !== "user" &&
-      body.role !== "admin"
-    ) {
+    if (body.role !== undefined && body.role !== "user" && body.role !== "admin") {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid role.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Invalid role." },
+        { status: 400 }
       );
     }
 
-    if (
-      body.isVerified !== undefined &&
-      typeof body.isVerified !== "boolean"
-    ) {
+    if (body.isVerified !== undefined && typeof body.isVerified !== "boolean") {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid verification value.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Invalid verification value." },
+        { status: 400 }
       );
     }
 
@@ -171,33 +116,17 @@ export async function PATCH(
 
     if (!targetUser) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "User not found.",
-        },
-        {
-          status: 404,
-        }
+        { success: false, message: "User not found." },
+        { status: 404 }
       );
     }
 
-    const isEditingOwnAccount =
-      targetUser._id.toString() === currentUser.id.toString();
+    const isEditingOwnAccount = targetUser._id.toString() === currentUser.id.toString();
 
-    if (
-      isEditingOwnAccount &&
-      body.role &&
-      body.role !== "admin"
-    ) {
+    if (isEditingOwnAccount && body.role && body.role !== "admin") {
       return NextResponse.json(
-        {
-          success: false,
-          message:
-            "You cannot remove your own admin role.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "You cannot remove your own admin role." },
+        { status: 400 }
       );
     }
 
@@ -227,21 +156,13 @@ export async function PATCH(
     console.error("Update admin user error:", error);
 
     return NextResponse.json(
-      {
-        success: false,
-        message: "Unable to update user.",
-      },
-      {
-        status: 500,
-      }
+      { success: false, message: "Unable to update user." },
+      { status: 500 }
     );
   }
 }
 
-export async function DELETE(
-  _request: NextRequest,
-  { params }: AdminUserRouteProps
-) {
+export async function DELETE(_request: NextRequest, { params }: AdminUserRouteProps) {
   try {
     await connectDB();
 
@@ -249,13 +170,8 @@ export async function DELETE(
 
     if (!currentUser || currentUser.role !== "admin") {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Admin access is required.",
-        },
-        {
-          status: 403,
-        }
+        { success: false, message: "Admin access is required." },
+        { status: 403 }
       );
     }
 
@@ -263,13 +179,8 @@ export async function DELETE(
 
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid user ID.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "Invalid user ID." },
+        { status: 400 }
       );
     }
 
@@ -277,25 +188,15 @@ export async function DELETE(
 
     if (!targetUser) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "User not found.",
-        },
-        {
-          status: 404,
-        }
+        { success: false, message: "User not found." },
+        { status: 404 }
       );
     }
 
     if (targetUser._id.toString() === currentUser.id.toString()) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "You cannot delete your own account.",
-        },
-        {
-          status: 400,
-        }
+        { success: false, message: "You cannot delete your own account." },
+        { status: 400 }
       );
     }
 
@@ -316,13 +217,8 @@ export async function DELETE(
     console.error("Delete admin user error:", error);
 
     return NextResponse.json(
-      {
-        success: false,
-        message: "Unable to delete user.",
-      },
-      {
-        status: 500,
-      }
+      { success: false, message: "Unable to delete user." },
+      { status: 500 }
     );
   }
 }

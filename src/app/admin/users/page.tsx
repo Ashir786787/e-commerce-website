@@ -35,37 +35,23 @@ export default async function AdminUsersPage({
   const query: Record<string, unknown> = {};
 
   if (search) {
-    const escaped = search.replace(
-      /[.*+?^${}()|[\]\\]/g,
-      "\\$&"
-    );
-
+    const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     query.$or = [
       { fullName: { $regex: escaped, $options: "i" } },
       { email: { $regex: escaped, $options: "i" } },
     ];
   }
 
-  const currentAdmin = await getCurrentUser().catch(
-    () => null
-  );
+  const currentAdmin = await getCurrentUser().catch(() => null);
   const currentAdminId = currentAdmin?.id.toString();
 
   const totalUsers = await User.countDocuments(query);
-  const totalPages = Math.max(
-    1,
-    Math.ceil(totalUsers / limit)
-  );
-  const currentPage = Math.min(
-    requestedPage,
-    totalPages
-  );
+  const totalPages = Math.max(1, Math.ceil(totalUsers / limit));
+  const currentPage = Math.min(requestedPage, totalPages);
   const skip = (currentPage - 1) * limit;
 
   const users = await User.find(query)
-    .select(
-      "fullName email role isVerified createdAt"
-    )
+    .select("fullName email role isVerified createdAt")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
@@ -78,11 +64,9 @@ export default async function AdminUsersPage({
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
             User Management
           </p>
-
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">
             Users
           </h1>
-
           <p className="mt-3 text-neutral-600">
             Browse and manage all NovaCart accounts.
           </p>
@@ -92,7 +76,6 @@ export default async function AdminUsersPage({
       <form className="mt-8">
         <div className="relative max-w-md">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400" />
-
           <input
             type="text"
             name="search"
@@ -111,25 +94,20 @@ export default async function AdminUsersPage({
                 <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                   Name
                 </th>
-
                 <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                   Email
                 </th>
-
                 <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                   Role
                 </th>
-
                 <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                   Status
                 </th>
-
                 <th className="px-5 py-4 text-right text-xs font-semibold uppercase tracking-wider text-neutral-500">
                   Actions
                 </th>
               </tr>
             </thead>
-
             <tbody>
               {users.map((user) => (
                 <tr
@@ -137,28 +115,22 @@ export default async function AdminUsersPage({
                   className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50"
                 >
                   <td className="px-5 py-4">
-                    <p className="font-medium text-neutral-950">
-                      {user.fullName}
-                    </p>
+                    <p className="font-medium text-neutral-950">{user.fullName}</p>
                   </td>
-
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
                       <Mail className="h-4 w-4 shrink-0 text-neutral-400" />
-
                       <span className="truncate text-sm text-neutral-600">
                         {user.email}
                       </span>
                     </div>
                   </td>
-
                   <td className="px-5 py-4">
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold capitalize text-indigo-700">
                       <ShieldCheck className="h-3 w-3" />
                       {user.role}
                     </span>
                   </td>
-
                   <td className="px-5 py-4">
                     {user.isVerified ? (
                       <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700">
@@ -172,7 +144,6 @@ export default async function AdminUsersPage({
                       </span>
                     )}
                   </td>
-
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-end gap-2">
                       <Link
@@ -181,14 +152,10 @@ export default async function AdminUsersPage({
                       >
                         Manage
                       </Link>
-
                       <DeleteUserButton
                         userId={user._id.toString()}
                         userName={user.fullName}
-                        disabled={
-                          user._id.toString() ===
-                          currentAdminId
-                        }
+                        disabled={user._id.toString() === currentAdminId}
                       />
                     </div>
                   </td>
@@ -199,11 +166,7 @@ export default async function AdminUsersPage({
         ) : (
           <div className="flex flex-col items-center px-6 py-16 text-center">
             <ShieldCheck className="h-12 w-12 text-neutral-300" />
-
-            <p className="mt-4 text-lg font-semibold text-neutral-950">
-              No users found
-            </p>
-
+            <p className="mt-4 text-lg font-semibold text-neutral-950">No users found</p>
             <p className="mt-2 text-sm text-neutral-500">
               {search
                 ? "Try a different search term."

@@ -20,16 +20,9 @@ export async function POST(request: Request) {
     }
 
     try {
-      event = stripe.webhooks.constructEvent(
-        payload,
-        signature,
-        webhookSecret
-      );
+      event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
     } catch (error) {
-      console.error(
-        "Stripe signature verification failed:",
-        error
-      );
+      console.error("Stripe signature verification failed:", error);
 
       return Response.json(
         { error: "Invalid Stripe webhook signature." },
@@ -46,25 +39,19 @@ export async function POST(request: Request) {
     try {
       event = JSON.parse(payload);
     } catch {
-      return Response.json(
-        { error: "Invalid payload." },
-        { status: 400 }
-      );
+      return Response.json({ error: "Invalid payload." }, { status: 400 });
     }
   }
 
   try {
     if (event.type === "checkout.session.completed") {
-      const session =
-        event.data.object as Stripe.Checkout.Session;
+      const session = event.data.object as Stripe.Checkout.Session;
 
       if (session.payment_status !== "paid") {
         return Response.json({ received: true });
       }
 
-      const orderId =
-        session.metadata?.orderId ||
-        session.client_reference_id;
+      const orderId = session.metadata?.orderId || session.client_reference_id;
 
       if (!orderId) {
         return Response.json(
@@ -83,10 +70,7 @@ export async function POST(request: Request) {
       const order = await Order.findById(orderId);
 
       if (!order) {
-        return Response.json(
-          { error: `Order ${orderId} was not found.` },
-          { status: 404 }
-        );
+        return Response.json({ error: `Order ${orderId} was not found.` }, { status: 404 });
       }
 
       if (order.paymentStatus !== "paid") {
@@ -101,24 +85,17 @@ export async function POST(request: Request) {
         await order.save();
       }
 
-      console.log(
-        `Stripe webhook completed for order ${order.orderNumber}.`
-      );
+      console.log(`Stripe webhook completed for order ${order.orderNumber}.`);
     }
 
     return Response.json({ received: true });
   } catch (error) {
-    console.error(
-      "Stripe webhook processing error:",
-      error
-    );
+    console.error("Stripe webhook processing error:", error);
 
     return Response.json(
       {
         error:
-          error instanceof Error
-            ? error.message
-            : "Webhook processing failed.",
+          error instanceof Error ? error.message : "Webhook processing failed.",
       },
       { status: 500 }
     );

@@ -33,35 +33,20 @@ export default async function AdminDiscountCodesPage({
   const limit = 15;
   const requestedPage = Math.max(1, Number(pageParam) || 1);
 
-  const [totalCodes, activeCodes, totalUsedResult] =
-    await Promise.all([
-      DiscountCode.countDocuments(),
-      DiscountCode.countDocuments({
-        isActive: true,
-        $or: [
-          { expiresAt: null },
-          { expiresAt: { $gt: now } },
-        ],
-      }),
-      DiscountCode.aggregate<{ total: number }>([
-        {
-          $group: {
-            _id: null,
-            total: { $sum: { $size: "$usedBy" } },
-          },
-        },
-      ]),
-    ]);
+  const [totalCodes, activeCodes, totalUsedResult] = await Promise.all([
+    DiscountCode.countDocuments(),
+    DiscountCode.countDocuments({
+      isActive: true,
+      $or: [{ expiresAt: null }, { expiresAt: { $gt: now } }],
+    }),
+    DiscountCode.aggregate<{ total: number }>([
+      { $group: { _id: null, total: { $sum: { $size: "$usedBy" } } } },
+    ]),
+  ]);
 
   const totalUsed = totalUsedResult[0]?.total ?? 0;
-  const totalPages = Math.max(
-    1,
-    Math.ceil(totalCodes / limit)
-  );
-  const currentPage = Math.min(
-    requestedPage,
-    totalPages
-  );
+  const totalPages = Math.max(1, Math.ceil(totalCodes / limit));
+  const currentPage = Math.min(requestedPage, totalPages);
   const skip = (currentPage - 1) * limit;
 
   const codes = await DiscountCode.find()

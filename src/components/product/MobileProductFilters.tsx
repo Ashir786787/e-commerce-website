@@ -21,6 +21,7 @@ export default function MobileProductFilters({
   brands,
 }: MobileProductFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
+
   return (
     <div className="lg:hidden">
       <Button
@@ -40,11 +41,7 @@ export default function MobileProductFilters({
       </Button>
 
       {isOpen && (
-        <ProductFilters
-          categories={categories}
-          brands={brands}
-          className="mt-4"
-        />
+        <ProductFilters categories={categories} brands={brands} className="mt-4" />
       )}
     </div>
   );

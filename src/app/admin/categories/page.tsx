@@ -1,10 +1,5 @@
 import Link from "next/link";
-import {
-  Edit3,
-  FolderOpen,
-  Plus,
-  Search,
-} from "lucide-react";
+import { Edit3, FolderOpen, Plus, Search } from "lucide-react";
 import { Types } from "mongoose";
 
 import CategoryForm from "@/components/admin/CategoryForm";
@@ -30,24 +25,13 @@ export default async function AdminCategoriesPage({
 }: AdminCategoriesPageProps) {
   const params = await searchParams;
 
-  const search =
-    typeof params.search === "string"
-      ? params.search.trim()
-      : "";
-
+  const search = typeof params.search === "string" ? params.search.trim() : "";
   const status =
-    params.status === "active" ||
-    params.status === "inactive"
+    params.status === "active" || params.status === "inactive"
       ? params.status
       : "";
-
-  const editId =
-    typeof params.edit === "string"
-      ? params.edit
-      : "";
-
-  const showCreateForm =
-    params.create === "true";
+  const editId = typeof params.edit === "string" ? params.edit : "";
+  const showCreateForm = params.create === "true";
 
   await connectDB();
 
@@ -55,24 +39,9 @@ export default async function AdminCategoriesPage({
 
   if (search) {
     query.$or = [
-      {
-        name: {
-          $regex: search,
-          $options: "i",
-        },
-      },
-      {
-        slug: {
-          $regex: search,
-          $options: "i",
-        },
-      },
-      {
-        description: {
-          $regex: search,
-          $options: "i",
-        },
-      },
+      { name: { $regex: search, $options: "i" } },
+      { slug: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
     ];
   }
 
@@ -84,49 +53,19 @@ export default async function AdminCategoriesPage({
     query.isActive = false;
   }
 
-  const [
-    categories,
-    totalCategories,
-    activeCategories,
-    productCounts,
-    editingCategory,
-  ] = await Promise.all([
-    Category.find(query)
-      .sort({
-        createdAt: -1,
-      })
-      .lean(),
-
-    Category.countDocuments(),
-
-    Category.countDocuments({
-      isActive: true,
-    }),
-
-    Product.aggregate<{
-      _id: Types.ObjectId;
-      count: number;
-    }>([
-      {
-        $group: {
-          _id: "$category",
-          count: {
-            $sum: 1,
-          },
-        },
-      },
-    ]),
-
-    editId && Types.ObjectId.isValid(editId)
-      ? Category.findById(editId).lean()
-      : null,
-  ]);
+  const [categories, totalCategories, activeCategories, productCounts, editingCategory] =
+    await Promise.all([
+      Category.find(query).sort({ createdAt: -1 }).lean(),
+      Category.countDocuments(),
+      Category.countDocuments({ isActive: true }),
+      Product.aggregate<{ _id: Types.ObjectId; count: number }>([
+        { $group: { _id: "$category", count: { $sum: 1 } } },
+      ]),
+      editId && Types.ObjectId.isValid(editId) ? Category.findById(editId).lean() : null,
+    ]);
 
   const productCountMap = new Map(
-    productCounts.map((item) => [
-      item._id.toString(),
-      item.count,
-    ])
+    productCounts.map((item) => [item._id.toString(), item.count])
   );
 
   return (
@@ -136,17 +75,13 @@ export default async function AdminCategoriesPage({
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
             Category Management
           </p>
-
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">
             Categories
           </h1>
-
           <p className="mt-3 text-neutral-600">
-            Organize products and manage marketplace
-            categories.
+            Organize products and manage marketplace categories.
           </p>
         </div>
-
         <Link
           href="/admin/categories?create=true"
           className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 text-sm font-semibold text-white transition hover:bg-indigo-700 sm:w-fit"
@@ -158,30 +93,21 @@ export default async function AdminCategoriesPage({
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <article className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-neutral-500">
-            Total Categories
-          </p>
-
+          <p className="text-sm text-neutral-500">Total Categories</p>
           <p className="mt-2 text-3xl font-bold text-neutral-950">
             {totalCategories}
           </p>
         </article>
 
         <article className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-neutral-500">
-            Active Categories
-          </p>
-
+          <p className="text-sm text-neutral-500">Active Categories</p>
           <p className="mt-2 text-3xl font-bold text-emerald-600">
             {activeCategories}
           </p>
         </article>
 
         <article className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-neutral-500">
-            Current Results
-          </p>
-
+          <p className="text-sm text-neutral-500">Current Results</p>
           <p className="mt-2 text-3xl font-bold text-neutral-950">
             {categories.length}
           </p>
@@ -195,13 +121,10 @@ export default async function AdminCategoriesPage({
               <h2 className="text-2xl font-bold text-neutral-950">
                 Add New Category
               </h2>
-
               <p className="mt-2 text-sm text-neutral-500">
-                Create a category for organizing NovaCart
-                products.
+                Create a category for organizing NovaCart products.
               </p>
             </div>
-
             <Link
               href="/admin/categories"
               className="text-sm font-semibold text-neutral-600 transition hover:text-indigo-600"
@@ -209,7 +132,6 @@ export default async function AdminCategoriesPage({
               Close
             </Link>
           </div>
-
           <CategoryForm />
         </section>
       )}
@@ -221,12 +143,10 @@ export default async function AdminCategoriesPage({
               <h2 className="text-2xl font-bold text-neutral-950">
                 Edit Category
               </h2>
-
               <p className="mt-2 text-sm text-neutral-500">
                 Update category information and visibility.
               </p>
             </div>
-
             <Link
               href="/admin/categories"
               className="text-sm font-semibold text-neutral-600 transition hover:text-indigo-600"
@@ -234,14 +154,12 @@ export default async function AdminCategoriesPage({
               Close
             </Link>
           </div>
-
           <CategoryForm
             category={{
               id: editingCategory._id.toString(),
               name: editingCategory.name,
               slug: editingCategory.slug,
-              description:
-                editingCategory.description || "",
+              description: editingCategory.description || "",
               image: editingCategory.image || "",
               isActive: editingCategory.isActive,
             }}
@@ -258,7 +176,6 @@ export default async function AdminCategoriesPage({
       <form className="mt-8 grid gap-4 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm lg:grid-cols-[minmax(0,1fr)_200px_auto]">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-
           <input
             type="search"
             name="search"
@@ -285,7 +202,6 @@ export default async function AdminCategoriesPage({
           >
             Apply
           </button>
-
           <Link
             href="/admin/categories"
             className="inline-flex h-11 flex-1 items-center justify-center rounded-xl border border-neutral-300 bg-white px-5 text-sm font-semibold text-neutral-700 transition hover:border-indigo-300 hover:text-indigo-600"
@@ -299,14 +215,11 @@ export default async function AdminCategoriesPage({
         {categories.length === 0 ? (
           <div className="px-6 py-16 text-center">
             <FolderOpen className="mx-auto h-12 w-12 text-neutral-300" />
-
             <h2 className="mt-4 text-xl font-semibold text-neutral-950">
               No categories found
             </h2>
-
             <p className="mt-2 text-sm text-neutral-500">
-              Try changing your filters or create a new
-              category.
+              Try changing your filters or create a new category.
             </p>
           </div>
         ) : (
@@ -317,19 +230,15 @@ export default async function AdminCategoriesPage({
                   <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     Category
                   </th>
-
                   <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     Slug
                   </th>
-
                   <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     Products
                   </th>
-
                   <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     Status
                   </th>
-
                   <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     Actions
                   </th>
@@ -338,10 +247,7 @@ export default async function AdminCategoriesPage({
 
               <tbody className="divide-y divide-neutral-200">
                 {categories.map((category) => {
-                  const productCount =
-                    productCountMap.get(
-                      category._id.toString()
-                    ) || 0;
+                  const productCount = productCountMap.get(category._id.toString()) || 0;
 
                   return (
                     <tr
@@ -358,22 +264,17 @@ export default async function AdminCategoriesPage({
                               className="object-cover"
                               fallback={
                                 <div className="flex h-full w-full items-center justify-center rounded-xl bg-indigo-100 text-lg font-bold text-indigo-700">
-                                  {category.name
-                                    .charAt(0)
-                                    .toUpperCase()}
+                                  {category.name.charAt(0).toUpperCase()}
                                 </div>
                               }
                             />
                           </div>
-
                           <div className="min-w-0">
                             <p className="font-semibold text-neutral-950">
                               {category.name}
                             </p>
-
                             <p className="mt-1 max-w-[320px] truncate text-sm text-neutral-500">
-                              {category.description ||
-                                "No description provided."}
+                              {category.description || "No description provided."}
                             </p>
                           </div>
                         </div>
@@ -388,9 +289,7 @@ export default async function AdminCategoriesPage({
                       <td className="px-6 py-5">
                         <span className="inline-flex rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-700">
                           {productCount}{" "}
-                          {productCount === 1
-                            ? "product"
-                            : "products"}
+                          {productCount === 1 ? "product" : "products"}
                         </span>
                       </td>
 
@@ -402,9 +301,7 @@ export default async function AdminCategoriesPage({
                               : "bg-neutral-200 text-neutral-600"
                           }`}
                         >
-                          {category.isActive
-                            ? "Active"
-                            : "Inactive"}
+                          {category.isActive ? "Active" : "Inactive"}
                         </span>
                       </td>
 
@@ -417,7 +314,6 @@ export default async function AdminCategoriesPage({
                             <Edit3 className="h-4 w-4" />
                             Edit
                           </Link>
-
                           <DeleteCategoryButton
                             categoryId={category._id.toString()}
                             categoryName={category.name}

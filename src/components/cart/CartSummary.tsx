@@ -15,14 +15,10 @@ type CartSummaryProps = {
   summary: Summary;
 };
 
-export default function CartSummary({
-  summary,
-}: CartSummaryProps) {
+export default function CartSummary({ summary }: CartSummaryProps) {
   return (
     <div className="sticky top-24 rounded-2xl border bg-background p-6 shadow-sm">
-      <h2 className="mb-6 text-xl font-semibold">
-        Order Summary
-      </h2>
+      <h2 className="mb-6 text-xl font-semibold">Order Summary</h2>
 
       <div className="space-y-4">
         <div className="flex justify-between">
@@ -47,19 +43,14 @@ export default function CartSummary({
 
         <div className="flex justify-between">
           <span>Discount</span>
-          <span>
-            -Rs. {summary.discount.toLocaleString("en-PK")}
-          </span>
+          <span>-Rs. {summary.discount.toLocaleString("en-PK")}</span>
         </div>
 
         <hr />
 
         <div className="flex justify-between text-lg font-bold">
           <span>Total</span>
-
-          <span className="text-primary">
-            Rs. {summary.total.toLocaleString("en-PK")}
-          </span>
+          <span className="text-primary">Rs. {summary.total.toLocaleString("en-PK")}</span>
         </div>
 
         <Link
