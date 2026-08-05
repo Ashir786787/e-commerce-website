@@ -64,10 +64,10 @@ export default async function AdminUsersPage({
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
             User Management
           </p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">
             Users
           </h1>
-          <p className="mt-3 text-neutral-600">
+          <p className="mt-1.5 text-neutral-600">
             Browse and manage all NovaCart accounts.
           </p>
         </div>

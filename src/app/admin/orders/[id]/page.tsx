@@ -152,10 +152,10 @@ export default async function AdminOrderDetailsPage({
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
           Order Management
         </p>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">
           Order Details
         </h1>
-        <p className="mt-3 text-neutral-600">Review and manage this customer order.</p>
+        <p className="mt-1.5 text-neutral-600">Review and manage this customer order.</p>
       </div>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">

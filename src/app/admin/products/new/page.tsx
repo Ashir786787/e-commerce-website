@@ -34,10 +34,10 @@ export default async function NewProductPage() {
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
           Product Management
         </p>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">
           Add New Product
         </h1>
-        <p className="mt-3 text-neutral-600">
+        <p className="mt-1.5 text-neutral-600">
           Add a new item to the NovaCart catalogue.
         </p>
       </div>

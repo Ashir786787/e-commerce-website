@@ -96,8 +96,8 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">Overview</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">Admin Dashboard</h1>
-          <p className="mt-3 text-neutral-600">Monitor NovaCart activity and manage the marketplace.</p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">Admin Dashboard</h1>
+          <p className="mt-1.5 text-neutral-600">Monitor NovaCart activity and manage the marketplace.</p>
         </div>
 
         <AnalyticsPeriodSelect period={activePeriod} basePath="/admin" />
@@ -117,7 +117,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-neutral-500">{card.title}</p>
-                  <p className="mt-3 break-words text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">
+                  <p className="mt-2 break-words text-lg font-bold tracking-tight text-neutral-950 sm:text-xl">
                     {card.value}
                   </p>
                   <p className="mt-1.5 text-sm text-neutral-500">{card.description}</p>
@@ -134,7 +134,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
 
       <div className="mt-6 grid gap-6 xl:grid-cols-3">
         <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm xl:col-span-2">
-          <h2 className="text-xl font-semibold text-neutral-950">Revenue Trend</h2>
+          <h2 className="text-lg font-semibold text-neutral-950">Revenue Trend</h2>
           <p className="mt-2 text-sm text-neutral-500">
             {activePeriod === "7d" || activePeriod === "30d"
               ? `Daily revenue — last ${revenueTrend.length} days`
@@ -148,7 +148,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
         </section>
 
         <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-neutral-950">Order Status</h2>
+          <h2 className="text-lg font-semibold text-neutral-950">Order Status</h2>
           <p className="mt-2 text-sm text-neutral-500">Share of total orders across fulfillment statuses.</p>
 
           <div className="mt-6">
@@ -159,7 +159,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
 
       <div className="mt-6 grid gap-6 xl:grid-cols-3">
         <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm xl:col-span-2">
-          <h2 className="text-xl font-semibold text-neutral-950">Top-Selling Products</h2>
+          <h2 className="text-lg font-semibold text-neutral-950">Top-Selling Products</h2>
           <p className="mt-2 text-sm text-neutral-500">Ranked by units sold.</p>
 
           <div className="mt-6">
@@ -170,7 +170,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
         </section>
 
         <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-neutral-950">Payment Status</h2>
+          <h2 className="text-lg font-semibold text-neutral-950">Payment Status</h2>
           <p className="mt-2 text-sm text-neutral-500">Overview of successful, pending and failed payments.</p>
 
           <div className="mt-6">
@@ -180,7 +180,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
       </div>
 
       <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-neutral-950">Marketplace Overview</h2>
+        <h2 className="text-lg font-semibold text-neutral-950">Marketplace Overview</h2>
         <p className="mt-2 text-sm text-neutral-500">
           These statistics are loaded directly from MongoDB and update whenever users, products, orders, or paid
           revenue change.
@@ -199,7 +199,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
                   <p className="text-sm font-medium text-neutral-500">{stat.label}</p>
                 </div>
 
-                <p className="mt-4 text-2xl font-bold tracking-tight text-neutral-950">
+                <p className="mt-3 text-lg font-bold tracking-tight text-neutral-950">
                   {stat.value.toLocaleString("en-PK")}
                 </p>
               </div>
@@ -210,7 +210,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
         <div className="mt-4 flex items-center justify-between gap-4 overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-6 shadow-lg shadow-indigo-600/20">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/70">All-Time Paid Revenue</p>
-            <p className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+            <p className="mt-2 text-lg font-bold tracking-tight text-white sm:text-xl">
               Rs. {formatPrice(allTimeRevenue)}
             </p>
           </div>

@@ -60,23 +60,23 @@ export default async function AdminDiscountCodesPage({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">Discounts</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">Discount Codes</h1>
-          <p className="mt-3 text-neutral-600">Generate and manage promotional codes.</p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">Discount Codes</h1>
+          <p className="mt-1.5 text-neutral-600">Generate and manage promotional codes.</p>
         </div>
       </div>
 
       <div className="mt-8 grid gap-6 sm:grid-cols-3">
         <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-sm text-neutral-500">Total Codes</p>
-          <p className="mt-3 text-3xl font-bold text-neutral-950">{totalCodes}</p>
+          <p className="mt-1 text-xl font-bold text-neutral-950">{totalCodes}</p>
         </div>
         <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-sm text-neutral-500">Active</p>
-          <p className="mt-3 text-3xl font-bold text-emerald-600">{activeCodes}</p>
+          <p className="mt-1 text-xl font-bold text-emerald-600">{activeCodes}</p>
         </div>
         <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-sm text-neutral-500">Times Used</p>
-          <p className="mt-3 text-3xl font-bold text-indigo-600">{totalUsed}</p>
+          <p className="mt-1 text-xl font-bold text-indigo-600">{totalUsed}</p>
         </div>
       </div>
 

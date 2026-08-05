@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Edit3, FolderOpen, Plus, Search } from "lucide-react";
 import { Types } from "mongoose";
 
+import AdminPagination from "@/components/admin/AdminPagination";
 import CategoryForm from "@/components/admin/CategoryForm";
 import CategoryImage from "@/components/admin/CategoryImage";
 import DeleteCategoryButton from "@/components/admin/DeleteCategoryButton";
@@ -14,6 +15,7 @@ export const dynamic = "force-dynamic";
 interface AdminCategoriesPageProps {
   searchParams: Promise<{
     search?: string;
+    page?: string;
     status?: string;
     edit?: string;
     create?: string;
@@ -53,16 +55,29 @@ export default async function AdminCategoriesPage({
     query.isActive = false;
   }
 
-  const [categories, totalCategories, activeCategories, productCounts, editingCategory] =
+  const limit = 10;
+  const requestedPage = Math.max(1, Number(params.page) || 1);
+
+  const [totalCategories, activeCategories, totalFiltered, productCounts, editingCategory] =
     await Promise.all([
-      Category.find(query).sort({ createdAt: -1 }).lean(),
       Category.countDocuments(),
       Category.countDocuments({ isActive: true }),
+      Category.countDocuments(query),
       Product.aggregate<{ _id: Types.ObjectId; count: number }>([
         { $group: { _id: "$category", count: { $sum: 1 } } },
       ]),
       editId && Types.ObjectId.isValid(editId) ? Category.findById(editId).lean() : null,
     ]);
+
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / limit));
+  const currentPage = Math.min(requestedPage, totalPages);
+  const skip = (currentPage - 1) * limit;
+
+  const categories = await Category.find(query)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
 
   const productCountMap = new Map(
     productCounts.map((item) => [item._id.toString(), item.count])
@@ -75,10 +90,10 @@ export default async function AdminCategoriesPage({
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
             Category Management
           </p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">
             Categories
           </h1>
-          <p className="mt-3 text-neutral-600">
+          <p className="mt-1.5 text-neutral-600">
             Organize products and manage marketplace categories.
           </p>
         </div>
@@ -94,22 +109,22 @@ export default async function AdminCategoriesPage({
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <article className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
           <p className="text-sm text-neutral-500">Total Categories</p>
-          <p className="mt-2 text-3xl font-bold text-neutral-950">
+          <p className="mt-1 text-xl font-bold text-neutral-950">
             {totalCategories}
           </p>
         </article>
 
         <article className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
           <p className="text-sm text-neutral-500">Active Categories</p>
-          <p className="mt-2 text-3xl font-bold text-emerald-600">
+          <p className="mt-1 text-xl font-bold text-emerald-600">
             {activeCategories}
           </p>
         </article>
 
         <article className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
           <p className="text-sm text-neutral-500">Current Results</p>
-          <p className="mt-2 text-3xl font-bold text-neutral-950">
-            {categories.length}
+          <p className="mt-1 text-xl font-bold text-neutral-950">
+            {totalFiltered}
           </p>
         </article>
       </div>
@@ -118,7 +133,7 @@ export default async function AdminCategoriesPage({
         <section className="mt-8">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-neutral-950">
+              <h2 className="text-xl font-bold text-neutral-950">
                 Add New Category
               </h2>
               <p className="mt-2 text-sm text-neutral-500">
@@ -140,7 +155,7 @@ export default async function AdminCategoriesPage({
         <section className="mt-8">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-neutral-950">
+              <h2 className="text-xl font-bold text-neutral-950">
                 Edit Category
               </h2>
               <p className="mt-2 text-sm text-neutral-500">
@@ -329,6 +344,11 @@ export default async function AdminCategoriesPage({
           </div>
         )}
       </div>
+
+      <AdminPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+      />
     </div>
   );
 }

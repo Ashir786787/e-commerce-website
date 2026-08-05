@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { Headphones, Loader2, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import ChatMessage from "@/components/chat/ChatMessage";
 import ConversationList from "@/components/chat/ConversationList";
+import MessageDateDivider from "@/components/chat/MessageDateDivider";
 import MessageInput from "@/components/chat/MessageInput";
 import {
   markConversationAsRead,
@@ -144,12 +145,12 @@ export default function AdminMessagesPage() {
     <div>
       <div>
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">Customer Support</p>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">Messages</h1>
-        <p className="mt-3 text-neutral-600">Respond to NovaCart customers in real time.</p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">Messages</h1>
+        <p className="mt-1.5 text-neutral-600">Respond to NovaCart customers in real time.</p>
       </div>
 
       <section className="mt-8 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-        <div className="grid h-[calc(100dvh-17rem)] min-h-[440px] lg:h-[calc(100dvh-14rem)] lg:min-h-[560px] lg:max-h-[760px] lg:grid-cols-[340px_minmax(0,1fr)]">
+        <div className="grid h-[calc(100dvh-15rem)] min-h-[440px] lg:h-[calc(100dvh-12rem)] lg:min-h-[560px] lg:max-h-[760px] lg:grid-cols-[340px_minmax(0,1fr)]">
           <div className={`min-h-0 ${selectedConversation ? "hidden lg:block" : "block"}`}>
             <ConversationList
               conversations={conversations}
@@ -186,8 +187,11 @@ export default function AdminMessagesPage() {
                       Back
                     </button>
 
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-indigo-100 font-semibold text-indigo-700">
-                      {selectedConversation.userName.charAt(0).toUpperCase()}
+                    <div className="relative shrink-0">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-indigo-100 font-semibold text-indigo-700">
+                        {selectedConversation.userName.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" />
                     </div>
 
                     <div className="min-w-0">
@@ -213,9 +217,22 @@ export default function AdminMessagesPage() {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {messages.map((message) => (
-                        <ChatMessage key={message.id} message={message} currentUserRole="admin" />
-                      ))}
+                      {messages.map((message, index) => {
+                        const previous = messages[index - 1];
+                        const showDivider =
+                          !previous ||
+                          new Date(message.createdAt).toDateString() !==
+                            new Date(previous.createdAt).toDateString();
+
+                        return (
+                          <Fragment key={message.id}>
+                            {showDivider && (
+                              <MessageDateDivider timestamp={message.createdAt} />
+                            )}
+                            <ChatMessage message={message} currentUserRole="admin" />
+                          </Fragment>
+                        );
+                      })}
                       <div ref={messagesEndRef} />
                     </div>
                   )}

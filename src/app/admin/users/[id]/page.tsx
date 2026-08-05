@@ -74,10 +74,10 @@ export default async function AdminUserDetailsPage({
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
           User Management
         </p>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">
           User Details
         </h1>
-        <p className="mt-3 text-neutral-600">
+        <p className="mt-1.5 text-neutral-600">
           Review and manage this NovaCart account.
         </p>
       </div>
@@ -85,11 +85,11 @@ export default async function AdminUserDetailsPage({
       <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
         <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-3xl font-bold text-indigo-700">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xl font-bold text-indigo-700">
               {initial}
             </div>
             <div className="min-w-0">
-              <h2 className="break-words text-2xl font-bold text-neutral-950">
+              <h2 className="break-words text-xl font-bold text-neutral-950">
                 {user.fullName}
               </h2>
               <p className="mt-2 break-all text-sm text-neutral-500">{user.email}</p>

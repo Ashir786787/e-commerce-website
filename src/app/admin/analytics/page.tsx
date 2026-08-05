@@ -124,10 +124,10 @@ export default async function AdminAnalyticsPage({
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
             Analytics Overview
           </p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">
             Analytics
           </h1>
-          <p className="mt-3 text-neutral-600">
+          <p className="mt-1.5 text-neutral-600">
             Review NovaCart marketplace performance, orders, revenue and
             inventory.
           </p>
@@ -147,7 +147,7 @@ export default async function AdminAnalyticsPage({
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-sm text-neutral-500">{card.title}</p>
-                  <p className="mt-3 break-words text-2xl font-bold text-neutral-950 sm:text-3xl">
+                  <p className="mt-2 break-words text-lg font-bold text-neutral-950 sm:text-xl">
                     {card.value}
                   </p>
                   <p className="mt-2 text-sm text-neutral-500">
@@ -164,14 +164,14 @@ export default async function AdminAnalyticsPage({
       </div>
 
       <section className="mt-6 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6">
-        <h2 className="text-xl font-semibold text-neutral-950">
+        <h2 className="text-lg font-semibold text-neutral-950">
           Marketplace Totals
         </h2>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-xl bg-neutral-50 p-4">
             <Users className="h-5 w-5 text-indigo-600" />
             <p className="mt-3 text-sm text-neutral-500">Users</p>
-            <p className="mt-1 text-2xl font-bold text-neutral-950">
+            <p className="mt-1 text-lg font-bold text-neutral-950">
               {totals.users}
             </p>
           </div>
@@ -179,7 +179,7 @@ export default async function AdminAnalyticsPage({
           <div className="rounded-xl bg-neutral-50 p-4">
             <Boxes className="h-5 w-5 text-indigo-600" />
             <p className="mt-3 text-sm text-neutral-500">Products</p>
-            <p className="mt-1 text-2xl font-bold text-neutral-950">
+            <p className="mt-1 text-lg font-bold text-neutral-950">
               {totals.products}
             </p>
           </div>
@@ -187,7 +187,7 @@ export default async function AdminAnalyticsPage({
           <div className="rounded-xl bg-neutral-50 p-4">
             <FolderTree className="h-5 w-5 text-indigo-600" />
             <p className="mt-3 text-sm text-neutral-500">Categories</p>
-            <p className="mt-1 text-2xl font-bold text-neutral-950">
+            <p className="mt-1 text-lg font-bold text-neutral-950">
               {totals.categories}
             </p>
           </div>
@@ -195,7 +195,7 @@ export default async function AdminAnalyticsPage({
           <div className="rounded-xl bg-neutral-50 p-4">
             <ShoppingCart className="h-5 w-5 text-indigo-600" />
             <p className="mt-3 text-sm text-neutral-500">Orders</p>
-            <p className="mt-1 text-2xl font-bold text-neutral-950">
+            <p className="mt-1 text-lg font-bold text-neutral-950">
               {totals.orders}
             </p>
           </div>
@@ -204,7 +204,7 @@ export default async function AdminAnalyticsPage({
 
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
         <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6">
-          <h2 className="text-xl font-semibold text-neutral-950">
+          <h2 className="text-lg font-semibold text-neutral-950">
             Order Status Breakdown
           </h2>
           <p className="mt-2 text-sm text-neutral-500">
@@ -244,7 +244,7 @@ export default async function AdminAnalyticsPage({
         </section>
 
         <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6">
-          <h2 className="text-xl font-semibold text-neutral-950">
+          <h2 className="text-lg font-semibold text-neutral-950">
             Payment Status
           </h2>
           <p className="mt-2 text-sm text-neutral-500">
@@ -254,21 +254,21 @@ export default async function AdminAnalyticsPage({
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             <div className="rounded-xl bg-emerald-50 p-5">
               <p className="text-sm font-medium text-emerald-700">Paid</p>
-              <p className="mt-3 text-3xl font-bold text-emerald-800">
+              <p className="mt-2 text-xl font-bold text-emerald-800">
                 {paidOrders}
               </p>
             </div>
 
             <div className="rounded-xl bg-amber-50 p-5">
               <p className="text-sm font-medium text-amber-700">Pending</p>
-              <p className="mt-3 text-3xl font-bold text-amber-800">
+              <p className="mt-2 text-xl font-bold text-amber-800">
                 {pendingPayments}
               </p>
             </div>
 
             <div className="rounded-xl bg-red-50 p-5">
               <p className="text-sm font-medium text-red-700">Failed</p>
-              <p className="mt-3 text-3xl font-bold text-red-800">
+              <p className="mt-2 text-xl font-bold text-red-800">
                 {failedPayments}
               </p>
             </div>
@@ -278,7 +278,7 @@ export default async function AdminAnalyticsPage({
 
       <section className="mt-6 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6">
         <div>
-          <h2 className="text-xl font-semibold text-neutral-950">
+          <h2 className="text-lg font-semibold text-neutral-950">
             Revenue Trend
           </h2>
           <p className="mt-2 text-sm text-neutral-500">
@@ -318,7 +318,7 @@ export default async function AdminAnalyticsPage({
       <section className="mt-6 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
         <div className="flex items-center justify-between gap-4 border-b border-neutral-200 px-5 py-5 sm:px-6">
           <div>
-            <h2 className="text-xl font-semibold text-neutral-950">
+            <h2 className="text-lg font-semibold text-neutral-950">
               Recent Orders
             </h2>
             <p className="mt-1 text-sm text-neutral-500">
@@ -408,7 +408,7 @@ export default async function AdminAnalyticsPage({
           <div className="flex items-center gap-3">
             <TrendingUp className="h-5 w-5 text-indigo-600" />
             <div>
-              <h2 className="text-xl font-semibold text-neutral-950">
+              <h2 className="text-lg font-semibold text-neutral-950">
                 Top-Selling Products
               </h2>
               <p className="mt-1 text-sm text-neutral-500">
@@ -477,7 +477,7 @@ export default async function AdminAnalyticsPage({
           <div className="flex items-center gap-3">
             <Boxes className="h-5 w-5 text-amber-600" />
             <div>
-              <h2 className="text-xl font-semibold text-neutral-950">
+              <h2 className="text-lg font-semibold text-neutral-950">
                 Low-Stock Products
               </h2>
               <p className="mt-1 text-sm text-neutral-500">

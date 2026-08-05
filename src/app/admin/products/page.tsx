@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Edit3, PackageOpen, Plus, Search } from "lucide-react";
 import { Types } from "mongoose";
 
+import AdminPagination from "@/components/admin/AdminPagination";
 import { connectDB } from "@/lib/db";
 import Category from "@/models/Category";
 import Product from "@/models/Product";
@@ -12,6 +13,7 @@ export const dynamic = "force-dynamic";
 interface AdminProductsPageProps {
   searchParams: Promise<{
     search?: string;
+    page?: string;
     category?: string;
     status?: string;
   }>;
@@ -68,13 +70,26 @@ export default async function AdminProductsPage({
     query.isTrending = true;
   }
 
-  const [products, categories, totalProducts] = await Promise.all([
+  const limit = 10;
+  const requestedPage = Math.max(1, Number(params.page) || 1);
+
+  const [totalProducts, totalFiltered] = await Promise.all([
+    Product.countDocuments(),
+    Product.countDocuments(query),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / limit));
+  const currentPage = Math.min(requestedPage, totalPages);
+  const skip = (currentPage - 1) * limit;
+
+  const [products, categories] = await Promise.all([
     Product.find(query)
       .populate({ path: "category", select: "name slug" })
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .lean(),
     Category.find().select("name slug isActive").sort({ name: 1 }).lean(),
-    Product.countDocuments(),
   ]);
 
   return (
@@ -84,10 +99,10 @@ export default async function AdminProductsPage({
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
             Product Management
           </p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">
             Products
           </h1>
-          <p className="mt-3 text-neutral-600">
+          <p className="mt-1.5 text-neutral-600">
             Create, edit and manage the NovaCart product catalogue.
           </p>
         </div>
@@ -103,21 +118,21 @@ export default async function AdminProductsPage({
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
           <p className="text-sm text-neutral-500">Total Products</p>
-          <p className="mt-2 text-3xl font-bold text-neutral-950">
+          <p className="mt-1 text-xl font-bold text-neutral-950">
             {totalProducts}
           </p>
         </div>
 
         <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
           <p className="text-sm text-neutral-500">Current Results</p>
-          <p className="mt-2 text-3xl font-bold text-neutral-950">
-            {products.length}
+          <p className="mt-1 text-xl font-bold text-neutral-950">
+            {totalFiltered}
           </p>
         </div>
 
         <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
           <p className="text-sm text-neutral-500">Categories</p>
-          <p className="mt-2 text-3xl font-bold text-neutral-950">
+          <p className="mt-1 text-xl font-bold text-neutral-950">
             {categories.length}
           </p>
         </div>
@@ -330,6 +345,11 @@ export default async function AdminProductsPage({
           </div>
         )}
       </div>
+
+      <AdminPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+      />
     </div>
   );
 }

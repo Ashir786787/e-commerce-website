@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { Headphones, Loader2, X } from "lucide-react";
 
 import ChatMessage from "./ChatMessage";
+import MessageDateDivider from "./MessageDateDivider";
 import MessageInput from "./MessageInput";
 import { useChat } from "@/hooks/useChat";
 
@@ -87,9 +88,22 @@ export default function ChatWindow({ user, onClose }: ChatWindowProps) {
           </div>
         ) : (
           <div className="space-y-3">
-            {messages.map((message) => (
-              <ChatMessage key={message.id} message={message} currentUserRole="user" />
-            ))}
+            {messages.map((message, index) => {
+              const previous = messages[index - 1];
+              const showDivider =
+                !previous ||
+                new Date(message.createdAt).toDateString() !==
+                  new Date(previous.createdAt).toDateString();
+
+              return (
+                <Fragment key={message.id}>
+                  {showDivider && (
+                    <MessageDateDivider timestamp={message.createdAt} />
+                  )}
+                  <ChatMessage message={message} currentUserRole="user" />
+                </Fragment>
+              );
+            })}
             <div ref={messagesEndRef} />
           </div>
         )}

@@ -2,8 +2,10 @@ import Link from "next/link";
 import { Types } from "mongoose";
 import { Search, ShoppingCart } from "lucide-react";
 
+import AdminPagination from "@/components/admin/AdminPagination";
 import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
+import User from "@/models/User";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +28,7 @@ interface AdminOrderRow {
 interface OrdersPageProps {
   searchParams: Promise<{
     search?: string;
+    page?: string;
     orderStatus?: string;
     paymentStatus?: string;
     paymentMethod?: string;
@@ -50,23 +53,38 @@ export default async function AdminOrdersPage({
   if (paymentStatus) query.paymentStatus = paymentStatus;
   if (paymentMethod) query.paymentMethod = paymentMethod;
 
-  let orders = (await Order.find(query)
+  if (search) {
+    const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    const matchingUsers = await User.find({
+      $or: [
+        { fullName: { $regex: escaped, $options: "i" } },
+        { email: { $regex: escaped, $options: "i" } },
+      ],
+    })
+      .select("_id")
+      .lean();
+
+    query.$or = [
+      { orderNumber: { $regex: escaped, $options: "i" } },
+      { user: { $in: matchingUsers.map((user) => user._id) } },
+    ];
+  }
+
+  const limit = 15;
+  const requestedPage = Math.max(1, Number(params.page) || 1);
+
+  const totalOrders = await Order.countDocuments(query);
+  const totalPages = Math.max(1, Math.ceil(totalOrders / limit));
+  const currentPage = Math.min(requestedPage, totalPages);
+  const skip = (currentPage - 1) * limit;
+
+  const orders = (await Order.find(query)
     .populate("user", "fullName email")
     .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
     .lean()) as AdminOrderRow[];
-
-  if (search) {
-    const term = search.toLowerCase();
-
-    orders = orders.filter((order) => {
-      const user = order.user;
-      return (
-        order.orderNumber.toLowerCase().includes(term) ||
-        user?.fullName?.toLowerCase().includes(term) ||
-        user?.email?.toLowerCase().includes(term)
-      );
-    });
-  }
 
   return (
     <div>
@@ -75,8 +93,8 @@ export default async function AdminOrdersPage({
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
             Order Management
           </p>
-          <h1 className="mt-3 text-4xl font-bold">Orders</h1>
-          <p className="mt-3 text-neutral-500">Manage all customer orders.</p>
+          <h1 className="mt-1 text-2xl font-bold">Orders</h1>
+          <p className="mt-1.5 text-neutral-500">Manage all customer orders.</p>
         </div>
       </div>
 
@@ -155,6 +173,11 @@ export default async function AdminOrdersPage({
           </div>
         )}
       </div>
+
+      <AdminPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+      />
     </div>
   );
 }
