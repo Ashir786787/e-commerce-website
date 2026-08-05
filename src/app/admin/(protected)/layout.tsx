@@ -5,6 +5,8 @@ import NotificationBell from "@/components/notifications/NotificationBell";
 import { ADMIN_NOTIFICATION_KEY } from "@/types/Notification";
 import { requireAdmin } from "@/lib/admin";
 
+export const dynamic = "force-dynamic";
+
 interface AdminLayoutProps {
   children: React.ReactNode;
 }

@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { Types } from "mongoose";
 
-import stripe from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
 import "@/models/Product";
@@ -57,6 +57,8 @@ export async function POST(request: NextRequest) {
     }
 
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin).replace(/\/+$/, "");
+
+    const stripe = getStripe();
 
     const lineItems = order.items.map((item) => {
       const product = item.product as unknown as {

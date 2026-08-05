@@ -41,21 +41,9 @@ async function getAdminDatabase(): Promise<Database | null> {
     return cachedDatabase;
   }
 
-  const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY;
-
-  if (!projectId || !clientEmail || !privateKey) {
-    console.warn(
-      "FIREBASE_ADMIN_* env vars are missing — realtime order updates disabled."
-    );
-    cachedDatabase = null;
-    return null;
-  }
-
   try {
-    const { adminDatabase } = await import("@/lib/firebase-admin");
-    cachedDatabase = adminDatabase;
+    const { getAdminDatabase: resolveAdminDatabase } = await import("@/lib/firebase-admin");
+    cachedDatabase = resolveAdminDatabase();
   } catch (error) {
     console.error("Firebase Admin initialization failed:", error);
     cachedDatabase = null;

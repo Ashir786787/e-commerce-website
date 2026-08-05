@@ -5,7 +5,7 @@ import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
-import stripe from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +40,7 @@ export default async function PaymentSuccessPage({
 
   if (sessionId) {
     try {
-      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      const session = await getStripe().checkout.sessions.retrieve(sessionId);
 
       paymentDetails = {
         orderId:

@@ -1,7 +1,7 @@
 import Stripe from "stripe";
 
 import { connectDB } from "@/lib/db";
-import stripe from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import Order from "@/models/Order";
 import { createNotificationSafe } from "@/services/notification.service";
 import { publishOrderUpdateSafe } from "@/services/order-realtime.server";
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     }
 
     try {
-      event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+      event = getStripe().webhooks.constructEvent(payload, signature, webhookSecret);
     } catch (error) {
       console.error("Stripe signature verification failed:", error);
 

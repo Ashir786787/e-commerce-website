@@ -2,34 +2,69 @@ import {
   cert,
   getApps,
   initializeApp,
+  type App,
   type ServiceAccount,
 } from "firebase-admin/app";
-import { getDatabase } from "firebase-admin/database";
-import { getMessaging } from "firebase-admin/messaging";
+import { getDatabase, type Database } from "firebase-admin/database";
+import { getMessaging, type Messaging } from "firebase-admin/messaging";
 
-const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
-const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
-const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, "\n");
+let cachedAdminApp: App | null | undefined;
+let cachedAdminDatabase: Database | null | undefined;
+let cachedAdminMessaging: Messaging | null | undefined;
 
-if (!projectId || !clientEmail || !privateKey) {
-  throw new Error("Firebase Admin environment variables are missing.");
+function getFirebaseAdminApp(): App | null {
+  if (cachedAdminApp !== undefined) {
+    return cachedAdminApp;
+  }
+
+  const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, "\n");
+
+  if (!projectId || !clientEmail || !privateKey) {
+    cachedAdminApp = null;
+    return null;
+  }
+
+  const serviceAccount: ServiceAccount = {
+    projectId,
+    clientEmail,
+    privateKey,
+  };
+
+  try {
+    cachedAdminApp =
+      getApps().length > 0
+        ? getApps()[0]
+        : initializeApp({
+            credential: cert(serviceAccount),
+            databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+          });
+  } catch {
+    cachedAdminApp = null;
+  }
+
+  return cachedAdminApp;
 }
 
-const serviceAccount: ServiceAccount = {
-  projectId,
-  clientEmail,
-  privateKey,
-};
+export function getAdminDatabase(): Database | null {
+  if (cachedAdminDatabase !== undefined) {
+    return cachedAdminDatabase;
+  }
 
-const firebaseAdminApp =
-  getApps().length > 0
-    ? getApps()[0]
-    : initializeApp({
-        credential: cert(serviceAccount),
-        databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
-      });
+  const app = getFirebaseAdminApp();
+  cachedAdminDatabase = app ? getDatabase(app) : null;
+  return cachedAdminDatabase;
+}
 
-export const adminDatabase = getDatabase(firebaseAdminApp);
-export const adminMessaging = getMessaging(firebaseAdminApp);
+export function getAdminMessaging(): Messaging | null {
+  if (cachedAdminMessaging !== undefined) {
+    return cachedAdminMessaging;
+  }
 
-export default firebaseAdminApp;
+  const app = getFirebaseAdminApp();
+  cachedAdminMessaging = app ? getMessaging(app) : null;
+  return cachedAdminMessaging;
+}
+
+export default getFirebaseAdminApp;

@@ -1,5 +1,5 @@
 import User from "@/models/User";
-import { adminMessaging } from "@/lib/firebase-admin";
+import { getAdminMessaging } from "@/lib/firebase-admin";
 
 export async function saveFCMToken(
   userId: string,
@@ -64,7 +64,15 @@ export async function sendPushNotification({
     );
   }
 
-  return adminMessaging.send({
+  const messaging = getAdminMessaging();
+
+  if (!messaging) {
+    throw new Error(
+      "Firebase Admin is not configured."
+    );
+  }
+
+  return messaging.send({
     token: user.fcmToken,
     data: {
       title,
@@ -105,6 +113,12 @@ export async function sendPushNotificationToMany({
   let sent = 0;
   let failed = 0;
 
+  const messaging = getAdminMessaging();
+
+  if (!messaging) {
+    return { total, sent: 0, failed };
+  }
+
   for (let i = 0; i < users.length; i += BATCH_SIZE) {
     const batch = users
       .slice(i, i + BATCH_SIZE)
@@ -113,7 +127,7 @@ export async function sendPushNotificationToMany({
 
     const results = await Promise.allSettled(
       batch.map((token) =>
-        adminMessaging.send({
+        messaging.send({
           token,
           data: {
             title,
