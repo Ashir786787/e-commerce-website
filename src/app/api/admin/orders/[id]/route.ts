@@ -5,6 +5,7 @@ import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
 import "@/models/Product";
 import { getCurrentUser } from "@/services/auth.service";
+import { createNotificationSafe } from "@/services/notification.service";
 
 interface AdminOrderRouteProps {
   params: Promise<{
@@ -153,6 +154,16 @@ export async function PATCH(request: NextRequest, { params }: AdminOrderRoutePro
     }
 
     await order.save();
+
+    if (order.user) {
+      void createNotificationSafe({
+        targetKey: order.user.toString(),
+        type: "order_status",
+        title: "Order status updated",
+        body: `Your order ${order.orderNumber} is now ${order.orderStatus}`,
+        link: `/orders/${order._id.toString()}`,
+      });
+    }
 
     return NextResponse.json({
       success: true,

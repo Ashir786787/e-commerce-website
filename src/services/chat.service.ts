@@ -13,6 +13,8 @@ import {
 
 import { database } from "@/lib/firebase";
 import type { ChatConversation, ChatMessage, CreateConversationInput, SendMessageInput } from "@/types/Chat";
+import { ADMIN_NOTIFICATION_KEY } from "@/types/Notification";
+import { createNotificationSafe } from "@/services/notification.service";
 
 function getConversationId(userId: string) {
   return userId;
@@ -86,6 +88,24 @@ export async function sendChatMessage({ conversationId, senderId, senderName, se
     [`conversations/${conversationId}/lastMessageSenderRole`]: conversationUpdates.lastMessageSenderRole,
     [`conversations/${conversationId}/${senderRole === "user" ? "unreadByAdmin" : "unreadByUser"}`]: increment(1),
   });
+
+  if (senderRole === "user") {
+    void createNotificationSafe({
+      targetKey: ADMIN_NOTIFICATION_KEY,
+      type: "chat",
+      title: "New support message",
+      body: `${senderName}: ${cleanText}`,
+      link: "/admin/messages",
+    });
+  } else {
+    void createNotificationSafe({
+      targetKey: conversationId,
+      type: "chat",
+      title: "Support reply",
+      body: `NovaCart support: ${cleanText}`,
+      link: "/orders",
+    });
+  }
 
   return newMessageRef.key;
 }

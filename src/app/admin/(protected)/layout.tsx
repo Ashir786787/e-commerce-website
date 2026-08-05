@@ -1,5 +1,7 @@
 import AdminMobileNav from "@/components/admin/AdminMobileNav";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import NotificationBell from "@/components/notifications/NotificationBell";
+import { ADMIN_NOTIFICATION_KEY } from "@/types/Notification";
 import { requireAdmin } from "@/lib/admin";
 
 interface AdminLayoutProps {
@@ -35,6 +37,7 @@ export default async function AdminLayout({
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <NotificationBell targetKey={ADMIN_NOTIFICATION_KEY} variant="admin" />
               <div className="hidden text-right sm:block">
                 <p className="text-sm font-medium text-neutral-950">
                   {admin.fullName}

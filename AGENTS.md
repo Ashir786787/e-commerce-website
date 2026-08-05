@@ -38,11 +38,19 @@ This version has breaking changes — APIs, conventions, and file structure may 
   - `src/components/checkout/CheckoutForm.tsx` — manages discount state, sends code in order body
   - `src/components/checkout/OrderSummary.tsx` — accepts discount props, shows discount input + line item
 - **Admin sidebar active-state + Recharts dashboard**:
-  - `src/lib/admin-navigation.ts` — `isAdminNavActive()` helper (dashboard exact match, others prefix match)
+  - `src/lib/admin-navigation.ts` — `isAdminNavActive()` helper (prefix match on href; Dashboard href is `/admin/dashboard`)
   - `src/components/admin/AdminSidebar.tsx` — client sidebar with `usePathname()` active highlighting (`bg-indigo-600 text-white`)
-  - `src/app/admin/layout.tsx` renders `AdminSidebar`; `AdminMobileNav.tsx` uses same active logic
-  - `src/app/admin/page.tsx` — dashboard with period selector (7d/30d/90d/12m/all, `AnalyticsPeriodSelect` with `basePath` prop) + stat cards + charts
+  - `src/app/admin/(protected)/layout.tsx` renders `AdminSidebar`; `AdminMobileNav.tsx` uses same active logic
+  - `src/app/admin/(protected)/dashboard/page.tsx` — dashboard with period selector (7d/30d/90d/12m/all, `AnalyticsPeriodSelect` with `basePath` prop) + stat cards + charts
   - `src/components/admin/dashboard/{RevenueChart,OrderStatusChart,PaymentStatusChart,TopProductsChart}.tsx` — Recharts AreaChart (revenue trend), donut charts (order/payment status), vertical BarChart (top products)
+- **Admin route restructure (`/admin/login` + `/admin/dashboard`)**:
+  - All admin pages live under `src/app/admin/(protected)/…` route group; `src/app/admin/page.tsx` just `redirect("/admin/dashboard")`
+  - `src/app/admin/login/page.tsx` + `src/components/admin/AdminLoginForm.tsx` — dark admin login; posts `/api/auth/login`, checks role via `/api/auth/me`, non-admin is auto-logged-out
+  - `requireAdmin()` no-auth catch → `/admin/login`; `src/proxy.ts` exempts `/admin/login` + `/admin` and sends unauthenticated `/admin/*` → `/admin/login` (checkout still → `/login`); `AdminLogoutButton` → `/admin/login`
+- **Real-time notifications (Firebase RTDB)** — path `notifications/{targetKey}/{id}` where `targetKey` = user id (user-targeted) or `admin` (broadcast); node = `{ type, title, body, link?, read, createdAt }`:
+  - `src/services/notification.service.ts` — `createNotification()` (optional `notificationId` for fixed-key writes), `createNotificationSafe()` (never throws), `subscribeToNotifications()`, `markNotificationRead()`, `markAllNotificationsRead()`; **lazy, guarded Firebase init** — if `NEXT_PUBLIC_FIREBASE_*` vars are missing it logs a warning and no-ops, so order/chat flows never break
+  - `src/components/notifications/NotificationBell.tsx` — reusable client bell (unread badge, dropdown, mark-all-read) in `admin/(protected)/layout.tsx` header (`targetKey="admin"`) and `SiteHeader` (`targetKey={user.id}`)
+  - Triggers (all fire-and-forget via `void createNotificationSafe(...)`): new order → admin (`order.service.ts`), order status change → user (`api/admin/orders/[id]` PATCH), payment confirmed → user (`api/webhooks/stripe` when status flips to paid), new chat message → both (`chat.service.ts` sendChatMessage), low stock ≤5 → admin (`order.service.ts`, fixed key `lowstock_{productId}` so repeat orders update instead of stack)
 - **Cloudinary product image uploads**:
   - `src/lib/cloudinary.ts` — `uploadImage()` via `uploader.upload_stream`, `deleteImage()`, `isCloudinaryConfigured()`; uses `CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET` env vars
   - `src/app/api/admin/upload/route.ts` — admin-only POST (image types jpeg/png/webp/gif/avif, max 4MB)
@@ -50,5 +58,15 @@ This version has breaking changes — APIs, conventions, and file structure may 
   - `next.config.ts` — `res.cloudinary.com` added to `images.remotePatterns`
 
 ## Deploy
-- Vercel Dashboard → Settings → Environment Variables: `MONGODB_URI`, `JWT_SECRET`, `NEXT_PUBLIC_APP_URL`, `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
-- Push to GitHub, import repo on Vercel, `npm run build` should pass (verified: 46 routes, zero errors)
+- Vercel Dashboard → Settings → Environment Variables: `MONGODB_URI`, `JWT_SECRET`, `NEXT_PUBLIC_APP_URL`, `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, plus all 7 `NEXT_PUBLIC_FIREBASE_*` vars (`API_KEY`, `AUTH_DOMAIN`, `PROJECT_ID`, `STORAGE_BUCKET`, `MESSAGING_SENDER_ID`, `APP_ID`, `DATABASE_URL`)
+- **Firebase Console → Build → Realtime Database → Rules** must grant the app read/write on the notification paths (mirror the existing permissive chat rules). Example rules for a rules-blanket project:
+  ```json
+  {
+    "rules": {
+      "conversations": { ".read": true, ".write": true },
+      "messages": { "$conversationId": { ".read": true, ".write": true } },
+      "notifications": { "$targetKey": { ".read": true, ".write": true } }
+    }
+  }
+  ```
+- Push to GitHub, import repo on Vercel, `npm run build` should pass (verified: 43 routes, zero errors)

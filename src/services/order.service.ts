@@ -4,6 +4,13 @@ import Order from "@/models/Order";
 import Cart from "@/models/Cart";
 import Product from "@/models/Product";
 import { validateDiscountCode, markCodeUsed } from "@/lib/discount";
+import {
+  ADMIN_NOTIFICATION_KEY,
+  type CreateNotificationInput,
+} from "@/types/Notification";
+import { createNotificationSafe } from "@/services/notification.service";
+
+const LOW_STOCK_THRESHOLD = 5;
 
 export type PaymentMethod = "cod" | "card" | "bank";
 
@@ -46,6 +53,7 @@ export async function createOrder({ userId, shippingAddress, paymentMethod, disc
   const session = await mongoose.startSession();
   let createdOrderId: string | null = null;
   let appliedDiscountPercent = 0;
+  const lowStockProducts: { id: string; name: string; stock: number }[] = [];
 
   try {
     await session.withTransaction(async () => {
@@ -62,6 +70,14 @@ export async function createOrder({ userId, shippingAddress, paymentMethod, disc
         orderItems.push({ product: product._id, quantity: item.quantity, price: product.price });
         product.stock -= item.quantity;
         await product.save({ session });
+
+        if (product.stock <= LOW_STOCK_THRESHOLD) {
+          lowStockProducts.push({
+            id: product._id.toString(),
+            name: product.name,
+            stock: product.stock,
+          });
+        }
       }
 
       const summary = calculateOrderSummary(orderItems);
@@ -116,7 +132,36 @@ export async function createOrder({ userId, shippingAddress, paymentMethod, disc
 
     if (!createdOrderId) throw new Error("Order could not be created");
 
-    return Order.findById(createdOrderId).populate({ path: "items.product", select: "name slug images brand price" }).lean();
+    const createdOrder = await Order.findById(createdOrderId)
+      .populate({ path: "items.product", select: "name slug images brand price" })
+      .lean();
+
+    if (!createdOrder) throw new Error("Order could not be created");
+
+    const priceFormatter = new Intl.NumberFormat("en-PK");
+
+    void createNotificationSafe({
+      targetKey: ADMIN_NOTIFICATION_KEY,
+      type: "new_order",
+      title: "New order received",
+      body: `Order ${createdOrder.orderNumber} — Rs. ${priceFormatter.format(createdOrder.total)}`,
+      link: `/admin/orders/${createdOrderId}`,
+    });
+
+    for (const product of lowStockProducts) {
+      const notification: CreateNotificationInput = {
+        targetKey: ADMIN_NOTIFICATION_KEY,
+        type: "low_stock",
+        title: "Low stock alert",
+        body: `${product.name} has only ${product.stock} left in stock`,
+        link: "/admin/products",
+        notificationId: `lowstock_${product.id}`,
+      };
+
+      void createNotificationSafe(notification);
+    }
+
+    return createdOrder;
   } finally {
     await session.endSession();
   }

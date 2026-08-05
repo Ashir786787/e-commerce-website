@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { connectDB } from "@/lib/db";
 import stripe from "@/lib/stripe";
 import Order from "@/models/Order";
+import { createNotificationSafe } from "@/services/notification.service";
 
 export async function POST(request: Request) {
   const payload = await request.text();
@@ -83,6 +84,16 @@ export async function POST(request: Request) {
         }
 
         await order.save();
+
+        if (order.user) {
+          void createNotificationSafe({
+            targetKey: order.user.toString(),
+            type: "payment",
+            title: "Payment confirmed",
+            body: `Payment received for order ${order.orderNumber} — thank you!`,
+            link: `/orders/${orderId}`,
+          });
+        }
       }
 
       console.log(`Stripe webhook completed for order ${order.orderNumber}.`);

@@ -21,6 +21,7 @@ import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { categories } from "@/data/categories";
 import ChatButton from "@/components/chat/ChatButton";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 const navigation = [
   { label: "Home", href: "/" },
@@ -246,6 +247,7 @@ export default function SiteHeader() {
               </span>
             )}
           </Link>
+          {user && <NotificationBell targetKey={user.id} />}
           {user ? (
             <div className="relative ml-1">
               <Button
