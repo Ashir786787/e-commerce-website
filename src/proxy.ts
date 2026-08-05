@@ -8,8 +8,14 @@ export function proxy(request: NextRequest) {
     "/admin",
   ];
 
+  const pathname = request.nextUrl.pathname;
+
+  if (pathname === "/admin/login" || pathname === "/admin" || pathname === "/admin/") {
+    return NextResponse.next();
+  }
+
   const isProtected = protectedRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route)
+    pathname.startsWith(route)
   );
 
   if (isProtected && !token) {

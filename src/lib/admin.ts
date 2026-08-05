@@ -15,6 +15,6 @@ export async function requireAdmin() {
 
     return user;
   } catch {
-    redirect("/login");
+    redirect("/admin/login");
   }
 }

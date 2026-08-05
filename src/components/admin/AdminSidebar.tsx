@@ -20,7 +20,7 @@ export default function AdminSidebar({
   return (
     <aside className="hidden w-72 h-screen sticky top-0 flex-shrink-0 flex-col border-r border-neutral-800 bg-[#0b0b0b] text-white lg:flex">
       <div className="border-b border-white/10 px-6 py-6">
-        <Link href="/admin" className="block">
+        <Link href="/admin/dashboard" className="block">
           <p className="text-2xl font-bold text-white">
             NovaCart
           </p>

@@ -34,7 +34,7 @@ export default function AdminLogoutButton({
     }
 
     onBeforeNavigate?.();
-    window.location.href = "/login";
+    window.location.href = "/admin/login";
   }
 
   return (

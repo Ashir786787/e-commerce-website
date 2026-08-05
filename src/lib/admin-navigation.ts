@@ -11,15 +11,11 @@ import {
 } from "lucide-react";
 
 export function isAdminNavActive(href: string, pathname: string): boolean {
-  if (href === "/admin") {
-    return pathname === href;
-  }
-
   return pathname === href || pathname.startsWith(href.replace(/\/$/, "") + "/");
 }
 
 export const adminNavigation = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Users", href: "/admin/users", icon: Users },
   { label: "Products", href: "/admin/products", icon: PackageSearch },
   { label: "Categories", href: "/admin/categories", icon: FolderTree },
