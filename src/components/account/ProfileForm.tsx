@@ -69,8 +69,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
     }
   }
 
-  const avatarValue =
-    useWatch({ control, name: "avatar" }) || "";
+  const avatarValue = useWatch({ control, name: "avatar" }) || "";
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">

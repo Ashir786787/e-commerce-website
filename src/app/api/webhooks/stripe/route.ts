@@ -4,6 +4,7 @@ import { connectDB } from "@/lib/db";
 import stripe from "@/lib/stripe";
 import Order from "@/models/Order";
 import { createNotificationSafe } from "@/services/notification.service";
+import { publishOrderUpdateSafe } from "@/services/order-realtime.server";
 
 export async function POST(request: Request) {
   const payload = await request.text();
@@ -92,6 +93,15 @@ export async function POST(request: Request) {
             title: "Payment confirmed",
             body: `Payment received for order ${order.orderNumber} — thank you!`,
             link: `/orders/${orderId}`,
+          });
+
+          void publishOrderUpdateSafe({
+            orderId: order._id.toString(),
+            userId: order.user.toString(),
+            orderNumber: order.orderNumber,
+            orderStatus: order.orderStatus,
+            paymentStatus: "paid",
+            paidAt: order.paidAt,
           });
         }
       }

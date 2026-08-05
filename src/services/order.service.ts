@@ -9,6 +9,7 @@ import {
   type CreateNotificationInput,
 } from "@/types/Notification";
 import { createNotificationSafe } from "@/services/notification.service";
+import { publishOrderUpdateSafe } from "@/services/order-realtime.server";
 
 const LOW_STOCK_THRESHOLD = 5;
 
@@ -146,6 +147,14 @@ export async function createOrder({ userId, shippingAddress, paymentMethod, disc
       title: "New order received",
       body: `Order ${createdOrder.orderNumber} — Rs. ${priceFormatter.format(createdOrder.total)}`,
       link: `/admin/orders/${createdOrderId}`,
+    });
+
+    void publishOrderUpdateSafe({
+      orderId: createdOrderId,
+      userId,
+      orderNumber: createdOrder.orderNumber,
+      orderStatus: createdOrder.orderStatus,
+      paymentStatus: createdOrder.paymentStatus,
     });
 
     for (const product of lowStockProducts) {

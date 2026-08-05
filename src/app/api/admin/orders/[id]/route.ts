@@ -6,6 +6,7 @@ import Order from "@/models/Order";
 import "@/models/Product";
 import { getCurrentUser } from "@/services/auth.service";
 import { createNotificationSafe } from "@/services/notification.service";
+import { publishOrderUpdate } from "@/services/order-realtime.server";
 
 interface AdminOrderRouteProps {
   params: Promise<{
@@ -155,6 +156,27 @@ export async function PATCH(request: NextRequest, { params }: AdminOrderRoutePro
 
     await order.save();
 
+    let realtimePublished = true;
+
+    try {
+      await publishOrderUpdate({
+        orderId: order._id.toString(),
+        userId: order.user.toString(),
+        orderNumber: order.orderNumber,
+        orderStatus: order.orderStatus,
+        paymentStatus: order.paymentStatus,
+        paidAt: order.paidAt,
+        deliveredAt: order.deliveredAt,
+      });
+    } catch (firebaseError) {
+      realtimePublished = false;
+
+      console.error(
+        "Firebase order update publish error:",
+        firebaseError
+      );
+    }
+
     if (order.user) {
       void createNotificationSafe({
         targetKey: order.user.toString(),
@@ -167,7 +189,9 @@ export async function PATCH(request: NextRequest, { params }: AdminOrderRoutePro
 
     return NextResponse.json({
       success: true,
-      message: "Order updated successfully.",
+      message: realtimePublished
+        ? "Order updated successfully."
+        : "Order updated, but the live update could not be published.",
       data: {
         id: order._id.toString(),
         orderNumber: order.orderNumber,
@@ -175,6 +199,7 @@ export async function PATCH(request: NextRequest, { params }: AdminOrderRoutePro
         paymentStatus: order.paymentStatus,
         paidAt: order.paidAt,
         deliveredAt: order.deliveredAt,
+        realtimePublished,
       },
     });
   } catch (error) {

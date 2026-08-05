@@ -4,6 +4,8 @@ import { Heart, Package, Settings, ShoppingCart } from "lucide-react";
 
 import ProfileForm from "@/components/account/ProfileForm";
 import UserAvatar from "@/components/account/UserAvatar";
+import EnableNotificationsButton from "@/components/notifications/EnableNotificationsButton";
+import TestNotificationButton from "@/components/notifications/TestNotificationButton";
 import SiteFooter from "@/components/layout/SiteFooter";
 import SiteHeader from "@/components/layout/SiteHeader";
 import OrderCard from "@/components/orders/OrderCard";
@@ -58,8 +60,7 @@ export default async function AccountPage() {
     totalSpent: 0,
   };
 
-  const cartItemCount =
-    cart?.items.reduce((total, item) => total + item.quantity, 0) || 0;
+  const cartItemCount = cart?.items.reduce((total, item) => total + item.quantity, 0) || 0;
   const wishlistCount = wishlist?.products.length || 0;
 
   const memberSince = new Date(user.createdAt).toLocaleDateString("en-PK", {
@@ -131,6 +132,11 @@ export default async function AccountPage() {
                 <p className="mt-1 text-sm text-muted-foreground">
                   Member since {memberSince}
                 </p>
+
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <EnableNotificationsButton />
+                  <TestNotificationButton />
+                </div>
               </div>
             </div>
 

@@ -536,7 +536,7 @@ export default function ProductForm({
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                   <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-neutral-200 bg-white">
                     {image.url ? (
-                      // eslint-disable-next-line @next/next/no-img-element -- arbitrary preview URLs are not covered by next/image remote patterns
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={image.url}
                         alt={`Product image ${index + 1}`}

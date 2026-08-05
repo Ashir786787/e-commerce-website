@@ -15,8 +15,7 @@ export default function UserAvatar({
 }: UserAvatarProps) {
   const [hasError, setHasError] = useState(false);
 
-  const isValidSource =
-    typeof avatar === "string" && avatar.trim().length > 0;
+  const isValidSource = typeof avatar === "string" && avatar.trim().length > 0;
 
   if (!isValidSource || hasError) {
     return (

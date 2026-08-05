@@ -45,8 +45,7 @@ export default function CategoryForm({
     isActive: category?.isActive ?? true,
   });
 
-  const [isSubmitting, setIsSubmitting] =
-    useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function updateField<K extends keyof CategoryFormState>(
     field: K,

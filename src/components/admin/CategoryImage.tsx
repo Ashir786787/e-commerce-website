@@ -20,9 +20,7 @@ export default function CategoryImage({
 }: CategoryImageProps) {
   const [hasError, setHasError] = useState(false);
 
-  const isValidSource =
-    typeof src === "string" &&
-    /^https?:\/\//.test(src.trim());
+  const isValidSource = typeof src === "string" && /^https?:\/\//.test(src.trim());
 
   if (!isValidSource || hasError) {
     return <>{fallback}</>;

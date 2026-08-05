@@ -8,6 +8,7 @@ const UserSchema = new Schema<IUser>(
     password: { type: String, required: true, minlength: 6 },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     avatar: { type: String, default: "" },
+    fcmToken: { type: String, default: "" },
     isVerified: { type: Boolean, default: false },
     verificationOTP: String,
     verificationOTPExpiry: Date,

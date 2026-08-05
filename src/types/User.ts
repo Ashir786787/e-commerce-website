@@ -7,6 +7,7 @@ export interface IUser {
   role: UserRole;
   isVerified: boolean;
   avatar?: string;
+  fcmToken?: string;
   verificationOTP?: string;
   verificationOTPExpiry?: Date;
   resetPasswordOTP?: string;

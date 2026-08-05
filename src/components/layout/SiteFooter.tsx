@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import NewsletterForm from "@/components/layout/NewsletterForm";
+
 export default function SiteFooter() {
   return (
     <footer className="border-t bg-muted/30">
@@ -12,6 +14,15 @@ export default function SiteFooter() {
             Discover quality products, secure shopping, and a simple checkout
             experience—all in one place.
           </p>
+
+          <h3 className="mt-6 text-sm font-semibold uppercase tracking-wide text-foreground">
+            Subscribe to our newsletter
+          </h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Get exclusive deals and updates straight to your inbox.
+          </p>
+
+          <NewsletterForm />
         </div>
 
         <div>

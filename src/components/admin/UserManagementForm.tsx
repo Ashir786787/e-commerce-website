@@ -17,15 +17,9 @@ export default function UserManagementForm({
   user,
   isCurrentAdmin,
 }: UserManagementFormProps) {
-  const [role, setRole] = useState<
-    "user" | "admin"
-  >(user.role);
-
-  const [isVerified, setIsVerified] =
-    useState(user.isVerified);
-
-  const [isSaving, setIsSaving] =
-    useState(false);
+  const [role, setRole] = useState<"user" | "admin">(user.role);
+  const [isVerified, setIsVerified] = useState(user.isVerified);
+  const [isSaving, setIsSaving] = useState(false);
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>

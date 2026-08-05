@@ -25,24 +25,19 @@ type AppliedDiscount = {
 };
 
 export default function CheckoutForm() {
-  const [shippingAddress, setShippingAddress] =
-    useState<CheckoutFormData>({
-      fullName: "",
-      email: "",
-      phone: "",
-      address: "",
-      city: "",
-      postalCode: "",
-      country: "Pakistan",
-    });
-  const [paymentMethod, setPaymentMethod] =
-    useState<CheckoutPaymentMethod>("cod");
-  const [isSubmitting, setIsSubmitting] =
-    useState(false);
-  const [appliedDiscount, setAppliedDiscount] =
-    useState<AppliedDiscount | null>(null);
-  const [isApplyingDiscount, setIsApplyingDiscount] =
-    useState(false);
+  const [shippingAddress, setShippingAddress] = useState<CheckoutFormData>({
+    fullName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    country: "Pakistan",
+  });
+  const [paymentMethod, setPaymentMethod] = useState<CheckoutPaymentMethod>("cod");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [appliedDiscount, setAppliedDiscount] = useState<AppliedDiscount | null>(null);
+  const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
 
   function handleShippingChange(
     event: React.ChangeEvent<

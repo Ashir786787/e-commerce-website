@@ -79,7 +79,15 @@ export async function getCurrentUser() {
   const decoded = verifyToken(token) as { userId: string; role: string };
   const user = await User.findById(decoded.userId).select("-password");
   if (!user) throw new Error("User not found.");
-  return { id: user._id, fullName: user.fullName, email: user.email, role: user.role, isVerified: user.isVerified, avatar: user.avatar || "", createdAt: user.createdAt };
+  return {
+    id: user._id,
+    fullName: user.fullName,
+    email: user.email,
+    role: user.role,
+    isVerified: user.isVerified,
+    avatar: user.avatar || "",
+    createdAt: user.createdAt,
+  };
 }
 
 export async function updateProfile(data: { fullName: string; avatar?: string }) {
@@ -92,12 +100,26 @@ export async function updateProfile(data: { fullName: string; avatar?: string })
   user.avatar = validatedData.avatar || "";
   await user.save();
 
-  return { id: user._id, fullName: user.fullName, email: user.email, role: user.role, isVerified: user.isVerified, avatar: user.avatar, createdAt: user.createdAt };
+  return {
+    id: user._id,
+    fullName: user.fullName,
+    email: user.email,
+    role: user.role,
+    isVerified: user.isVerified,
+    avatar: user.avatar,
+    createdAt: user.createdAt,
+  };
 }
 
 export async function logoutUser() {
   const cookieStore = await cookies();
-  cookieStore.set("novacart_token", "", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 0 });
+  cookieStore.set("novacart_token", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
 }
 
 export async function forgotPassword(data: { email: string }) {

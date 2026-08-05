@@ -213,10 +213,13 @@ export async function DELETE(_request: NextRequest, { params }: CategoryRoutePro
     const productCount = await Product.countDocuments({ category: category._id });
 
     if (productCount > 0) {
+      const message =
+        `This category contains ${productCount} product${productCount === 1 ? "" : "s"}. ` +
+        "Move or delete those products before deleting the category.";
       return NextResponse.json(
         {
           success: false,
-          message: `This category contains ${productCount} product${productCount === 1 ? "" : "s"}. Move or delete those products before deleting the category.`,
+          message,
         },
         { status: 409 }
       );

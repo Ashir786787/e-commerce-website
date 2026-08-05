@@ -471,15 +471,19 @@ export default function SiteHeader() {
       )}
     </header>
 
-    {user && user.role !== "admin" && (
+    {!user || user.role !== "admin" ? (
       <ChatButton
-        user={{
-          id: user.id,
-          fullName: user.fullName,
-          email: user.email,
-        }}
+        user={
+          user
+            ? {
+                id: user.id,
+                fullName: user.fullName,
+                email: user.email,
+              }
+            : null
+        }
       />
-    )}
+    ) : null}
     </>
   );
 }

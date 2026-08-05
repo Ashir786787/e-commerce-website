@@ -65,8 +65,7 @@ export default function SettingsContent({
     },
   });
 
-  const otpValue =
-    useWatch({ control, name: "otp" }) || "";
+  const otpValue = useWatch({ control, name: "otp" }) || "";
 
   useEffect(() => {
     if (resendTimer <= 0) return;

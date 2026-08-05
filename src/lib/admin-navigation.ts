@@ -1,7 +1,9 @@
 import {
   BarChart3,
+  BellRing,
   FolderTree,
   LayoutDashboard,
+  Mail,
   MessagesSquare,
   PackageSearch,
   ShoppingCart,
@@ -22,6 +24,8 @@ export const adminNavigation = [
   { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
   { label: "Messages", href: "/admin/messages", icon: MessagesSquare },
   { label: "Discount Codes", href: "/admin/discount-codes", icon: Tag },
+  { label: "Newsletter", href: "/admin/newsletter", icon: Mail },
+  { label: "Notifications", href: "/admin/notifications", icon: BellRing },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { label: "Browse as User", href: "/login", icon: Store, separator: true },
 ];

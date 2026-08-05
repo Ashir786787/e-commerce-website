@@ -5,22 +5,40 @@ import { MessageCircle, X } from "lucide-react";
 
 import ChatWindow from "./ChatWindow";
 import { useChat } from "@/hooks/useChat";
+import {
+  createGuestChatIdentity,
+  readGuestChatIdentity,
+  saveGuestChatInfo,
+  type ChatIdentity,
+} from "@/lib/chat-identity";
+
+export interface ChatUser {
+  id: string;
+  fullName: string;
+  email: string;
+}
 
 interface ChatButtonProps {
-  user: {
-    id: string;
-    fullName: string;
-    email: string;
-  };
+  user?: ChatUser | null;
 }
 
 export default function ChatButton({ user }: ChatButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [guest, setGuest] = useState<ChatIdentity | null>(() =>
+    user ? null : { ...(readGuestChatIdentity() ?? createGuestChatIdentity()), isGuest: true }
+  );
+
+  const identity: ChatIdentity | null = user
+    ? { id: user.id, name: user.fullName, email: user.email, isGuest: false }
+    : guest;
+
+  const chatReady = Boolean(identity?.name);
   const { unreadCount, markAsRead } = useChat({
-    userId: user.id,
-    userName: user.fullName,
-    userEmail: user.email,
+    userId: identity?.id ?? "",
+    userName: identity?.name ?? "Guest",
+    userEmail: identity?.email ?? "",
     senderRole: "user",
+    enabled: chatReady,
   });
 
   async function handleToggle() {
@@ -31,9 +49,19 @@ export default function ChatButton({ user }: ChatButtonProps) {
     }
   }
 
+  function handleGuestInfoSubmit(name: string, email: string) {
+    setGuest({ ...saveGuestChatInfo(name, email), isGuest: true });
+  }
+
   return (
     <>
-      {isOpen && <ChatWindow user={user} onClose={() => setIsOpen(false)} />}
+      {isOpen && identity && (
+        <ChatWindow
+          identity={identity}
+          onGuestInfoSubmit={identity.isGuest ? handleGuestInfoSubmit : undefined}
+          onClose={() => setIsOpen(false)}
+        />
+      )}
 
       <button
         type="button"

@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { Types } from "mongoose";
 
-import OrderStatusBadge from "@/components/orders/OrderStatusBadge";
+import LiveOrderInformation from "@/components/orders/LiveOrderInformation";
+import LiveOrderStatus from "@/components/orders/LiveOrderStatus";
 import InvoiceActions from "@/components/orders/InvoiceActions";
 import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
@@ -32,9 +34,15 @@ function formatPaymentMethod(method: "cod" | "card" | "bank") {
 export default async function OrderPage({ params }: OrderPageProps) {
   const { id } = await params;
 
+  if (!Types.ObjectId.isValid(id)) {
+    notFound();
+  }
+
   await connectDB();
 
   const userId = await resolveUserId();
+
+  const userIdString = userId.toString();
 
   const order = await Order.findOne({ _id: id, user: userId })
     .populate({ path: "items.product", select: "name brand" })
@@ -59,7 +67,13 @@ export default async function OrderPage({ params }: OrderPageProps) {
           </Link>
 
           <div className="flex flex-wrap items-center gap-3">
-            <OrderStatusBadge status={order.orderStatus} />
+            <LiveOrderStatus
+              userId={userIdString}
+              orderId={order._id.toString()}
+              initialOrderStatus={order.orderStatus}
+              initialPaymentStatus={order.paymentStatus}
+            />
+
             <InvoiceActions />
           </div>
         </div>
@@ -122,14 +136,12 @@ export default async function OrderPage({ params }: OrderPageProps) {
                     {formatPaymentMethod(order.paymentMethod)}
                   </span>
                 </div>
-                <div className="flex justify-between gap-4 sm:justify-end">
-                  <span className="text-neutral-500">Payment Status</span>
-                  <span className="font-semibold capitalize text-neutral-950">{order.paymentStatus}</span>
-                </div>
-                <div className="flex justify-between gap-4 sm:justify-end">
-                  <span className="text-neutral-500">Order Status</span>
-                  <span className="font-semibold capitalize text-neutral-950">{order.orderStatus}</span>
-                </div>
+                <LiveOrderInformation
+                  userId={userIdString}
+                  orderId={order._id.toString()}
+                  initialOrderStatus={order.orderStatus}
+                  initialPaymentStatus={order.paymentStatus}
+                />
               </div>
             </div>
           </div>
