@@ -1,5 +1,6 @@
 import AdminMobileNav from "@/components/admin/AdminMobileNav";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import ChatButton from "@/components/chat/ChatButton";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { ADMIN_NOTIFICATION_KEY } from "@/types/Notification";
 import { requireAdmin } from "@/lib/admin";
@@ -38,6 +39,13 @@ export default async function AdminLayout({
             </div>
             <div className="flex items-center gap-3">
               <NotificationBell targetKey={ADMIN_NOTIFICATION_KEY} variant="admin" />
+              <ChatButton
+                user={{
+                  id: admin.id,
+                  fullName: admin.fullName,
+                  email: admin.email,
+                }}
+              />
               <div className="hidden text-right sm:block">
                 <p className="text-sm font-medium text-neutral-950">
                   {admin.fullName}
