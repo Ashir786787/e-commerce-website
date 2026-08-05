@@ -6,7 +6,7 @@ import {
   ref,
 } from "firebase/database";
 
-import { database } from "@/lib/firebase";
+import { getFirebaseDatabase } from "@/lib/firebase";
 import type { RealtimeOrderUpdate } from "./order-realtime.server";
 
 export function subscribeToOrderUpdate(
@@ -16,8 +16,14 @@ export function subscribeToOrderUpdate(
     update: RealtimeOrderUpdate | null
   ) => void
 ) {
+  const db = getFirebaseDatabase();
+
+  if (!db) {
+    return () => {};
+  }
+
   const orderUpdateRef = ref(
-    database,
+    db,
     `orderUpdates/${userId}/${orderId}`
   );
 

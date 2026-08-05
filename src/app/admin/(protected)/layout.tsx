@@ -41,7 +41,7 @@ export default async function AdminLayout({
               <NotificationBell targetKey={ADMIN_NOTIFICATION_KEY} variant="admin" />
               <ChatButton
                 user={{
-                  id: admin.id,
+                  id: admin.id.toString(),
                   fullName: admin.fullName,
                   email: admin.email,
                 }}

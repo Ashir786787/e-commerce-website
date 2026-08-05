@@ -11,7 +11,7 @@ import {
   update,
 } from "firebase/database";
 
-import { database } from "@/lib/firebase";
+import { getFirebaseDatabase } from "@/lib/firebase";
 import type { ChatConversation, ChatMessage, CreateConversationInput, SendMessageInput } from "@/types/Chat";
 import { ADMIN_NOTIFICATION_KEY } from "@/types/Notification";
 import { createNotificationSafe } from "@/services/notification.service";
@@ -22,7 +22,13 @@ function getConversationId(userId: string) {
 
 export async function createOrGetConversation({ userId, userName, userEmail }: CreateConversationInput) {
   const conversationId = getConversationId(userId);
-  const conversationRef = ref(database, `conversations/${conversationId}`);
+  const db = getFirebaseDatabase();
+
+  if (!db) {
+    return conversationId;
+  }
+
+  const conversationRef = ref(db, `conversations/${conversationId}`);
   const snapshot = await get(conversationRef);
 
   if (!snapshot.exists()) {
@@ -52,8 +58,14 @@ export async function sendChatMessage({ conversationId, senderId, senderName, se
     throw new Error("Message cannot exceed 2000 characters.");
   }
 
+  const db = getFirebaseDatabase();
+
+  if (!db) {
+    throw new Error("Chat is unavailable right now. Please try again later.");
+  }
+
   const now = Date.now();
-  const messagesRef = ref(database, `messages/${conversationId}`);
+  const messagesRef = ref(db, `messages/${conversationId}`);
   const newMessageRef = push(messagesRef);
 
   const message: Omit<ChatMessage, "id"> = {
@@ -81,7 +93,7 @@ export async function sendChatMessage({ conversationId, senderId, senderName, se
           unreadByUser: increment(1),
         };
 
-  await update(ref(database), {
+  await update(ref(db), {
     [`messages/${conversationId}/${newMessageRef.key}`]: message,
     [`conversations/${conversationId}/updatedAt`]: conversationUpdates.updatedAt,
     [`conversations/${conversationId}/lastMessage`]: conversationUpdates.lastMessage,
@@ -111,7 +123,13 @@ export async function sendChatMessage({ conversationId, senderId, senderName, se
 }
 
 export function subscribeToMessages(conversationId: string, callback: (messages: ChatMessage[]) => void) {
-  const messagesQuery = query(ref(database, `messages/${conversationId}`), orderByChild("createdAt"));
+  const db = getFirebaseDatabase();
+
+  if (!db) {
+    return () => {};
+  }
+
+  const messagesQuery = query(ref(db, `messages/${conversationId}`), orderByChild("createdAt"));
 
   const handler = onValue(messagesQuery, (snapshot) => {
     const messages: ChatMessage[] = [];
@@ -132,7 +150,13 @@ export function subscribeToMessages(conversationId: string, callback: (messages:
 }
 
 export function subscribeToConversation(conversationId: string, callback: (conversation: ChatConversation | null) => void) {
-  const conversationRef = ref(database, `conversations/${conversationId}`);
+  const db = getFirebaseDatabase();
+
+  if (!db) {
+    return () => {};
+  }
+
+  const conversationRef = ref(db, `conversations/${conversationId}`);
 
   const handler = onValue(conversationRef, (snapshot) => {
     if (!snapshot.exists()) {
@@ -152,7 +176,13 @@ export function subscribeToConversation(conversationId: string, callback: (conve
 }
 
 export function subscribeToConversations(callback: (conversations: ChatConversation[]) => void) {
-  const conversationsQuery = query(ref(database, "conversations"), orderByChild("updatedAt"));
+  const db = getFirebaseDatabase();
+
+  if (!db) {
+    return () => {};
+  }
+
+  const conversationsQuery = query(ref(db, "conversations"), orderByChild("updatedAt"));
 
   const handler = onValue(conversationsQuery, (snapshot) => {
     const conversations: ChatConversation[] = [];
@@ -174,8 +204,14 @@ export function subscribeToConversations(callback: (conversations: ChatConversat
 }
 
 export async function markConversationAsRead({ conversationId, readerRole }: { conversationId: string; readerRole: "user" | "admin" }) {
+  const db = getFirebaseDatabase();
+
+  if (!db) {
+    return;
+  }
+
   const unreadField = readerRole === "admin" ? "unreadByAdmin" : "unreadByUser";
-  const messagesRef = ref(database, `messages/${conversationId}`);
+  const messagesRef = ref(db, `messages/${conversationId}`);
   const snapshot = await get(messagesRef);
 
   const updates: Record<string, boolean | number> = {
@@ -189,5 +225,5 @@ export async function markConversationAsRead({ conversationId, readerRole }: { c
     }
   });
 
-  await update(ref(database), updates);
+  await update(ref(db), updates);
 }

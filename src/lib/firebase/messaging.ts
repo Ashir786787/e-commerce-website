@@ -2,7 +2,7 @@
 
 import { getMessaging, isSupported, type Messaging } from "firebase/messaging";
 
-import firebaseApp from "@/lib/firebase";
+import { getFirebaseApp } from "@/lib/firebase";
 
 let messagingInstance: Messaging | null = null;
 
@@ -15,8 +15,13 @@ export async function getFirebaseMessaging() {
     return null;
   }
 
+  const app = getFirebaseApp();
+  if (!app) {
+    return null;
+  }
+
   if (!messagingInstance) {
-    messagingInstance = getMessaging(firebaseApp);
+    messagingInstance = getMessaging(app);
   }
 
   return messagingInstance;
