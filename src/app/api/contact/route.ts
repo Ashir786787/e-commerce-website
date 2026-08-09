@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const { fullName, email, phone, subject, message } = parsed.data;
 
     await sendEmail({
-      to: process.env.EMAIL_USER!,
+      to: process.env.EMAIL_USER || process.env.SMTP_USER || "novacart@example.com",
       subject: `[NovaCart Contact] ${subject}`,
       html: contactMessageTemplate({
         fullName,
