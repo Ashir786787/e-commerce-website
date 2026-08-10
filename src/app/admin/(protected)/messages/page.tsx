@@ -38,7 +38,19 @@ export default function AdminMessagesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoadingAdmin, setIsLoadingAdmin] = useState(true);
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
+  const [hasTimedOut, setHasTimedOut] = useState(false);
   const [isSending, setIsSending] = useState(false);
+
+  const isLoading = isLoadingAdmin || isLoadingConversations;
+
+  useEffect(() => {
+    if (!isLoading) {
+      return;
+    }
+
+    const timer = setTimeout(() => setHasTimedOut(true), 8000);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
 
   useEffect(() => {
     async function loadAdmin() {
@@ -130,7 +142,7 @@ export default function AdminMessagesPage() {
     });
   }
 
-  if (isLoadingAdmin || isLoadingConversations) {
+  if (isLoading && !hasTimedOut) {
     return (
       <div className="flex min-h-[500px] items-center justify-center rounded-2xl border border-neutral-200 bg-white">
         <div className="text-center">
@@ -143,6 +155,13 @@ export default function AdminMessagesPage() {
 
   return (
     <div>
+      {hasTimedOut && (
+        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Realtime updates are taking longer than expected. Verify that the Firebase Realtime Database rules allow reading
+          <code className="mx-1 rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">conversations</code> and
+          <code className="mx-1 rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">messages</code>, then refresh the page.
+        </div>
+      )}
       <div>
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">Customer Support</p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">Messages</h1>

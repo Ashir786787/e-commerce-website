@@ -124,6 +124,7 @@ export function subscribeToMessages(conversationId: string, callback: (messages:
   const db = getFirebaseDatabase();
 
   if (!db) {
+    callback([]);
     return () => {};
   }
 
@@ -184,6 +185,7 @@ export function subscribeToConversations(callback: (conversations: ChatConversat
   const db = getFirebaseDatabase();
 
   if (!db) {
+    callback([]);
     return () => {};
   }
 
