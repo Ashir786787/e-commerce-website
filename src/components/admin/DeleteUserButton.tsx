@@ -22,41 +22,28 @@ export default function DeleteUserButton({
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDelete() {
-    if (
-      !window.confirm(
-        `Delete ${userName}? This will permanently remove the account along with its cart and wishlist. This action cannot be undone.`
-      )
-    ) {
+    if (!window.confirm(`Delete ${userName}? This will permanently remove the account along with its cart and wishlist. This action cannot be undone.`)) {
       return;
     }
 
     setIsDeleting(true);
 
     try {
-      const response = await fetch(
-        `/api/admin/users/${userId}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        }
-      );
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
 
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(
-          result.message || "Failed to delete user."
-        );
+        throw new Error(result.message || "Failed to delete user.");
       }
 
       toast.success("User deleted successfully.");
       router.refresh();
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Unable to delete user."
-      );
+      toast.error(error instanceof Error ? error.message : "Unable to delete user.");
     } finally {
       setIsDeleting(false);
     }

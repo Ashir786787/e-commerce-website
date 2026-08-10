@@ -31,10 +31,7 @@ export default async function AdminProductsPage({
   const search = typeof params.search === "string" ? params.search.trim() : "";
   const selectedCategory = typeof params.category === "string" ? params.category : "";
   const status =
-    params.status === "active" ||
-    params.status === "inactive" ||
-    params.status === "featured" ||
-    params.status === "trending"
+    params.status === "active" || params.status === "inactive" || params.status === "featured" || params.status === "trending"
       ? params.status
       : "";
 
@@ -238,8 +235,7 @@ export default async function AdminProductsPage({
                     slug?: string;
                   };
                   const image =
-                    product.images?.[0]?.url ||
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb7tmMiL9Bn2X8Iz5teTECetBoux8iSfOPd__XhLC0lw&s=10";
+                    product.images?.[0]?.url || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb7tmMiL9Bn2X8Iz5teTECetBoux8iSfOPd__XhLC0lw&s=10";
 
                   return (
                     <tr

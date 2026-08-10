@@ -96,8 +96,7 @@ export default function PaymentMethod({
 
               <div
                 className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
-                  isSelected &&
-                  !method.disabled
+                  isSelected && !method.disabled
                     ? "bg-indigo-600 text-white"
                     : "bg-neutral-100 text-neutral-600"
                 }`}

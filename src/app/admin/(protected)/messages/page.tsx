@@ -221,8 +221,7 @@ export default function AdminMessagesPage() {
                         const previous = messages[index - 1];
                         const showDivider =
                           !previous ||
-                          new Date(message.createdAt).toDateString() !==
-                            new Date(previous.createdAt).toDateString();
+                          new Date(message.createdAt).toDateString() !== new Date(previous.createdAt).toDateString();
 
                         return (
                           <Fragment key={message.id}>

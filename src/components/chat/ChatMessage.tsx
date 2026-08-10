@@ -12,9 +12,7 @@ function formatTime(timestamp: number) {
   const today = new Date();
 
   const isToday =
-    date.getFullYear() === today.getFullYear() &&
-    date.getMonth() === today.getMonth() &&
-    date.getDate() === today.getDate();
+    date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth() && date.getDate() === today.getDate();
 
   if (isToday) {
     return new Intl.DateTimeFormat("en-PK", {

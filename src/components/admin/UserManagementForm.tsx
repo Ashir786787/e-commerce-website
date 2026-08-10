@@ -47,10 +47,7 @@ export default function UserManagementForm({
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(
-          result.message ||
-            "Unable to update user."
-        );
+        throw new Error(result.message || "Unable to update user.");
       }
 
       toast.success("User updated successfully.");

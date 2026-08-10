@@ -62,8 +62,7 @@ export default function CategoryForm({
       ...current,
       name: value,
       slug:
-        current.slug === generateSlug(current.name) ||
-        current.slug === ""
+        current.slug === generateSlug(current.name) || current.slug === ""
           ? generateSlug(value)
           : current.slug,
     }));
@@ -100,11 +99,7 @@ export default function CategoryForm({
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          result.message ||
-            result.error ||
-            "Unable to save category."
-        );
+        throw new Error(result.message || result.error || "Unable to save category.");
       }
 
       toast.success(

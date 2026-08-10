@@ -10,9 +10,7 @@ function formatDate(timestamp: number) {
   yesterday.setDate(today.getDate() - 1);
 
   const isSameDay = (a: Date, b: Date) =>
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate();
+    a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 
   if (isSameDay(date, today)) {
     return "Today";

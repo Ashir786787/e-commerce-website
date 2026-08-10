@@ -57,10 +57,7 @@ export default async function CategoriesPage() {
                   >
                     <div className="relative aspect-[16/10] overflow-hidden bg-muted">
                       <CategoryImage
-                        src={
-                          category.image ||
-                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb7tmMiL9Bn2X8Iz5teTECetBoux8iSfOPd__XhLC0lw&s=10"
-                        }
+                        src={category.image || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb7tmMiL9Bn2X8Iz5teTECetBoux8iSfOPd__XhLC0lw&s=10"}
                         alt={category.name}
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className="object-cover transition duration-500 group-hover:scale-105"
@@ -80,8 +77,7 @@ export default async function CategoriesPage() {
                         {category.name}
                       </h2>
                       <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
-                        {category.description ||
-                          "Explore products from this category."}
+                        {category.description || "Explore products from this category."}
                       </p>
                     </div>
                   </Link>

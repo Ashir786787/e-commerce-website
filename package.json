@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
+    "@google/genai": "^2.16.0",
     "@hookform/resolvers": "^5.4.0",
     "@next/env": "^16.2.10",
     "@stripe/stripe-js": "^9.12.0",

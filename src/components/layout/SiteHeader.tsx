@@ -89,10 +89,7 @@ export default function SiteHeader() {
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (
-        categoryRef.current &&
-        !categoryRef.current.contains(e.target as Node)
-      ) {
+      if (categoryRef.current && !categoryRef.current.contains(e.target as Node)) {
         setIsCategoryOpen(false);
       }
     }

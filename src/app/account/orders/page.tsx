@@ -47,9 +47,7 @@ export default async function AccountOrdersPage() {
                     key={order._id.toString()}
                     order={{
                       _id: order._id.toString(),
-                      orderNumber:
-                        order.orderNumber ||
-                        `NC-${order._id.toString().slice(-6).toUpperCase()}`,
+                      orderNumber: order.orderNumber || `NC-${order._id.toString().slice(-6).toUpperCase()}`,
                       createdAt: order.createdAt.toISOString(),
                       total: order.total,
                       paymentMethod: order.paymentMethod,

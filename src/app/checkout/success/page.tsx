@@ -43,14 +43,8 @@ export default async function PaymentSuccessPage({
       const session = await getStripe().checkout.sessions.retrieve(sessionId);
 
       paymentDetails = {
-        orderId:
-          session.metadata?.orderId ||
-          session.client_reference_id ||
-          null,
-        customerEmail:
-          session.customer_details?.email ||
-          session.customer_email ||
-          null,
+        orderId: session.metadata?.orderId || session.client_reference_id || null,
+        customerEmail: session.customer_details?.email || session.customer_email || null,
         paymentStatus: session.payment_status,
         amountTotal: session.amount_total || 0,
         currency: session.currency || "pkr",
@@ -60,10 +54,7 @@ export default async function PaymentSuccessPage({
     }
   }
 
-  if (
-    paymentDetails?.orderId &&
-    paymentDetails.paymentStatus === "paid"
-  ) {
+  if (paymentDetails?.orderId && paymentDetails.paymentStatus === "paid") {
     try {
       await connectDB();
 

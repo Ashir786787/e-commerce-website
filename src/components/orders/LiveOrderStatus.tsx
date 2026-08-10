@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -30,33 +29,23 @@ export default function LiveOrderStatus({
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = subscribeToOrderUpdate(
-      userId,
-      orderId,
-      (update) => {
-        setIsConnected(true);
+    const unsubscribe = subscribeToOrderUpdate(userId, orderId, (update) => {
+      setIsConnected(true);
 
-        if (!update) {
-          return;
+      if (!update) {
+        return;
+      }
+
+      setOrderStatus((currentStatus) => {
+        if (currentStatus !== update.orderStatus) {
+          toast.success(`Order status updated to ${update.orderStatus}.`);
         }
 
-        setOrderStatus((currentStatus) => {
-          if (
-            currentStatus !== update.orderStatus
-          ) {
-            toast.success(
-              `Order status updated to ${update.orderStatus}.`
-            );
-          }
+        return update.orderStatus;
+      });
 
-          return update.orderStatus;
-        });
-
-        setPaymentStatus(
-          update.paymentStatus
-        );
-      }
-    );
+      setPaymentStatus(update.paymentStatus);
+    });
 
     return unsubscribe;
   }, [orderId, userId]);
@@ -79,16 +68,11 @@ export default function LiveOrderStatus({
 
       <span
         className={`hidden items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium sm:inline-flex ${
-          isConnected
-            ? "bg-blue-50 text-blue-700"
-            : "bg-neutral-100 text-neutral-500"
+          isConnected ? "bg-blue-50 text-blue-700" : "bg-neutral-100 text-neutral-500"
         }`}
       >
         <Wifi className="h-3.5 w-3.5" />
-
-        {isConnected
-          ? "Live updates"
-          : "Connecting..."}
+        {isConnected ? "Live updates" : "Connecting..."}
       </span>
     </div>
   );

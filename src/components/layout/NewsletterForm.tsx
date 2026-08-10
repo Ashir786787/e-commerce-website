@@ -31,10 +31,7 @@ export default function NewsletterForm() {
       }
 
       setEmail("");
-      toast.success(
-        result.message ||
-          "Subscribed to the NovaCart newsletter!"
-      );
+      toast.success(result.message || "Subscribed to the NovaCart newsletter!");
     } catch (error) {
       toast.error(
         error instanceof Error

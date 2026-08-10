@@ -57,8 +57,7 @@ export default async function CategoryPage({
               {category.name}
             </h1>
             <p className="mt-4 max-w-2xl text-muted-foreground">
-              {category.description ||
-                `Browse all products in the ${category.name} category.`}
+              {category.description || `Browse all products in the ${category.name} category.`}
             </p>
           </div>
         </section>

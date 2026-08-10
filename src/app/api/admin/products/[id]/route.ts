@@ -83,8 +83,7 @@ export async function GET(_request: NextRequest, { params }: ProductRouteProps) 
       },
       {
         status:
-          error instanceof Error &&
-          error.message === "Admin access is required."
+          error instanceof Error && error.message === "Admin access is required."
             ? 403
             : 500,
       }
@@ -254,8 +253,7 @@ export async function PATCH(request: NextRequest, { params }: ProductRouteProps)
       },
       {
         status:
-          error instanceof Error &&
-          error.message === "Admin access is required."
+          error instanceof Error && error.message === "Admin access is required."
             ? 403
             : 500,
       }
@@ -301,8 +299,7 @@ export async function DELETE(_request: NextRequest, { params }: ProductRouteProp
       },
       {
         status:
-          error instanceof Error &&
-          error.message === "Admin access is required."
+          error instanceof Error && error.message === "Admin access is required."
             ? 403
             : 500,
       }

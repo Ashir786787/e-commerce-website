@@ -16,10 +16,7 @@ export default function ForegroundNotificationListener() {
 
       unsubscribe = onMessage(messaging, (payload) => {
         toast.success(payload.data?.title || payload.notification?.title || "NovaCart", {
-          description:
-            payload.data?.body ||
-            payload.notification?.body ||
-            "You have a new notification.",
+          description: payload.data?.body || payload.notification?.body || "You have a new notification.",
         });
       });
     }

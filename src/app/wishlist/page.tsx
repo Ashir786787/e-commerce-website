@@ -79,10 +79,7 @@ export default function WishlistPage() {
       const wishlistData = await wishlistResponse.json();
 
       if (!wishlistResponse.ok || !wishlistData.success) {
-        throw new Error(
-          wishlistData.message ||
-            "Product was added to cart, but could not be removed from wishlist."
-        );
+        throw new Error(wishlistData.message || "Product was added to cart, but could not be removed from wishlist.");
       }
 
       await Promise.all([refreshWishlist(), refreshCart(),]);
@@ -160,10 +157,7 @@ export default function WishlistPage() {
                 >
                   <div className="relative aspect-square bg-slate-100">
                     <Image
-                      src={
-                        product.images?.[0]?.url ||
-                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb7tmMiL9Bn2X8Iz5teTECetBoux8iSfOPd__XhLC0lw&s=10"
-                      }
+                      src={product.images?.[0]?.url || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb7tmMiL9Bn2X8Iz5teTECetBoux8iSfOPd__XhLC0lw&s=10"}
                       alt={product.name}
                       fill
                       className="object-cover"

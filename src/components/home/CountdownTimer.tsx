@@ -28,12 +28,7 @@ let cached: TimeLeft | null = null;
 function getSnapshot(): TimeLeft {
   const next = getTimeLeft();
 
-  if (
-    cached &&
-    cached.hours === next.hours &&
-    cached.minutes === next.minutes &&
-    cached.seconds === next.seconds
-  ) {
+  if (cached && cached.hours === next.hours && cached.minutes === next.minutes && cached.seconds === next.seconds) {
     return cached;
   }
 

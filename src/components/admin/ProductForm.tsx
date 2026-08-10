@@ -108,8 +108,7 @@ export default function ProductForm({
       ...current,
       name: value,
       slug:
-        current.slug === generateSlug(current.name) ||
-        current.slug === ""
+        current.slug === generateSlug(current.name) || current.slug === ""
           ? generateSlug(value)
           : current.slug,
     }));

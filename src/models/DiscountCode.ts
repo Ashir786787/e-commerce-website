@@ -36,7 +36,6 @@ const DiscountCodeSchema = new Schema<IDiscountCode>({
 );
 
 const DiscountCode: Model<IDiscountCode> =
-  mongoose.models.DiscountCode ||
-  mongoose.model<IDiscountCode>("DiscountCode", DiscountCodeSchema);
+  mongoose.models.DiscountCode || mongoose.model<IDiscountCode>("DiscountCode", DiscountCodeSchema);
 
 export default DiscountCode;

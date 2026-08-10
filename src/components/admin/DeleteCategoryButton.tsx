@@ -20,47 +20,32 @@ export default function DeleteCategoryButton({
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDelete() {
-    if (
-      !window.confirm(
-        `Delete ${categoryName}?${
-          productCount > 0
-            ? ` This category has ${productCount} product${
-                productCount === 1 ? "" : "s"
-              }.`
-            : ""
-        } This action cannot be undone.`
-      )
-    ) {
+    const countText =
+      productCount > 0
+        ? ` This category has ${productCount} product${productCount === 1 ? "" : "s"}.`
+        : "";
+    if (!window.confirm(`Delete ${categoryName}?${countText} This action cannot be undone.`)) {
       return;
     }
 
     setIsDeleting(true);
 
     try {
-      const response = await fetch(
-        `/api/admin/categories/${categoryId}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        }
-      );
+      const response = await fetch(`/api/admin/categories/${categoryId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
 
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(
-          result.message || "Failed to delete category."
-        );
+        throw new Error(result.message || "Failed to delete category.");
       }
 
       toast.success("Category deleted successfully.");
       router.refresh();
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Unable to delete category."
-      );
+      toast.error(error instanceof Error ? error.message : "Unable to delete category.");
     } finally {
       setIsDeleting(false);
     }

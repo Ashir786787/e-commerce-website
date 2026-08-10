@@ -20,9 +20,7 @@ function formatTime(timestamp: number) {
   const today = new Date();
 
   const isToday =
-    date.getFullYear() === today.getFullYear() &&
-    date.getMonth() === today.getMonth() &&
-    date.getDate() === today.getDate();
+    date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth() && date.getDate() === today.getDate();
 
   if (isToday) {
     return new Intl.DateTimeFormat("en-PK", {
@@ -56,9 +54,7 @@ export default function ConversationList({
   const filteredConversations = conversations.filter((conversation) => {
     if (!term) return true;
     return (
-      conversation.userName.toLowerCase().includes(term) ||
-      conversation.userEmail.toLowerCase().includes(term) ||
-      conversation.lastMessage.toLowerCase().includes(term)
+      conversation.userName.toLowerCase().includes(term) || conversation.userEmail.toLowerCase().includes(term) || conversation.lastMessage.toLowerCase().includes(term)
     );
   });
 
