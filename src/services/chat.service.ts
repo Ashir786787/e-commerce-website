@@ -3,9 +3,7 @@ import {
   increment,
   off,
   onValue,
-  orderByChild,
   push,
-  query,
   ref,
   set,
   update,
@@ -129,23 +127,30 @@ export function subscribeToMessages(conversationId: string, callback: (messages:
     return () => {};
   }
 
-  const messagesQuery = query(ref(db, `messages/${conversationId}`), orderByChild("createdAt"));
+  const messagesRef = ref(db, `messages/${conversationId}`);
 
-  const handler = onValue(messagesQuery, (snapshot) => {
-    const messages: ChatMessage[] = [];
+  const handler = onValue(
+    messagesRef,
+    (snapshot) => {
+      const messages: ChatMessage[] = [];
 
-    snapshot.forEach((childSnapshot) => {
-      messages.push({
-        id: childSnapshot.key!,
-        ...(childSnapshot.val() as Omit<ChatMessage, "id">),
+      snapshot.forEach((childSnapshot) => {
+        messages.push({
+          id: childSnapshot.key!,
+          ...(childSnapshot.val() as Omit<ChatMessage, "id">),
+        });
       });
-    });
 
-    callback(messages);
-  });
+      messages.sort((a, b) => a.createdAt - b.createdAt);
+      callback(messages);
+    },
+    () => {
+      callback([]);
+    }
+  );
 
   return () => {
-    off(messagesQuery, "value", handler);
+    off(messagesRef, "value", handler);
   };
 }
 
@@ -182,24 +187,30 @@ export function subscribeToConversations(callback: (conversations: ChatConversat
     return () => {};
   }
 
-  const conversationsQuery = query(ref(db, "conversations"), orderByChild("updatedAt"));
+  const conversationsRef = ref(db, "conversations");
 
-  const handler = onValue(conversationsQuery, (snapshot) => {
-    const conversations: ChatConversation[] = [];
+  const handler = onValue(
+    conversationsRef,
+    (snapshot) => {
+      const conversations: ChatConversation[] = [];
 
-    snapshot.forEach((childSnapshot) => {
-      conversations.push({
-        id: childSnapshot.key!,
-        ...(childSnapshot.val() as Omit<ChatConversation, "id">),
+      snapshot.forEach((childSnapshot) => {
+        conversations.push({
+          id: childSnapshot.key!,
+          ...(childSnapshot.val() as Omit<ChatConversation, "id">),
+        });
       });
-    });
 
-    conversations.sort((a, b) => b.updatedAt - a.updatedAt);
-    callback(conversations);
-  });
+      conversations.sort((a, b) => b.updatedAt - a.updatedAt);
+      callback(conversations);
+    },
+    () => {
+      callback([]);
+    }
+  );
 
   return () => {
-    off(conversationsQuery, "value", handler);
+    off(conversationsRef, "value", handler);
   };
 }
 
