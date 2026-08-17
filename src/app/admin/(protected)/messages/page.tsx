@@ -158,7 +158,7 @@ export default function AdminMessagesPage() {
   }
 
   return (
-    <div>
+    <div className="flex flex-1 flex-col">
       <div>
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">Customer Support</p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">Messages</h1>
@@ -206,7 +206,7 @@ export default function AdminMessagesPage() {
               <code className="mx-1 rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">messages</code>, then refresh the page.
             </div>
           )}
-          <div className="grid h-[calc(100dvh-15rem)] min-h-[440px] lg:h-[calc(100dvh-12rem)] lg:min-h-[560px] lg:max-h-[760px] lg:grid-cols-[340px_minmax(0,1fr)]">
+          <div className="grid min-h-0 flex-1 lg:grid-cols-[340px_minmax(0,1fr)]">
             <div className={`min-h-0 ${selectedConversation ? "hidden lg:block" : "block"}`}>
               <ConversationList
                 conversations={conversations}
