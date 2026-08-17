@@ -72,19 +72,39 @@ export async function sendPushNotification({
     );
   }
 
-  return messaging.send({
-    token: user.fcmToken,
-    data: {
-      title,
-      body,
-      url,
-    },
-    webpush: {
-      headers: {
-        Urgency: "high",
+  try {
+    const result = await messaging.send({
+      token: user.fcmToken,
+      data: {
+        title,
+        body,
+        url,
       },
-    },
-  });
+      webpush: {
+        headers: {
+          Urgency: "high",
+        },
+      },
+    });
+
+    return result;
+  } catch (error: unknown) {
+    const code =
+      error && typeof error === "object" && "code" in error
+        ? (error as { code: string }).code
+        : "";
+
+    if (
+      code === "messaging/registration-token-not-registered" ||
+      code === "messaging/invalid-registration-token"
+    ) {
+      await User.findByIdAndUpdate(userId, {
+        $set: { fcmToken: "" },
+      });
+    }
+
+    throw error;
+  }
 }
 
 interface SendPushNotificationToManyInput {
@@ -98,6 +118,17 @@ export async function sendPushNotificationToMany({
   body,
   url = "/",
 }: SendPushNotificationToManyInput) {
+  const messaging = getAdminMessaging();
+
+  if (!messaging) {
+    return {
+      total: 0,
+      sent: 0,
+      failed: 0,
+      error: "Firebase Admin is not configured. Check FIREBASE_ADMIN_* env vars.",
+    };
+  }
+
   const users = await User.find({ fcmToken: { $ne: "" } })
     .select("fcmToken")
     .lean();
@@ -112,41 +143,68 @@ export async function sendPushNotificationToMany({
 
   let sent = 0;
   let failed = 0;
-
-  const messaging = getAdminMessaging();
-
-  if (!messaging) {
-    return { total, sent: 0, failed };
-  }
+  const failedUserIds: string[] = [];
 
   for (let i = 0; i < users.length; i += BATCH_SIZE) {
     const batch = users
       .slice(i, i + BATCH_SIZE)
-      .map((user) => user.fcmToken)
-      .filter((token): token is string => Boolean(token));
+      .filter((user) => Boolean(user.fcmToken));
 
     const results = await Promise.allSettled(
-      batch.map((token) =>
-        messaging.send({
-          token,
-          data: {
-            title,
-            body,
-            url,
-          },
-          webpush: {
-            headers: {
-              Urgency: "high",
+      batch.map((user) =>
+        messaging
+          .send({
+            token: user.fcmToken!,
+            data: {
+              title,
+              body,
+              url,
             },
-          },
-        })
+            webpush: {
+              headers: {
+                Urgency: "high",
+              },
+            },
+          })
+          .then(() => ({ userId: user._id.toString(), success: true }))
+          .catch((error: unknown) => {
+            const code =
+              error && typeof error === "object" && "code" in error
+                ? (error as { code: string }).code
+                : "";
+
+            const isTokenError =
+              code === "messaging/registration-token-not-registered" ||
+              code === "messaging/invalid-registration-token";
+
+            return {
+              userId: user._id.toString(),
+              success: false,
+              isTokenError,
+            };
+          })
       )
     );
 
     for (const result of results) {
-      if (result.status === "fulfilled") sent++;
-      else failed++;
+      if (result.status === "fulfilled") {
+        if (result.value.success) {
+          sent++;
+        } else {
+          failed++;
+          failedUserIds.push(result.value.userId);
+        }
+      } else {
+        failed++;
+      }
     }
+  }
+
+  if (failedUserIds.length > 0) {
+    await User.updateMany(
+      { _id: { $in: failedUserIds } },
+      { $set: { fcmToken: "" } }
+    );
   }
 
   return { total, sent, failed };

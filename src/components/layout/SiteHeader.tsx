@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import {
   ChevronDown,
   Heart,
@@ -19,9 +20,17 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { useAuth } from "@/context/AuthContext";
 import { categories } from "@/data/categories";
-import ChatButton from "@/components/chat/ChatButton";
-import NotificationBell from "@/components/notifications/NotificationBell";
+
+const ChatButton = dynamic(() => import("@/components/chat/UnifiedChatButton"), {
+  ssr: false,
+});
+
+const NotificationBell = dynamic(
+  () => import("@/components/notifications/NotificationBell"),
+  { ssr: false }
+);
 
 const navigation = [
   { label: "Home", href: "/" },
@@ -32,25 +41,10 @@ const navigation = [
   { label: "Contact", href: "/contact" },
 ];
 
-interface AuthUser {
-  id: string;
-  fullName: string;
-  email: string;
-  role: string;
-  isVerified: boolean;
-}
-
-interface MeResponse {
-  success: boolean;
-  message: string;
-  data: AuthUser | null;
-}
-
 export default function SiteHeader() {
   const router = useRouter();
+  const { user, loading: isUserLoading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isUserLoading, setIsUserLoading] = useState(true);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,33 +53,6 @@ export default function SiteHeader() {
   const categoryRef = useRef<HTMLDivElement>(null);
   const { totalItems } = useCart();
   const { totalItems: wishlistTotalItems } = useWishlist();
-
-  useEffect(() => {
-    async function loadCurrentUser() {
-      try {
-        const response = await fetch("/api/auth/me", {
-          method: "GET",
-          credentials: "include",
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          setUser(null);
-          return;
-        }
-
-        const result: MeResponse = await response.json();
-
-        setUser(result.data);
-      } catch {
-        setUser(null);
-      } finally {
-        setIsUserLoading(false);
-      }
-    }
-
-    loadCurrentUser();
-  }, []);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -126,7 +93,6 @@ export default function SiteHeader() {
         throw new Error("Logout failed.");
       }
 
-      setUser(null);
       setIsAccountMenuOpen(false);
       window.location.href = "/";
     } catch {
@@ -289,7 +255,7 @@ export default function SiteHeader() {
                       My Profile
                     </Link>
                     <Link
-                      href="/account/orders"
+                      href="/orders"
                       onClick={() => setIsAccountMenuOpen(false)}
                       className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-muted"
                     >

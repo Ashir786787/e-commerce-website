@@ -2,17 +2,27 @@ import { NextResponse } from "next/server";
 
 import {
   GEMINI_MODEL,
-  gemini,
+  isGeminiConfigured,
+  generateContentWithFallback,
 } from "@/lib/gemini";
 
 export async function GET() {
+  if (!isGeminiConfigured()) {
+    return NextResponse.json(
+      {
+        success: false,
+        message:
+          "GEMINI_API_KEY is not configured. Add it to the environment variables.",
+      },
+      { status: 503 }
+    );
+  }
+
   try {
-    const response =
-      await gemini.models.generateContent({
-        model: GEMINI_MODEL,
-        contents:
-          "Reply with exactly: NovaCart Gemini connection successful.",
-      });
+    const response = await generateContentWithFallback({
+      contents:
+        "Reply with exactly: NovaCart Gemini connection successful.",
+    });
 
     return NextResponse.json({
       success: true,
@@ -23,10 +33,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error(
-      "Gemini connection test error:",
-      error
-    );
+    console.error("Gemini connection test error:", error);
 
     return NextResponse.json(
       {

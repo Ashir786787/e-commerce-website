@@ -1,0 +1,33 @@
+
+> e-commerce-website@0.1.0 dev
+> next dev
+
+⚠ Port 3000 is in use by process 27536, using available port 3001 instead.
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://172.20.10.4:3001
+- Environments: .env.local
+✓ Ready in 2.1s
+
+ GET /api/ai-assistant/test 200 in 4.9s (next.js: 1520ms, application-code: 3.4s)
+○ Compiling /api/ai-assistant ...
+ POST /api/ai-assistant 200 in 12.2s (next.js: 5.1s, application-code: 7.2s)
+AI assistant error: MissingSchemaError: Schema hasn't been registered for model "Category".
+Use mongoose.model(name, schema)
+    at async generateAssistantResponse (src\services\ai-assistant.service.ts:82:30)
+    at async POST (src\app\api\ai-assistant\route.ts:90:20)
+  80 |   history = [],
+  81 | }: GenerateAssistantResponseInput) {
+> 82 |   const [products, orders] = await Promise.all([
+     |                              ^
+  83 |     getRelevantProducts(message),
+  84 |     getUserOrderContext(userId),
+  85 |   ]);
+ POST /api/ai-assistant 500 in 412ms (next.js: 5ms, application-code: 407ms)
+ POST /api/ai-assistant 200 in 29.9s (next.js: 188ms, application-code: 29.7s)
+ POST /api/ai-assistant 400 in 50ms (next.js: 16ms, application-code: 33ms)
+ POST /api/ai-assistant 400 in 60ms (next.js: 16ms, application-code: 44ms)
+ POST /api/ai-assistant 200 in 21.1s (next.js: 9ms, application-code: 21.1s)
+ POST /api/ai-assistant 200 in 11.0s (next.js: 45ms, application-code: 10.9s)
+ GET / 200 in 2.2s (next.js: 325ms, application-code: 1860ms)
+[?25h

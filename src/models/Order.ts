@@ -38,6 +38,7 @@ export interface IOrder extends Document {
     | "paid"
     | "failed";
   orderNumber: string;
+  trackingNumber: string;
   invoiceNumber?: string;
   paymentIntentId?: string;
   discountCode?: string;
@@ -103,6 +104,7 @@ const OrderSchema = new Schema<IOrder>(
       default: "pending",
     },
     orderNumber: { type: String, unique: true, required: true },
+    trackingNumber: { type: String, unique: true, required: true },
     invoiceNumber: { type: String },
     paymentIntentId: { type: String },
     discountCode: { type: String },

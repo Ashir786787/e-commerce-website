@@ -8,9 +8,15 @@ interface MessageInputProps {
   onSend: (message: string) => Promise<void>;
   isSending: boolean;
   disabled?: boolean;
+  maxLength?: number;
 }
 
-export default function MessageInput({ onSend, isSending, disabled = false }: MessageInputProps) {
+export default function MessageInput({
+  onSend,
+  isSending,
+  disabled = false,
+  maxLength = 2000,
+}: MessageInputProps) {
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -55,7 +61,7 @@ export default function MessageInput({ onSend, isSending, disabled = false }: Me
         <textarea
           ref={textareaRef}
           rows={1}
-          maxLength={2000}
+          maxLength={maxLength}
           value={message}
           disabled={disabled || isSending}
           onChange={handleChange}
@@ -79,7 +85,7 @@ export default function MessageInput({ onSend, isSending, disabled = false }: Me
           Press Enter to send. Use Shift + Enter for a new line.
         </p>
         <p className="shrink-0 text-[11px] tabular-nums text-muted-foreground/70">
-          {message.length}/2000
+          {message.length}/{maxLength}
         </p>
       </div>
     </form>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Settings } from "lucide-react";
 
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
 import { adminNavigation, isAdminNavActive } from "@/lib/admin-navigation";
@@ -67,7 +68,19 @@ export default function AdminSidebar({
         })}
       </nav>
 
-      <div className="border-t border-white/10 p-4">
+      <div className="border-t border-white/10 p-4 space-y-3">
+        <Link
+          href="/admin/settings"
+          className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+            isAdminNavActive("/admin/settings", pathname)
+              ? "bg-indigo-600 text-white shadow-lg shadow-indigo-900/30"
+              : "text-neutral-300 hover:bg-white/10 hover:text-white"
+          }`}
+        >
+          <Settings className="h-5 w-5" />
+          Settings
+        </Link>
+
         <div className="rounded-xl bg-white/5 p-4">
           <p className="text-sm font-semibold text-white">
             {adminName}
@@ -77,14 +90,14 @@ export default function AdminSidebar({
             {adminEmail}
           </p>
 
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mt-3 flex items-center justify-between">
             <span className="rounded-full bg-indigo-500/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-indigo-300">
               Admin
             </span>
-
-            <AdminLogoutButton />
           </div>
         </div>
+
+        <AdminLogoutButton className="flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-neutral-300 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400" />
       </div>
     </aside>
   );

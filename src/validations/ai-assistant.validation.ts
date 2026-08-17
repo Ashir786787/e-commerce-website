@@ -10,6 +10,12 @@ export const aiAssistantSchema = z.object({
       "Message cannot exceed 1000 characters."
     ),
 
+  conversationId: z
+    .string()
+    .trim()
+    .max(100)
+    .optional(),
+
   history: z
     .array(
       z.object({

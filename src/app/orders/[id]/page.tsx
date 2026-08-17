@@ -6,6 +6,7 @@ import { Types } from "mongoose";
 import LiveOrderInformation from "@/components/orders/LiveOrderInformation";
 import LiveOrderStatus from "@/components/orders/LiveOrderStatus";
 import InvoiceActions from "@/components/orders/InvoiceActions";
+import OrderTimeline from "@/components/orders/OrderTimeline";
 import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
 import "@/models/Product";
@@ -131,6 +132,10 @@ export default async function OrderPage({ params }: OrderPageProps) {
                   <span className="font-semibold text-neutral-950">{order.orderNumber}</span>
                 </div>
                 <div className="flex justify-between gap-4 sm:justify-end">
+                  <span className="text-neutral-500">Tracking Number</span>
+                  <span className="font-semibold text-indigo-600">{order.trackingNumber}</span>
+                </div>
+                <div className="flex justify-between gap-4 sm:justify-end">
                   <span className="text-neutral-500">Payment Method</span>
                   <span className="font-semibold text-neutral-950">
                     {formatPaymentMethod(order.paymentMethod)}
@@ -145,6 +150,15 @@ export default async function OrderPage({ params }: OrderPageProps) {
               </div>
             </div>
           </div>
+
+        <div className="mt-6">
+          <OrderTimeline
+            currentStatus={order.orderStatus}
+            createdAt={order.createdAt}
+            paidAt={order.paidAt}
+            deliveredAt={order.deliveredAt}
+          />
+        </div>
 
           <div className="overflow-x-auto px-8 py-8 sm:px-10">
             <table className="w-full min-w-[620px] border-collapse">

@@ -8,10 +8,7 @@ import {
 } from "lucide-react";
 
 import AnalyticsPeriodSelect from "../analytics/AnalyticsPeriodSelect";
-import OrderStatusChart from "@/components/admin/dashboard/OrderStatusChart";
-import PaymentStatusChart from "@/components/admin/dashboard/PaymentStatusChart";
-import RevenueChart from "@/components/admin/dashboard/RevenueChart";
-import TopProductsChart from "@/components/admin/dashboard/TopProductsChart";
+import DashboardCharts from "@/components/admin/dashboard/DashboardCharts";
 import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
@@ -132,52 +129,13 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
         })}
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-3">
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm xl:col-span-2">
-          <h2 className="text-lg font-semibold text-neutral-950">Revenue Trend</h2>
-          <p className="mt-2 text-sm text-neutral-500">
-            {activePeriod === "7d" || activePeriod === "30d"
-              ? `Daily revenue — last ${revenueTrend.length} days`
-              : `Monthly revenue — last ${revenueTrend.length} months`}{" "}
-            from paid orders.
-          </p>
-
-          <div className="mt-6">
-            <RevenueChart data={revenueTrend} />
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-neutral-950">Order Status</h2>
-          <p className="mt-2 text-sm text-neutral-500">Share of total orders across fulfillment statuses.</p>
-
-          <div className="mt-6">
-            <OrderStatusChart data={orderStatusBreakdown} />
-          </div>
-        </section>
-      </div>
-
-      <div className="mt-6 grid gap-6 xl:grid-cols-3">
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm xl:col-span-2">
-          <h2 className="text-lg font-semibold text-neutral-950">Top-Selling Products</h2>
-          <p className="mt-2 text-sm text-neutral-500">Ranked by units sold.</p>
-
-          <div className="mt-6">
-            <TopProductsChart
-              data={topSellingProducts.map((product) => ({ name: product.name, sold: product.sold }))}
-            />
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-neutral-950">Payment Status</h2>
-          <p className="mt-2 text-sm text-neutral-500">Overview of successful, pending and failed payments.</p>
-
-          <div className="mt-6">
-            <PaymentStatusChart data={paymentStatusBreakdown} />
-          </div>
-        </section>
-      </div>
+      <DashboardCharts
+        revenueTrend={revenueTrend}
+        orderStatusBreakdown={orderStatusBreakdown}
+        paymentStatusBreakdown={paymentStatusBreakdown}
+        topSellingProducts={topSellingProducts.map((p) => ({ name: p.name, sold: p.sold }))}
+        activePeriod={activePeriod}
+      />
 
       <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-neutral-950">Marketplace Overview</h2>

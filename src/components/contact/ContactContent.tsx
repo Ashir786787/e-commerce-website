@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { HelpCircle, MessageSquare, Shield, Truck } from "lucide-react";
 import ContactHero from "./ContactHero";
 import ContactInfo from "./ContactInfo";
@@ -7,7 +8,8 @@ const quickHelp = [
   {
     icon: Truck,
     title: "Track Your Order",
-    description: "Check the status of your recent orders from your account dashboard.",
+    description: "Check the status of your recent orders using your tracking number.",
+    href: "/track",
   },
   {
     icon: Shield,
@@ -18,6 +20,7 @@ const quickHelp = [
     icon: HelpCircle,
     title: "FAQs",
     description: "Find quick answers to common questions about orders, shipping, and returns.",
+    href: "/faq",
   },
 ];
 
@@ -65,7 +68,25 @@ export default function ContactContent() {
                 <div className="mt-6 space-y-5">
                   {quickHelp.map((item) => {
                     const Icon = item.icon;
-                    return (
+                    return item.href ? (
+                      <Link
+                        key={item.title}
+                        href={item.href}
+                        className="flex gap-4 cursor-pointer transition hover:bg-white/50 rounded-xl p-2 -m-2"
+                      >
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
+                          <Icon className="h-5 w-5 text-indigo-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-gray-900">
+                            {item.title}
+                          </h4>
+                          <p className="mt-1 text-sm leading-6 text-gray-600">
+                            {item.description}
+                          </p>
+                        </div>
+                      </Link>
+                    ) : (
                       <div key={item.title} className="flex gap-4">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
                           <Icon className="h-5 w-5 text-indigo-600" />

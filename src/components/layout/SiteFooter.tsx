@@ -52,6 +52,12 @@ export default function SiteFooter() {
             <Link href="/orders" className="hover:text-foreground">
               Orders
             </Link>
+            <Link href="/track" className="hover:text-foreground">
+              Track Order
+            </Link>
+            <Link href="/faq" className="hover:text-foreground">
+              FAQ
+            </Link>
           </div>
         </div>
       </div>

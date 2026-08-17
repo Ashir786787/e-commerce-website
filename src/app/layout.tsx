@@ -5,8 +5,7 @@ import { Toaster } from "sonner";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { AuthProvider } from "@/context/AuthContext";
-import ForegroundNotificationListener from "@/components/notifications/ForegroundNotificationListener";
-import FirebaseServiceWorkerRegistrar from "@/components/notifications/FirebaseServiceWorkerRegistrar";
+import DynamicProviders from "@/components/layout/DynamicProviders";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,8 +41,7 @@ export default function RootLayout({
             <WishlistProvider>
               {children}
 
-              <FirebaseServiceWorkerRegistrar />
-              <ForegroundNotificationListener />
+              <DynamicProviders />
 
               <Toaster
                 position="top-right"

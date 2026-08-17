@@ -10,8 +10,18 @@ import {
 } from "@/types/Notification";
 import { createNotificationSafe } from "@/services/notification.service";
 import { publishOrderUpdateSafe } from "@/services/order-realtime.server";
+import { sendOrderConfirmationEmail } from "@/services/email.service";
 
 const LOW_STOCK_THRESHOLD = 5;
+
+function generateTrackingNumber(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return `TRK-${code}`;
+}
 
 export type PaymentMethod = "cod" | "card" | "bank";
 
@@ -97,6 +107,7 @@ export async function createOrder({ userId, shippingAddress, paymentMethod, disc
       const orderData: Record<string, unknown> = {
         user: new Types.ObjectId(userId),
         orderNumber: `NC-${datePart}-${randomPart}`,
+        trackingNumber: generateTrackingNumber(),
         items: orderItems,
         shippingAddress: {
           fullName: shippingAddress.fullName.trim(),
@@ -156,6 +167,45 @@ export async function createOrder({ userId, shippingAddress, paymentMethod, disc
       orderStatus: createdOrder.orderStatus,
       paymentStatus: createdOrder.paymentStatus,
     });
+
+    const customerEmail =
+      createdOrder.shippingAddress?.email || "";
+    const customerName =
+      createdOrder.shippingAddress?.fullName || "";
+
+    if (customerEmail) {
+      const emailItems = createdOrder.items.map((item) => {
+        const product = item.product as unknown as {
+          name?: string;
+        };
+        return {
+          name: product?.name || "Product",
+          quantity: item.quantity,
+          price: item.price,
+        };
+      });
+
+      void sendOrderConfirmationEmail({
+        fullName: customerName,
+        email: customerEmail,
+        orderNumber: createdOrder.orderNumber,
+        trackingNumber: createdOrder.trackingNumber,
+        items: emailItems,
+        subtotal: createdOrder.subtotal,
+        deliveryFee: createdOrder.deliveryFee,
+        discount: createdOrder.discount,
+        total: createdOrder.total,
+        paymentMethod: createdOrder.paymentMethod,
+        shippingAddress: {
+          address: createdOrder.shippingAddress.address,
+          city: createdOrder.shippingAddress.city,
+          postalCode: createdOrder.shippingAddress.postalCode,
+          country: createdOrder.shippingAddress.country,
+        },
+      }).catch(() => {
+        // Email is best-effort; never break order creation.
+      });
+    }
 
     for (const product of lowStockProducts) {
       const notification: CreateNotificationInput = {

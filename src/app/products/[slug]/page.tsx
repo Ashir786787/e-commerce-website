@@ -10,9 +10,13 @@ import {
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import ProductActions from "@/components/product/ProductActions";
+import ReviewsSection from "@/components/product/ReviewsSection";
 import { connectDB } from "@/lib/db";
 import "@/models/Category";
+import "@/models/Review";
 import Product from "@/models/Product";
+import { getProductReviews, getProductRatingStats } from "@/services/review.service";
+import { resolveUserId } from "@/lib/user";
 
 export const dynamic = "force-dynamic";
 import { getCategoryName, getCategorySlug } from "@/lib/utils";
@@ -47,6 +51,20 @@ export default async function ProductDetailsPage({
 
   const category = getCategoryName(product.category);
   const categorySlug = getCategorySlug(product.category);
+
+  const productId = product._id.toString();
+
+  const [reviews, stats] = await Promise.all([
+    getProductReviews(productId),
+    getProductRatingStats(productId),
+  ]);
+
+  let currentUserId: string | undefined;
+  try {
+    currentUserId = await resolveUserId();
+  } catch {
+    // Guest user
+  }
 
   const discount = product.originalPrice && product.originalPrice > product.price
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -169,6 +187,13 @@ export default async function ProductDetailsPage({
               </div>
             </div>
           </section>
+
+          <ReviewsSection
+            productId={productId}
+            currentUserId={currentUserId}
+            initialReviews={reviews as unknown as { _id: string; user: { _id: string; fullName: string } | string; rating: number; title: string; comment: string; isVerifiedPurchase: boolean; createdAt: string }[]}
+            initialStats={stats}
+          />
         </div>
       </main>
 

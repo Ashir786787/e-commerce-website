@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 
 interface TimeLeft {
   hours: number;
@@ -23,50 +23,17 @@ function getTimeLeft(): TimeLeft {
   };
 }
 
-let cached: TimeLeft | null = null;
-
-function getSnapshot(): TimeLeft {
-  const next = getTimeLeft();
-
-  if (cached && cached.hours === next.hours && cached.minutes === next.minutes && cached.seconds === next.seconds) {
-    return cached;
-  }
-
-  cached = next;
-  return cached;
-}
-
-function getServerSnapshot() {
-  return null;
-}
-
-function subscribe(onStoreChange: () => void) {
-  const interval = setInterval(onStoreChange, 1000);
-  return () => clearInterval(interval);
-}
-
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
 export default function CountdownTimer() {
-  const time = useSyncExternalStore(
-    subscribe,
-    getSnapshot,
-    getServerSnapshot
-  );
+  const [time, setTime] = useState<TimeLeft>({ hours: 0, minutes: 0, seconds: 0 });
 
-  if (!time) {
-    return (
-      <div className="flex items-center gap-1.5 text-sm font-mono font-bold">
-        <span className="rounded bg-primary px-1.5 py-0.5 text-primary-foreground">--</span>
-        <span>:</span>
-        <span className="rounded bg-primary px-1.5 py-0.5 text-primary-foreground">--</span>
-        <span>:</span>
-        <span className="rounded bg-primary px-1.5 py-0.5 text-primary-foreground">--</span>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const interval = setInterval(() => setTime(getTimeLeft()), 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="flex items-center gap-1.5 text-sm font-mono font-bold">
