@@ -35,6 +35,14 @@ const PRODUCT_INTENT_KEYWORDS = [
   "show", "find", "search", "recommend", "suggest", "looking for", "buy",
   "purchase", "price", "cheap", "expensive", "discount", "deal", "offer",
   "product", "item", "available", "in stock", "best", "top", "new", "latest",
+  "gift", "present", "budget", "under", "below", "within", "around", "over",
+  "affordable", "cost", "spend", "worth",
+];
+
+const GIFT_KEYWORDS = [
+  "gift", "present", "birthday", "anniversary", "wedding", "holiday",
+  "christmas", "valentine", "mother", "father", "wife", "husband",
+  "friend", "brother", "sister", "parent", "kid", "child", "baby",
 ];
 
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
@@ -68,6 +76,14 @@ function isProductRelatedQuery(message: string): boolean {
     return false;
   }
 
+  if (isGiftQuery(lower)) {
+    return true;
+  }
+
+  if (extractPriceFilter(message).max !== undefined || extractPriceFilter(message).min !== undefined) {
+    return true;
+  }
+
   for (const keywords of Object.values(CATEGORY_KEYWORDS)) {
     if (keywords.some((kw) => lower.includes(kw))) {
       return true;
@@ -94,27 +110,110 @@ function detectCategoryIntent(message: string): string | null {
   return null;
 }
 
-async function getRelevantProducts(message: string) {
-  const categoryIntent = detectCategoryIntent(message);
+function extractPriceFilter(message: string): { max?: number; min?: number } {
+  const lower = message.toLowerCase();
+  let max: number | undefined;
+  let min: number | undefined;
 
+  const underMatch = lower.match(/(?:under|below|within|less than|max|up to|cheaper than)\s*(?:rs\.?|pkr|rupees)?\s*([\d,]+)/);
+  if (underMatch) {
+    max = parseInt(underMatch[1].replace(/,/g, ""), 10);
+  }
+
+  const overMatch = lower.match(/(?:over|above|more than|min|at least|greater than)\s*(?:rs\.?|pkr|rupees)?\s*([\d,]+)/);
+  if (overMatch) {
+    min = parseInt(overMatch[1].replace(/,/g, ""), 10);
+  }
+
+  const rangeMatch = lower.match(/(?:rs\.?|pkr|rupees)?\s*([\d,]+)\s*(?:to|-)\s*(?:rs\.?|pkr|rupees)?\s*([\d,]+)/);
+  if (rangeMatch && !max && !min) {
+    min = parseInt(rangeMatch[1].replace(/,/g, ""), 10);
+    max = parseInt(rangeMatch[2].replace(/,/g, ""), 10);
+  }
+
+  if (!max && !min) {
+    const bareNumber = lower.match(/(?:rs\.?|pkr|rupees)\s*([\d,]+)/);
+    if (bareNumber) {
+      const val = parseInt(bareNumber[1].replace(/,/g, ""), 10);
+      if (lower.includes("under") || lower.includes("below") || lower.includes("budget")) {
+        max = val;
+      } else if (lower.includes("over") || lower.includes("above")) {
+        min = val;
+      }
+    }
+  }
+
+  return { max, min };
+}
+
+function isGiftQuery(message: string): boolean {
+  const lower = message.toLowerCase();
+  return GIFT_KEYWORDS.some((kw) => lower.includes(kw));
+}
+
+async function getRelevantProducts(message: string) {
+  const lower = message.toLowerCase();
+  const categoryIntent = detectCategoryIntent(message);
+  const priceFilter = extractPriceFilter(message);
+  const hasPriceFilter = priceFilter.max !== undefined || priceFilter.min !== undefined;
+
+  const baseFilter: Record<string, unknown> = { isActive: true };
   if (categoryIntent) {
     const matchingCategory = await Category.findOne({
       name: categoryIntent,
       isActive: true,
-    })
-      .select("_id name")
-      .lean();
+    }).select("_id name").lean();
 
     if (matchingCategory) {
-      return Product.find({
-        isActive: true,
-        category: matchingCategory._id,
-      })
-        .populate("category", "name")
-        .select("name slug price originalPrice brand stock rating reviewCount images category")
-        .sort({ isFeatured: -1, isTrending: -1, rating: -1 })
-        .limit(6)
-        .lean();
+      baseFilter.category = matchingCategory._id;
+    }
+  }
+
+  if (hasPriceFilter) {
+    const priceCondition: Record<string, number> = {};
+    if (priceFilter.max !== undefined) priceCondition.$lte = priceFilter.max;
+    if (priceFilter.min !== undefined) priceCondition.$gte = priceFilter.min;
+    baseFilter.price = priceCondition;
+  }
+
+  const products = await Product.find(baseFilter)
+    .populate("category", "name")
+    .select("name slug price originalPrice brand stock rating reviewCount images category isFeatured isTrending")
+    .sort({ isFeatured: -1, isTrending: -1, rating: -1, price: 1 })
+    .limit(8)
+    .lean();
+
+  if (products.length > 0) {
+    return products;
+  }
+
+  if (hasPriceFilter || isGiftQuery(message)) {
+    const fallbackFilter: Record<string, unknown> = { isActive: true, stock: { $gt: 0 } };
+
+    if (priceFilter.max !== undefined) {
+      fallbackFilter.price = { $lte: priceFilter.max };
+    }
+
+    const fallbackProducts = await Product.find(fallbackFilter)
+      .populate("category", "name")
+      .select("name slug price originalPrice brand stock rating reviewCount images category isFeatured isTrending")
+      .sort({ isFeatured: -1, isTrending: -1, rating: -1 })
+      .limit(8)
+      .lean();
+
+    if (fallbackProducts.length > 0) {
+      return fallbackProducts;
+    }
+
+    const cheapestProducts = await Product.find({ isActive: true, stock: { $gt: 0 } })
+      .populate("category", "name")
+      .select("name slug price originalPrice brand stock rating reviewCount images category isFeatured isTrending")
+      .sort({ price: 1, rating: -1 })
+      .limit(6)
+      .lean();
+
+    if (cheapestProducts.length > 0) {
+      return cheapestProducts;
     }
   }
 
@@ -125,7 +224,12 @@ async function getRelevantProducts(message: string) {
     .slice(0, 6);
 
   if (terms.length === 0) {
-    return [];
+    return Product.find({ isActive: true, stock: { $gt: 0 } })
+      .populate("category", "name")
+      .select("name slug price originalPrice brand stock rating reviewCount images category isFeatured isTrending")
+      .sort({ isFeatured: -1, isTrending: -1, rating: -1 })
+      .limit(6)
+      .lean();
   }
 
   const regex = new RegExp(terms.join("|"), "i");
@@ -133,9 +237,7 @@ async function getRelevantProducts(message: string) {
   const matchingCategories = await Category.find({
     name: regex,
     isActive: true,
-  })
-    .select("_id name")
-    .lean();
+  }).select("_id name").lean();
 
   const categoryIds = matchingCategories.map((c) => c._id);
 
@@ -153,7 +255,7 @@ async function getRelevantProducts(message: string) {
     $or: orConditions,
   })
     .populate("category", "name")
-    .select("name slug price originalPrice brand stock rating reviewCount images category")
+    .select("name slug price originalPrice brand stock rating reviewCount images category isFeatured isTrending")
     .limit(6)
     .lean();
 }
@@ -188,6 +290,11 @@ export async function generateAssistantResponse({
     getUserOrderContext(userId),
   ]);
 
+  const priceFilter = extractPriceFilter(message);
+  const priceContext = priceFilter.max !== undefined || priceFilter.min !== undefined
+    ? `\nUSER PRICE FILTER: ${priceFilter.min ? `min Rs.${priceFilter.min}` : ""}${priceFilter.min && priceFilter.max ? " to " : ""}${priceFilter.max ? `max Rs.${priceFilter.max}` : ""}`
+    : "";
+
   const productContext =
     products.length > 0
       ? products
@@ -200,7 +307,7 @@ export async function generateAssistantResponse({
           })
           .join("\n")
       : wantsProducts
-        ? "NO matching products found."
+        ? "NO matching products found in our catalog."
         : "Not a product query. Do NOT suggest products.";
 
   const orderContext =
@@ -225,15 +332,19 @@ export async function generateAssistantResponse({
   const systemInstruction = `NovaCart AI assistant. PKR currency. Categories: Electronics, Fashion, Home & Living, Beauty, Sports, Accessories. Payment: COD, Bank Transfer, Stripe.
 
 RULES:
-- Be concise (2-3 sentences max).
-- Only recommend products from the PRODUCT CONTEXT. Never suggest unrelated products.
+- Be concise (2-4 sentences max).
+- Only recommend products from the PRODUCT CONTEXT. Never invent or suggest products not listed.
+- If products are shown, describe 2-3 top picks with name, price, and why they're a good choice. Always include the link.
+- If "NO matching products found" → suggest the user try a different price range or browse categories. Offer to escalate to a human agent for personalized help.
 - If "Not a product query" → answer directly, no products.
-- If "NO matching products found" → say so honestly.
+- For gift questions: recommend based on the products shown, mention who the gift is suitable for.
+- For price questions: highlight the best value options from the products shown.
 - For contact/team requests: direct to support chat.
 - For refunds, complaints, payment issues, delivery problems, or "speak to a human" → start with [ESCALATE] then a brief polite message. No products.
-- Never reveal other users' orders or internal details.`;
+- Never reveal other users' orders or internal details.
+- Always be helpful and conversational, not robotic.`;
 
-  const prompt = `${conversationHistory ? conversationHistory + "\n\n" : ""}PRODUCTS: ${productContext}
+  const prompt = `${conversationHistory ? conversationHistory + "\n\n" : ""}PRODUCTS: ${productContext}${priceContext}
 
 ORDERS: ${orderContext}
 
