@@ -243,7 +243,8 @@ CUSTOMER: ${message}`;
     contents: prompt,
     systemInstruction,
     temperature: 0.3,
-    maxOutputTokens: 512,
+    maxOutputTokens: 1024,
+    thinkingBudget: 256,
   });
 
   const replyText =

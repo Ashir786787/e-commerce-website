@@ -10,6 +10,10 @@ import {
 import { aiAssistantSchema } from "@/validations/ai-assistant.validation";
 import { generateAssistantResponse } from "@/services/ai-assistant.service";
 import { successResponse, errorResponse } from "@/utils/api-response";
+import "@/models/User";
+import "@/models/Order";
+import "@/models/Product";
+import "@/models/Category";
 
 export const runtime = "nodejs";
 
@@ -107,12 +111,7 @@ export async function POST(request: NextRequest) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
 
-    if (errorMessage.includes("MissingSchemaError") || errorMessage.includes("Schema hasn't been registered")) {
-      return errorResponse(
-        "A database configuration error occurred. Our team has been notified.",
-        500
-      );
-    }
+    console.error("AI assistant detailed error:", errorMessage);
 
     return errorResponse(
       "I ran into a problem generating a response. Please try again in a moment.",

@@ -1,13 +1,11 @@
 import { GoogleGenAI } from "@google/genai";
 
 export const GEMINI_MODEL =
-  process.env.GEMINI_MODEL || "gemini-3.6-flash";
+  process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
 export const GEMINI_FALLBACK_MODELS = [
-  "gemini-3.6-flash",
-  "gemini-3-flash",
   "gemini-2.5-flash",
-  "gemini-2.0-flash",
+  "gemini-2.0-flash-lite",
   "gemini-1.5-flash",
 ];
 
@@ -119,6 +117,8 @@ export interface GeminiGenerationInput {
 
 const TRANSIENT_RETRIES = 2;
 
+const THINKING_MODEL_PREFIXES = ["gemini-2.5", "gemini-3"];
+
 export async function generateContentWithFallback(
   input: GeminiGenerationInput
 ): Promise<{ text?: string }> {
@@ -136,18 +136,22 @@ export async function generateContentWithFallback(
   for (const model of models) {
     for (let attempt = 0; attempt <= TRANSIENT_RETRIES; attempt++) {
       try {
+        const isThinkingModel = THINKING_MODEL_PREFIXES.some((p) => model.startsWith(p));
+
+        const config: Record<string, unknown> = {
+          systemInstruction: input.systemInstruction,
+          temperature: input.temperature,
+          maxOutputTokens: input.maxOutputTokens,
+        };
+
+        if (isThinkingModel && input.thinkingBudget !== undefined) {
+          config.thinkingConfig = { thinkingBudget: input.thinkingBudget };
+        }
+
         const response = await gemini.models.generateContent({
           model,
           contents: input.contents,
-          config: {
-            systemInstruction: input.systemInstruction,
-            temperature: input.temperature,
-            maxOutputTokens: input.maxOutputTokens,
-            thinkingConfig:
-              input.thinkingBudget !== undefined
-                ? { thinkingBudget: input.thinkingBudget }
-                : undefined,
-          },
+          config,
         });
 
         return { text: response.text };
