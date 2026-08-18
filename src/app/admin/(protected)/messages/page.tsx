@@ -158,7 +158,7 @@ export default function AdminMessagesPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col min-h-0 overflow-hidden">
       <div>
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">Customer Support</p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">Messages</h1>
@@ -206,7 +206,7 @@ export default function AdminMessagesPage() {
               <code className="mx-1 rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">messages</code>, then refresh the page.
             </div>
           )}
-          <div className="grid min-h-0 flex-1 lg:grid-cols-[340px_minmax(0,1fr)]">
+          <div className="grid min-h-0 flex-1 grid-rows-[1fr] lg:grid-cols-[340px_minmax(0,1fr)]">
             <div className={`min-h-0 ${selectedConversation ? "hidden lg:block" : "block"}`}>
               <ConversationList
                 conversations={conversations}
@@ -300,7 +300,7 @@ export default function AdminMessagesPage() {
           </div>
         </section>
       ) : (
-        <div className="mt-6">
+        <div className="mt-6 flex-1">
           <AiChatsPanel />
         </div>
       )}
