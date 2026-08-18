@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 import { connectDB } from "@/lib/db";
 import Review from "@/models/Review";
 import Product from "@/models/Product";
-import "@/models/User";
+import User from "@/models/User";
 
 export async function recalculateProductRating(productId: string) {
   await connectDB();

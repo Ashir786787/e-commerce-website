@@ -13,6 +13,7 @@ import { cookies } from "next/headers";
 import { connectDB } from "@/lib/db";
 import "@/models/Category";
 import "@/models/Review";
+import "@/models/User";
 import Product from "@/models/Product";
 import { getProductReviews, getProductRatingStats } from "@/services/review.service";
 import { resolveUserId } from "@/lib/user";
