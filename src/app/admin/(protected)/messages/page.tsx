@@ -161,7 +161,7 @@ export default function AdminMessagesPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col min-h-0">
+    <div>
       <div>
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">Customer Support</p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">Messages</h1>
@@ -201,7 +201,7 @@ export default function AdminMessagesPage() {
       </div>
 
       {activeTab === "support" ? (
-        <section className="mt-6 flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <section className="mt-6 flex h-[calc(100dvh-16rem)] min-h-0 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
           {hasTimedOut && (
             <div className="border-b border-neutral-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
               Realtime updates are taking longer than expected. Verify that the Firebase Realtime Database rules allow reading
@@ -303,7 +303,7 @@ export default function AdminMessagesPage() {
           </div>
         </section>
       ) : (
-        <div className="mt-6 flex-1">
+        <div className="mt-6">
           <AiChatsPanel />
         </div>
       )}
