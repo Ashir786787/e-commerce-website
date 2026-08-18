@@ -1,12 +1,11 @@
 import { GoogleGenAI } from "@google/genai";
 
 export const GEMINI_MODEL =
-  process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
 
 export const GEMINI_FALLBACK_MODELS = [
-  "gemini-2.5-flash",
-  "gemini-2.0-flash-lite",
-  "gemini-1.5-flash",
+  "gemini-3.5-flash-lite",
+  "gemini-3.6-flash",
 ];
 
 export function isGeminiConfigured(): boolean {
@@ -112,12 +111,9 @@ export interface GeminiGenerationInput {
   systemInstruction?: string;
   temperature?: number;
   maxOutputTokens?: number;
-  thinkingBudget?: number;
 }
 
 const TRANSIENT_RETRIES = 2;
-
-const THINKING_MODEL_PREFIXES = ["gemini-2.5", "gemini-3"];
 
 export async function generateContentWithFallback(
   input: GeminiGenerationInput
@@ -136,22 +132,14 @@ export async function generateContentWithFallback(
   for (const model of models) {
     for (let attempt = 0; attempt <= TRANSIENT_RETRIES; attempt++) {
       try {
-        const isThinkingModel = THINKING_MODEL_PREFIXES.some((p) => model.startsWith(p));
-
-        const config: Record<string, unknown> = {
-          systemInstruction: input.systemInstruction,
-          temperature: input.temperature,
-          maxOutputTokens: input.maxOutputTokens,
-        };
-
-        if (isThinkingModel && input.thinkingBudget !== undefined) {
-          config.thinkingConfig = { thinkingBudget: input.thinkingBudget };
-        }
-
         const response = await gemini.models.generateContent({
           model,
           contents: input.contents,
-          config,
+          config: {
+            systemInstruction: input.systemInstruction,
+            temperature: input.temperature,
+            maxOutputTokens: input.maxOutputTokens,
+          },
         });
 
         return { text: response.text };
@@ -159,6 +147,10 @@ export async function generateContentWithFallback(
         lastError = error;
 
         if (isModelUnavailableError(error)) {
+          break;
+        }
+
+        if (getErrorStatus(error) === 429) {
           break;
         }
 
