@@ -195,87 +195,48 @@ export async function generateAssistantResponse({
               name?: string;
             };
 
-            return `
-Product:
-- Name: ${product.name}
-- Brand: ${product.brand}
-- Category: ${category?.name || "Unknown"}
-- Price: Rs. ${product.price}
-- Original Price: ${product.originalPrice ? `Rs. ${product.originalPrice}` : "N/A"}
-- Stock: ${product.stock}
-- Rating: ${product.rating}/5 (${product.reviewCount} reviews)
-- URL: /products/${product.slug}
-- Description: ${product.description?.slice(0, 120)}
-`;
+            return `${product.name} by ${product.brand} (${category?.name || "?"}) - Rs.${product.price}${product.originalPrice ? ` (was Rs.${product.originalPrice})` : ""} | Stock: ${product.stock} | Rating: ${product.rating}/5 | /products/${product.slug}`;
           })
           .join("\n")
       : wantsProducts
-        ? "NO matching products were found in the NovaCart catalog for this query."
-        : "This is not a product query. Do not suggest products.";
+        ? "NO matching products found."
+        : "Not a product query. Do NOT suggest products.";
 
   const orderContext =
     orders.length > 0
       ? orders
           .map(
-            (order) => `
-Order:
-- Number: ${order.orderNumber}
-- Status: ${order.orderStatus}
-- Payment: ${order.paymentStatus} via ${order.paymentMethod}
-- Total: Rs. ${order.total}
-- Date: ${order.createdAt.toISOString()}
-`
+            (order) => `#${order.orderNumber} | ${order.orderStatus} | ${order.paymentStatus} | Rs.${order.total}`
           )
           .join("\n")
       : userId
-        ? "The user has no recent orders."
-        : "The user is not authenticated.";
+        ? "No recent orders."
+        : "User not authenticated.";
 
   const conversationHistory = history
-    .slice(-8)
+    .slice(-5)
     .map(
       (item) =>
         `${item.role === "user" ? "Customer" : "Assistant"}: ${item.content}`
     )
     .join("\n");
 
-  const systemInstruction = `You are NovaCart AI — a fast, professional shopping assistant for NovaCart Premium Marketplace.
+  const systemInstruction = `NovaCart AI assistant. PKR currency. Categories: Electronics, Fashion, Home & Living, Beauty, Sports, Accessories. Payment: COD, Bank Transfer, Stripe.
 
 RULES:
-- Be concise. Reply in 2-4 sentences max unless the user asks for detail.
-- Currency: PKR (use Rs. format).
-- Categories: Electronics, Fashion, Home & Living, Beauty, Sports, Accessories.
-- Payment: Cash on Delivery, Bank Transfer, Stripe card checkout.
-- ONLY recommend products from the NOVACART PRODUCT CONTEXT. If none are provided, do NOT suggest any products.
-- If the context says "This is not a product query", answer the question directly without products.
-- If no matching products exist, say so honestly: "I couldn't find that in our catalog right now."
-- NEVER recommend unrelated products (e.g. watches for a perfume query).
+- Be concise (2-3 sentences max).
+- Only recommend products from the PRODUCT CONTEXT. Never suggest unrelated products.
+- If "Not a product query" → answer directly, no products.
+- If "NO matching products found" → say so honestly.
+- For contact/team requests: direct to support chat.
+- For refunds, complaints, payment issues, delivery problems, or "speak to a human" → start with [ESCALATE] then a brief polite message. No products.
+- Never reveal other users' orders or internal details.`;
 
-PRODUCT RECOMMENDATIONS (only when user asks):
-- When products ARE provided, recommend 2-3 max that best match the user's need.
-- For each recommendation, include the product name, price, and a brief reason why it fits.
-- Keep product suggestions brief — name, price, one-line reason.
+  const prompt = `${conversationHistory ? conversationHistory + "\n\n" : ""}PRODUCTS: ${productContext}
 
-CONTACT & SUPPORT:
-When the customer wants to contact the team or speak to a human, respond:
-"I'd be happy to connect you with our support team! You can reach them through our support chat — just close this window and click the chat icon, then select 'Talk to Human'. Our team typically responds within a few minutes."
+ORDERS: ${orderContext}
 
-ESCALATION (start response with [ESCALATE]):
-- Refund/return requests, complaints, payment issues, delivery problems, security concerns, or when the customer explicitly asks for a human.
-- After [ESCALATE], write a brief polite message. Do NOT include product recommendations.`;
-
-  const prompt = `CONVERSATION:
-${conversationHistory || "New conversation."}
-
-PRODUCT CONTEXT:
-${productContext}
-
-ORDER CONTEXT:
-${orderContext}
-
-CUSTOMER: ${message}
-
-Respond as NovaCart AI. Be concise and helpful.`;
+CUSTOMER: ${message}`;
 
   const response = await generateContentWithFallback({
     contents: prompt,
