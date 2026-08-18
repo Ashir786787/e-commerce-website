@@ -198,7 +198,7 @@ export default function AdminMessagesPage() {
       </div>
 
       {activeTab === "support" ? (
-        <section className="mt-6 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <section className="mt-6 flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
           {hasTimedOut && (
             <div className="border-b border-neutral-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
               Realtime updates are taking longer than expected. Verify that the Firebase Realtime Database rules allow reading
