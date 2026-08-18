@@ -34,6 +34,7 @@ interface MeResponse {
 
 export default function AdminMessagesPage() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("support");
   const [admin, setAdmin] = useState<AdminUser | null>(null);
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
@@ -108,7 +109,9 @@ export default function AdminMessagesPage() {
   }, [selectedConversation]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
 
     if (selectedConversation) {
       markConversationAsRead({ conversationId: selectedConversation.id, readerRole: "admin" }).catch(() => undefined);
@@ -262,7 +265,7 @@ export default function AdminMessagesPage() {
                     </div>
                   </header>
 
-                  <div className="min-h-0 flex-1 overflow-y-auto bg-neutral-50 p-4 sm:p-5">
+                  <div ref={messagesContainerRef} className="min-h-0 flex-1 overflow-y-auto bg-neutral-50 p-4 sm:p-5">
                     {messages.length === 0 ? (
                       <div className="flex h-full items-center justify-center text-center">
                         <div>
