@@ -54,7 +54,7 @@ export default function AdminMobileNav({
         onClick={() => setIsOpen((current) => !current)}
         aria-label="Toggle admin navigation"
         aria-expanded={isOpen}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-neutral-300 bg-white text-neutral-700 transition hover:border-indigo-300 hover:text-indigo-600 lg:hidden"
+        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-700 transition hover:border-indigo-300 hover:text-indigo-600 lg:hidden"
       >
         {isOpen ? (
           <X className="h-5 w-5" />
@@ -71,44 +71,48 @@ export default function AdminMobileNav({
             aria-hidden="true"
           />
 
-          <aside className="absolute inset-y-0 left-0 flex w-72 flex-col bg-[#0b0b0b] text-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-white/10 px-6 py-6">
-              <div>
-                <p className="text-2xl font-bold text-white">
-                  NovaCart
-                </p>
-
-                <p className="mt-1 text-sm text-neutral-400">
-                  Admin Dashboard
-                </p>
+          <aside className="absolute inset-y-0 left-0 flex w-72 flex-col bg-gradient-to-b from-[#0c0c14] via-[#0b0b13] to-[#08080e] text-white shadow-2xl">
+            <div className="relative px-6 py-6">
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-lg shadow-indigo-500/25">
+                    N
+                  </div>
+                  <div>
+                    <p className="text-xl font-bold tracking-tight text-white">
+                      NovaCart
+                    </p>
+                    <p className="text-[11px] font-medium uppercase tracking-widest text-neutral-500">
+                      Admin Panel
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  aria-label="Close navigation"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 transition hover:bg-white/10 hover:text-white"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
-
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                aria-label="Close navigation"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-400 transition hover:bg-white/10 hover:text-white"
-              >
-                <X className="h-5 w-5" />
-              </button>
             </div>
 
-            <nav className="flex-1 space-y-2 overflow-y-auto px-4 py-6">
+            <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4 min-h-0">
               {adminNavigation.map((item) => {
                 const Icon = item.icon;
                 const isActive = isAdminNavActive(item.href, pathname);
 
                 return item.separator ? (
-                  <div
-                    key={item.href}
-                    className="border-t border-white/10 pt-3"
-                  >
+                  <div key={item.href} className="my-3">
+                    <div className="mx-3 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                     <Link
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center gap-3 rounded-xl bg-indigo-600/20 px-4 py-3 text-sm font-medium text-indigo-200 transition hover:bg-indigo-600/30 hover:text-white"
+                      className="mt-3 flex items-center gap-3 rounded-xl bg-gradient-to-r from-indigo-500/15 to-violet-500/10 px-4 py-3 text-sm font-medium text-indigo-300 transition-all hover:from-indigo-500/25 hover:to-violet-500/20 hover:text-white"
                     >
-                      <Icon className="h-5 w-5" />
+                      <Icon className="h-[18px] w-[18px]" />
                       {item.label}
                     </Link>
                   </div>
@@ -118,52 +122,54 @@ export default function AdminMobileNav({
                     href={item.href}
                     onClick={() => setIsOpen(false)}
                     aria-current={isActive ? "page" : undefined}
-                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                    className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
                       isActive
-                        ? "bg-indigo-600 text-white"
-                        : "text-neutral-300 hover:bg-white/10 hover:text-white"
+                        ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/20"
+                        : "text-neutral-400 hover:bg-white/[0.06] hover:text-white"
                     }`}
                   >
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-[18px] w-[18px]" />
                     {item.label}
                   </Link>
                 );
               })}
             </nav>
 
-            <div className="border-t border-white/10 p-4 space-y-3">
+            <div className="mt-auto px-3 pb-4 space-y-2">
+              <div className="mx-3 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
               <Link
                 href="/admin/settings"
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
                   isAdminNavActive("/admin/settings", pathname)
-                    ? "bg-indigo-600 text-white"
-                    : "text-neutral-300 hover:bg-white/10 hover:text-white"
+                    ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/20"
+                    : "text-neutral-400 hover:bg-white/[0.06] hover:text-white"
                 }`}
               >
-                <Settings className="h-5 w-5" />
+                <Settings className="h-[18px] w-[18px]" />
                 Settings
               </Link>
 
-              <div className="rounded-xl bg-white/5 p-4">
-                <p className="text-sm font-semibold text-white">
-                  {adminName}
-                </p>
-
-                <p className="mt-1 truncate text-xs text-neutral-400">
-                  {adminEmail}
-                </p>
-
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="rounded-full bg-indigo-500/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-indigo-300">
-                    Admin
-                  </span>
+              <div className="rounded-xl bg-white/[0.04] border border-white/[0.06] p-3.5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-xs font-bold text-white">
+                    {adminName.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-white">
+                      {adminName}
+                    </p>
+                    <p className="truncate text-[11px] text-neutral-500">
+                      {adminEmail}
+                    </p>
+                  </div>
                 </div>
               </div>
 
               <AdminLogoutButton
                 onBeforeNavigate={() => setIsOpen(false)}
-                className="flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-neutral-300 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
+                className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-neutral-500 transition-all hover:bg-red-500/10 hover:text-red-400"
               />
             </div>
           </aside>
