@@ -32,7 +32,7 @@ export default function AdminSidebar({
         </Link>
       </div>
 
-      <nav className="flex-1 space-y-2 px-4 py-6">
+      <nav className="flex-1 space-y-2 overflow-y-auto px-4 py-6 min-h-0">
         {adminNavigation.map((item) => {
           const Icon = item.icon;
           const isActive = isAdminNavActive(item.href, pathname);

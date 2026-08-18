@@ -11,12 +11,14 @@ import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import ProductActions from "@/components/product/ProductActions";
 import ReviewsSection from "@/components/product/ReviewsSection";
+import { cookies } from "next/headers";
 import { connectDB } from "@/lib/db";
 import "@/models/Category";
 import "@/models/Review";
 import Product from "@/models/Product";
 import { getProductReviews, getProductRatingStats } from "@/services/review.service";
 import { resolveUserId } from "@/lib/user";
+import { verifyToken } from "@/utils/jwt";
 
 export const dynamic = "force-dynamic";
 import { getCategoryName, getCategorySlug } from "@/lib/utils";
@@ -60,8 +62,19 @@ export default async function ProductDetailsPage({
   ]);
 
   let currentUserId: string | undefined;
+  let isLoggedIn = false;
   try {
     currentUserId = await resolveUserId();
+    const cookieStore = await cookies();
+    const token = cookieStore.get("novacart_token")?.value;
+    if (token) {
+      try {
+        verifyToken(token);
+        isLoggedIn = true;
+      } catch {
+        // Guest user with invalid token
+      }
+    }
   } catch {
     // Guest user
   }
@@ -191,6 +204,7 @@ export default async function ProductDetailsPage({
           <ReviewsSection
             productId={productId}
             currentUserId={currentUserId}
+            isLoggedIn={isLoggedIn}
             initialReviews={reviews as unknown as { _id: string; user: { _id: string; fullName: string } | string; rating: number; title: string; comment: string; isVerifiedPurchase: boolean; createdAt: string }[]}
             initialStats={stats}
           />

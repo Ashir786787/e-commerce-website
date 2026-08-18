@@ -6,8 +6,8 @@ import {
   Backpack,
   Bot,
   Dumbbell,
-  Gem,
   Headphones,
+  Home,
   RefreshCcw,
   Sparkles,
   Trash2,
@@ -37,8 +37,8 @@ interface UnifiedChatWindowProps {
 const CATEGORY_CHIPS = [
   { label: "Electronics", icon: Headphones, query: "Show me electronics" },
   { label: "Fashion", icon: () => <span className="text-xs">&#128084;</span>, query: "Show me fashion products" },
-  { label: "Home", icon: Gem, query: "Show me home and living products" },
-  { label: "Beauty", icon: Gem, query: "Show me beauty products" },
+  { label: "Home", icon: Home, query: "Show me home and living products" },
+  { label: "Beauty", icon: Sparkles, query: "Show me beauty products" },
   { label: "Sports", icon: Dumbbell, query: "Show me sports products" },
   { label: "Accessories", icon: Backpack, query: "Show me accessories" },
 ];
@@ -122,6 +122,7 @@ export default function UnifiedChatWindow({
   const [email, setEmail] = useState("");
   const [isStarting, setIsStarting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const pendingHandoffRef = useRef<string | null>(null);
 
   const chatReady = !identity.isGuest || Boolean(identity.name);
 
@@ -135,6 +136,7 @@ export default function UnifiedChatWindow({
   } = useAiAssistant();
 
   const {
+    conversationId,
     messages: humanMessages,
     isLoading: humanLoading,
     isSending: humanSending,
@@ -160,6 +162,14 @@ export default function UnifiedChatWindow({
       markAsRead();
     }
   }, [mode, chatReady, markAsRead, humanMessages]);
+
+  useEffect(() => {
+    if (mode === "human" && conversationId && pendingHandoffRef.current) {
+      const message = pendingHandoffRef.current;
+      pendingHandoffRef.current = null;
+      void humanSendMessage(message);
+    }
+  }, [mode, conversationId, humanSendMessage]);
 
   useEffect(() => {
     if (escalateTriggered && mode === "ai") {
@@ -188,17 +198,8 @@ export default function UnifiedChatWindow({
         .map((m) => m.content)
         .join("; ") || "General inquiry";
 
+    pendingHandoffRef.current = `[AI Handoff] User was chatting with AI about: "${topic}". Please assist them further.`;
     setMode("human");
-
-    if (chatReady) {
-      try {
-        await humanSendMessage(
-          `[AI Handoff] User was chatting with AI about: "${topic}". Please assist them further.`
-        );
-      } catch {
-        // Message will be sent when chat is ready
-      }
-    }
   }
 
   return (

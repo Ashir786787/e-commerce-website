@@ -27,7 +27,7 @@ function formatPrice(price: number) {
 }
 
 const FALLBACK_IMAGE =
-  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb7tmMiL9Bn2X8Iz5teTECetBoux8iSfOPd__XhLC0lw&s=10";
+  "https://placehold.co/1200x600/1a1a2e/ffffff?text=NovaCart";
 
 export default function HeroBanner() {
   const [products, setProducts] = useState<TrendingProduct[]>([]);
@@ -129,7 +129,7 @@ export default function HeroBanner() {
   return (
     <section className="mx-auto max-w-7xl px-4 pt-5 pb-2 sm:px-6 lg:px-8">
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-        <div className="group relative overflow-hidden rounded-2xl bg-neutral-900 lg:min-h-[420px]">
+        <div className="group relative min-h-[420px] overflow-hidden rounded-2xl bg-neutral-900">
           {loading || !product ? (
             <div className="absolute inset-0 bg-gradient-to-br from-primary via-violet-600 to-fuchsia-500">
               <div className="absolute right-[-3rem] top-[-3rem] h-48 w-48 rounded-full border border-white/20" />
@@ -174,12 +174,11 @@ export default function HeroBanner() {
                 fill
                 sizes="(max-width: 1024px) 100vw, 66vw"
                 className="object-cover"
-                unoptimized={Boolean(product.image?.includes("encrypted-tbn0"))}
                 priority
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent" />
 
-              <div className="relative z-10 flex h-full min-h-[420px] flex-col justify-between p-8 sm:p-10">
+              <div className="relative z-10 flex min-h-[420px] flex-col justify-between p-8 sm:p-10">
                 <div className="max-w-lg">
                   <span className="inline-block rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
                     {product.category || "Trending"}

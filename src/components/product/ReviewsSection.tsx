@@ -25,6 +25,7 @@ interface RatingStats {
 interface ReviewsSectionProps {
   productId: string;
   currentUserId?: string;
+  isLoggedIn?: boolean;
   initialReviews: Review[];
   initialStats: RatingStats;
 }
@@ -48,6 +49,7 @@ function RatingBar({ stars, count, total }: { stars: number; count: number; tota
 export default function ReviewsSection({
   productId,
   currentUserId,
+  isLoggedIn,
   initialReviews,
   initialStats,
 }: ReviewsSectionProps) {
@@ -98,7 +100,7 @@ export default function ReviewsSection({
         </div>
       </div>
 
-      {currentUserId && (
+      {isLoggedIn && (
         <ReviewForm
           productId={productId}
           onReviewSubmitted={refresh}

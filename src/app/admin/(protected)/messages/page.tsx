@@ -33,7 +33,6 @@ interface MeResponse {
 }
 
 export default function AdminMessagesPage() {
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("support");
   const [admin, setAdmin] = useState<AdminUser | null>(null);
@@ -112,11 +111,7 @@ export default function AdminMessagesPage() {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
     }
-
-    if (selectedConversation) {
-      markConversationAsRead({ conversationId: selectedConversation.id, readerRole: "admin" }).catch(() => undefined);
-    }
-  }, [messages, selectedConversation]);
+  }, [messages]);
 
   async function handleSendMessage(text: string) {
     if (!admin) {
@@ -143,10 +138,6 @@ export default function AdminMessagesPage() {
   function selectConversation(conversation: ChatConversation) {
     setMessages([]);
     setSelectedConversation(conversation);
-
-    markConversationAsRead({ conversationId: conversation.id, readerRole: "admin" }).catch(() => {
-      toast.error("Unable to mark messages as read.");
-    });
   }
 
   if (isLoading && !hasTimedOut) {
@@ -291,7 +282,6 @@ export default function AdminMessagesPage() {
                             </Fragment>
                           );
                         })}
-                        <div ref={messagesEndRef} />
                       </div>
                     )}
                   </div>
