@@ -30,10 +30,12 @@ export async function recalculateProductRating(productId: string) {
 export async function getProductReviews(productId: string) {
   await connectDB();
 
-  return Review.find({ product: productId, isVisible: true })
+  const reviews = await Review.find({ product: productId, isVisible: true })
     .populate({ path: "user", select: "fullName" })
     .sort({ createdAt: -1 })
     .lean();
+
+  return JSON.parse(JSON.stringify(reviews));
 }
 
 export async function getProductRatingStats(productId: string) {
