@@ -6,10 +6,11 @@ import {
   Backpack,
   Bot,
   Dumbbell,
+  Gem,
   Headphones,
   Home,
+  MessageSquare,
   RefreshCcw,
-  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
@@ -38,7 +39,7 @@ const CATEGORY_CHIPS = [
   { label: "Electronics", icon: Headphones, query: "Show me electronics" },
   { label: "Fashion", icon: () => <span className="text-xs">&#128084;</span>, query: "Show me fashion products" },
   { label: "Home", icon: Home, query: "Show me home and living products" },
-  { label: "Beauty", icon: Sparkles, query: "Show me beauty products" },
+  { label: "Beauty", icon: Gem, query: "Show me beauty products" },
   { label: "Sports", icon: Dumbbell, query: "Show me sports products" },
   { label: "Accessories", icon: Backpack, query: "Show me accessories" },
 ];
@@ -47,7 +48,7 @@ function AssistantMessageBubble({ message }: { message: AIAssistantMessage }) {
   return (
     <div className="flex items-start gap-2.5">
       <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-sm">
-        <Sparkles className="h-4 w-4" />
+        <MessageSquare className="h-4 w-4" />
       </div>
       <div className="max-w-[82%] rounded-2xl rounded-tl-md border border-indigo-100 bg-indigo-50/40 px-4 py-3 text-sm leading-relaxed text-neutral-800 shadow-sm">
         <p className="whitespace-pre-wrap break-words">{message.content}</p>
@@ -67,7 +68,7 @@ function ErrorBubble({ message, onRetry }: { message: AIAssistantMessage; onRetr
   return (
     <div className="flex items-start gap-2.5">
       <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
-        <Sparkles className="h-4 w-4" />
+        <MessageSquare className="h-4 w-4" />
       </div>
       <div className="max-w-[82%] rounded-2xl rounded-tl-md border border-red-100 bg-red-50 px-4 py-3 text-sm leading-relaxed text-red-700 shadow-sm">
         <p className="whitespace-pre-wrap break-words">{message.content}</p>
@@ -98,8 +99,9 @@ function TypingIndicator() {
   return (
     <div className="flex items-start gap-2.5">
       <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-sm">
-        <Sparkles className="h-4 w-4" />
+        <MessageSquare className="h-4 w-4" />
       </div>
+
       <div className="flex flex-col gap-1">
         <span className="text-xs text-neutral-500">NovaCart AI is typing...</span>
         <div className="flex items-center gap-1.5 rounded-2xl rounded-tl-md border border-indigo-100 bg-white px-4 py-3 shadow-sm">
@@ -209,7 +211,7 @@ export default function UnifiedChatWindow({
           <header className="relative flex items-center justify-between border-b bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-4 text-white">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm">
-                <Sparkles className="h-5 w-5" />
+                <MessageSquare className="h-5 w-5" />
               </div>
               <div>
                 <h2 className="font-semibold">NovaCart Assistant</h2>
@@ -243,7 +245,7 @@ export default function UnifiedChatWindow({
             {!hasUserMessage && (
               <div className="mb-4 text-center">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg">
-                  <Sparkles className="h-6 w-6" />
+                  <MessageSquare className="h-6 w-6" />
                 </div>
                 <p className="mt-3 text-base font-semibold text-neutral-900">
                   Hi! I&apos;m NovaCart AI

@@ -7,9 +7,9 @@ import {
   Gem,
   Headphones,
   Home,
+  MessageSquare,
   RefreshCcw,
   Shirt,
-  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
@@ -39,7 +39,7 @@ function AssistantMessageBubble({ message }: { message: AIAssistantMessage }) {
   return (
     <div className="flex items-start gap-2.5">
       <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-sm">
-        <Sparkles className="h-4 w-4" />
+        <MessageSquare className="h-4 w-4" />
       </div>
 
       <div className="max-w-[82%] rounded-2xl rounded-tl-md border border-indigo-100 bg-indigo-50/40 px-4 py-3 text-sm leading-relaxed text-neutral-800 shadow-sm">
@@ -67,7 +67,7 @@ function ErrorBubble({
   return (
     <div className="flex items-start gap-2.5">
       <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
-        <Sparkles className="h-4 w-4" />
+        <MessageSquare className="h-4 w-4" />
       </div>
 
       <div className="max-w-[82%] rounded-2xl rounded-tl-md border border-red-100 bg-red-50 px-4 py-3 text-sm leading-relaxed text-red-700 shadow-sm">
@@ -100,7 +100,7 @@ function TypingIndicator() {
   return (
     <div className="flex items-start gap-2.5">
       <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-sm">
-        <Sparkles className="h-4 w-4" />
+        <MessageSquare className="h-4 w-4" />
       </div>
 
       <div className="flex flex-col gap-1">
@@ -135,7 +135,7 @@ export default function AIAssistantWindow({ onClose }: AIAssistantWindowProps) {
       <header className="relative flex items-center justify-between border-b bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-4 text-white">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm">
-            <Sparkles className="h-5 w-5" />
+            <MessageSquare className="h-5 w-5" />
           </div>
 
           <div>
@@ -172,7 +172,7 @@ export default function AIAssistantWindow({ onClose }: AIAssistantWindowProps) {
         {!hasUserMessage && (
           <div className="mb-4 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg">
-              <Sparkles className="h-6 w-6" />
+              <MessageSquare className="h-6 w-6" />
             </div>
             <p className="mt-3 text-base font-semibold text-neutral-900">
               Hi! I&apos;m NovaCart AI
