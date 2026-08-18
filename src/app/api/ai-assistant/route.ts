@@ -104,6 +104,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+
+    if (errorMessage.includes("MissingSchemaError") || errorMessage.includes("Schema hasn't been registered")) {
+      return errorResponse(
+        "A database configuration error occurred. Our team has been notified.",
+        500
+      );
+    }
+
     return errorResponse(
       "I ran into a problem generating a response. Please try again in a moment.",
       500

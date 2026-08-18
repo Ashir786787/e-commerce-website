@@ -2,6 +2,7 @@ import Product from "@/models/Product";
 import Order from "@/models/Order";
 import "@/models/Category";
 import Category from "@/models/Category";
+import "@/models/User";
 
 import { generateContentWithFallback } from "@/lib/gemini";
 
