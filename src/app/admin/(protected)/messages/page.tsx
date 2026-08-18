@@ -209,8 +209,8 @@ export default function AdminMessagesPage() {
               <code className="mx-1 rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">messages</code>, then refresh the page.
             </div>
           )}
-          <div className="grid min-h-0 flex-1 lg:grid-cols-[340px_minmax(0,1fr)]">
-            <div className={`min-h-0 ${selectedConversation ? "hidden lg:block" : "block"}`}>
+          <div className="grid min-h-0 flex-1 grid-rows-[1fr] lg:grid-cols-[340px_minmax(0,1fr)]">
+            <div className={`min-h-0 h-full ${selectedConversation ? "hidden lg:block" : "block"}`}>
               <ConversationList
                 conversations={conversations}
                 selectedConversationId={selectedConversation?.id || null}
