@@ -69,7 +69,7 @@ export async function resendOTP(data: { email: string }) {
 
 export async function loginUser(data: { email: string; password: string }) {
   const validatedData = loginSchema.parse(data);
-  const user = await User.findOne({ email: validatedData.email });
+  const user = await User.findOne({ email: validatedData.email }).select("+password");
   if (!user) throw new Error("Invalid email or password.");
   if (!user.isVerified) throw new Error("Please verify your email before logging in.");
   if (!user.password) throw new Error("Invalid email or password.");
