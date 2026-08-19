@@ -28,7 +28,11 @@ export default async function SettingsPage() {
 
         <section className="py-12">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <SettingsContent email={user.email} />
+            <SettingsContent
+              email={user.email}
+              googleId={user.googleId}
+              authProvider={user.authProvider}
+            />
           </div>
         </section>
       </main>

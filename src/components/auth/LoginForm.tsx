@@ -12,6 +12,7 @@ import FormField from "@/components/form/FormField";
 import PasswordInput from "@/components/form/PasswordInput";
 import { Label } from "@/components/ui/label";
 import SubmitButton from "@/components/form/SubmitButton";
+import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -40,39 +41,54 @@ export default function LoginForm() {
     }
   }
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <FormField
-        id="email"
-        label="Email"
-        type="email"
-        placeholder="you@example.com"
-        registration={register("email")}
-        error={errors.email?.message}
-      />
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="password">Password</Label>
-          <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-            Forgot password?
-          </Link>
+    <div className="space-y-5">
+      <GoogleLoginButton mode="login" />
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
         </div>
-        <PasswordInput
-          id="password"
-          label=""
-          placeholder="Enter your password"
-          registration={register("password")}
-          error={errors.password?.message}
-        />
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            or continue with email
+          </span>
+        </div>
       </div>
-      <SubmitButton isLoading={isSubmitting}>
-        Login
-      </SubmitButton>
-      <p className="text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-primary hover:underline">
-          Create account
-        </Link>
-      </p>
-    </form>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <FormField
+          id="email"
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
+          registration={register("email")}
+          error={errors.email?.message}
+        />
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password">Password</Label>
+            <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+              Forgot password?
+            </Link>
+          </div>
+          <PasswordInput
+            id="password"
+            label=""
+            placeholder="Enter your password"
+            registration={register("password")}
+            error={errors.password?.message}
+          />
+        </div>
+        <SubmitButton isLoading={isSubmitting}>
+          Login
+        </SubmitButton>
+        <p className="text-center text-sm text-muted-foreground">
+          Don&apos;t have an account?{" "}
+          <Link href="/signup" className="text-primary hover:underline">
+            Create account
+          </Link>
+        </p>
+      </form>
+    </div>
   );
 }

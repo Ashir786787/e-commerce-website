@@ -16,6 +16,9 @@ type User = {
   email: string;
   role: string;
   isVerified: boolean;
+  avatar?: string;
+  googleId?: string | null;
+  authProvider?: string;
 };
 
 type AuthContextType = {

@@ -8,6 +8,8 @@ import {
   resetPassword,
   resendOTP,
   updateProfile,
+  googleLogin,
+  linkGoogleAccount,
 } from "@/services/auth.service";
 import { successResponse, errorResponse } from "@/utils/api-response";
 import { connectDB } from "@/lib/db";
@@ -140,5 +142,54 @@ export async function logoutController() {
     return response;
   } catch {
     return errorResponse("Logout failed.", 400);
+  }
+}
+
+export async function googleLoginController(request: Request) {
+  try {
+    await connectDB();
+    const body = await request.json();
+
+    if (!body.idToken) {
+      return errorResponse("Google ID token is required.", 400);
+    }
+
+    const user = await googleLogin({ idToken: body.idToken });
+    const token = signToken({ userId: user.id, role: user.role });
+
+    const response = NextResponse.json(
+      { success: true, message: "Google login successful", data: user },
+      { status: 200 }
+    );
+
+    response.cookies.set("novacart_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60,
+    });
+
+    return response;
+  } catch (error) {
+    return errorResponse(error instanceof Error ? error.message : "Google login failed.", 400);
+  }
+}
+
+export async function linkGoogleController(request: Request) {
+  try {
+    await connectDB();
+    const body = await request.json();
+    const { getCurrentUser } = await import("@/services/auth.service");
+    const currentUser = await getCurrentUser();
+
+    if (!body.idToken) {
+      return errorResponse("Google ID token is required.", 400);
+    }
+
+    await linkGoogleAccount(currentUser.id, body.idToken);
+    return successResponse("Google account linked successfully.");
+  } catch (error) {
+    return errorResponse(error instanceof Error ? error.message : "Failed to link Google account.", 400);
   }
 }

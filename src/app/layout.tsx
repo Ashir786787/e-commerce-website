@@ -6,6 +6,7 @@ import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { AuthProvider } from "@/context/AuthContext";
 import DynamicProviders from "@/components/layout/DynamicProviders";
+import GoogleAuthProvider from "@/components/layout/GoogleAuthProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -36,22 +37,24 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-dvh flex flex-col">
-        <AuthProvider>
-          <CartProvider>
-            <WishlistProvider>
-              {children}
+        <GoogleAuthProvider>
+          <AuthProvider>
+            <CartProvider>
+              <WishlistProvider>
+                {children}
 
-              <DynamicProviders />
+                <DynamicProviders />
 
-              <Toaster
-                position="top-right"
-                richColors
-                closeButton
-                duration={3000}
-              />
-            </WishlistProvider>
-          </CartProvider>
-        </AuthProvider>
+                <Toaster
+                  position="top-right"
+                  richColors
+                  closeButton
+                  duration={3000}
+                />
+              </WishlistProvider>
+            </CartProvider>
+          </AuthProvider>
+        </GoogleAuthProvider>
       </body>
     </html>
   );

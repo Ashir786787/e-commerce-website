@@ -1,3 +1,4 @@
+import { OAuth2Client } from "google-auth-library";
 import User from "@/models/User";
 import { hashPassword, comparePassword } from "@/utils/password";
 import { signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema, updateProfileSchema } from "@/validations/auth.validation";
@@ -5,6 +6,12 @@ import { generateOTP, hashToken, generateExpiry } from "@/utils/token";
 import { sendVerificationEmail, sendResetPasswordEmail } from "@/services/email.service";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/utils/jwt";
+
+function getGoogleClientId() {
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  if (!clientId) throw new Error("Google OAuth is not configured.");
+  return clientId;
+}
 
 export async function signupUser(data: { fullName: string; email: string; password: string }) {
   const validatedData = signupSchema.parse(data);
@@ -65,6 +72,7 @@ export async function loginUser(data: { email: string; password: string }) {
   const user = await User.findOne({ email: validatedData.email });
   if (!user) throw new Error("Invalid email or password.");
   if (!user.isVerified) throw new Error("Please verify your email before logging in.");
+  if (!user.password) throw new Error("Invalid email or password.");
 
   const isPasswordCorrect = await comparePassword(validatedData.password, user.password);
   if (!isPasswordCorrect) throw new Error("Invalid email or password.");
@@ -86,6 +94,8 @@ export async function getCurrentUser() {
     role: user.role,
     isVerified: user.isVerified,
     avatar: user.avatar || "",
+    googleId: user.googleId || null,
+    authProvider: user.authProvider || "local",
     createdAt: user.createdAt,
   };
 }
@@ -151,4 +161,116 @@ export async function resetPassword(data: { email: string; otp: string; password
   user.resetPasswordOTP = undefined;
   user.resetPasswordOTPExpiry = undefined;
   await user.save();
+}
+
+export async function googleLogin(data: { idToken: string }) {
+  const clientId = getGoogleClientId();
+  const oAuth2Client = new OAuth2Client();
+
+  let ticket;
+  try {
+    ticket = await oAuth2Client.verifyIdToken({
+      idToken: data.idToken,
+      audience: clientId,
+    });
+  } catch {
+    throw new Error("Invalid Google authentication. Please try again.");
+  }
+
+  const payload = ticket.getPayload();
+  if (!payload || !payload.email) {
+    throw new Error("Could not retrieve Google account information.");
+  }
+
+  const googleEmail = payload.email.toLowerCase();
+  const googleId = payload.sub;
+  const googleName = payload.name || "";
+  const googleAvatar = payload.picture || "";
+
+  const existingUser = await User.findOne({
+    $or: [{ email: googleEmail }, { googleId }],
+  });
+
+  if (existingUser) {
+    if (!existingUser.googleId) {
+      existingUser.googleId = googleId;
+      existingUser.authProvider = "google";
+    }
+    if (!existingUser.avatar && googleAvatar) {
+      existingUser.avatar = googleAvatar;
+    }
+    if (!existingUser.isVerified) {
+      existingUser.isVerified = true;
+    }
+    await existingUser.save();
+
+    return {
+      id: existingUser._id,
+      fullName: existingUser.fullName,
+      email: existingUser.email,
+      role: existingUser.role,
+      isVerified: existingUser.isVerified,
+    };
+  }
+
+  const newUser = await User.create({
+    fullName: googleName || googleEmail.split("@")[0],
+    email: googleEmail,
+    avatar: googleAvatar,
+    googleId,
+    authProvider: "google",
+    isVerified: true,
+  });
+
+  return {
+    id: newUser._id,
+    fullName: newUser.fullName,
+    email: newUser.email,
+    role: newUser.role,
+    isVerified: newUser.isVerified,
+  };
+}
+
+export async function linkGoogleAccount(userId: string, idToken: string) {
+  const clientId = getGoogleClientId();
+  const oAuth2Client = new OAuth2Client();
+
+  let ticket;
+  try {
+    ticket = await oAuth2Client.verifyIdToken({
+      idToken,
+      audience: clientId,
+    });
+  } catch {
+    throw new Error("Invalid Google authentication. Please try again.");
+  }
+
+  const payload = ticket.getPayload();
+  if (!payload || !payload.email) {
+    throw new Error("Could not retrieve Google account information.");
+  }
+
+  const googleId = payload.sub;
+  const googleEmail = payload.email.toLowerCase();
+
+  const existingUser = await User.findOne({
+    $or: [{ email: googleEmail }, { googleId }],
+    _id: { $ne: userId },
+  });
+
+  if (existingUser) {
+    throw new Error("This Google account is already linked to another user.");
+  }
+
+  const user = await User.findById(userId);
+  if (!user) throw new Error("User not found.");
+
+  user.googleId = googleId;
+  user.authProvider = "google";
+  if (!user.avatar && payload.picture) {
+    user.avatar = payload.picture;
+  }
+  await user.save();
+
+  return { message: "Google account linked successfully." };
 }
