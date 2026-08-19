@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { memo } from "react";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,7 +29,7 @@ function formatPrice(price: number) {
   return new Intl.NumberFormat("en-PK").format(price);
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+function ProductCard({ product }: ProductCardProps) {
   const { refreshCart } = useCart();
   const { refreshWishlist, isWishlisted } = useWishlist();
 
@@ -95,7 +96,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             src={product.image}
             alt={product.name}
             fill
-            loading="eager"
+            loading="lazy"
             sizes="(max-width: 640px) 100vw,
                    (max-width: 1024px) 50vw,
                    25vw"
@@ -167,3 +168,5 @@ export default function ProductCard({ product }: ProductCardProps) {
     </article>
   );
 }
+
+export default memo(ProductCard);

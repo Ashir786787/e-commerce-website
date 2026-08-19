@@ -3,7 +3,7 @@ import CategoryImage from "@/components/admin/CategoryImage";
 import { connectDB } from "@/lib/db";
 import Category from "@/models/Category";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export default async function CategoriesPage() {
   await connectDB();

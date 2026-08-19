@@ -7,6 +7,9 @@ import {
   Star,
   Truck,
 } from "lucide-react";
+
+export const dynamic = "force-dynamic";
+
 import ProductActions from "@/components/product/ProductActions";
 import ReviewsSection from "@/components/product/ReviewsSection";
 import { cookies } from "next/headers";
@@ -18,8 +21,6 @@ import Product from "@/models/Product";
 import { getProductReviews, getProductRatingStats } from "@/services/review.service";
 import { resolveUserId } from "@/lib/user";
 import { verifyToken } from "@/utils/jwt";
-
-export const dynamic = "force-dynamic";
 import { getCategoryName, getCategorySlug } from "@/lib/utils";
 
 interface ProductDetailsPageProps {

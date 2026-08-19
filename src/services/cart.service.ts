@@ -17,15 +17,17 @@ function calculateCartSummary(items: CartItemForSummary[]) {
   return { subtotal, deliveryFee, tax: 0, discount: 0, total, totalItems };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatCartResponse(cart: any) {
+type CartDocument = {
+  items?: { product?: unknown; quantity: number; price: number }[];
+} | null;
+
+function formatCartResponse(cart: CartDocument) {
   if (!cart) {
     const items: CartItemForSummary[] = [];
     return { items, summary: calculateCartSummary(items) };
   }
   const rawItems = Array.isArray(cart.items) ? cart.items : [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const validItems = rawItems.filter((item: any) => item.product != null);
+  const validItems = rawItems.filter((item) => item.product != null);
   return { ...cart, items: validItems, summary: calculateCartSummary(validItems) };
 }
 

@@ -105,8 +105,6 @@ export async function POST(request: Request) {
           });
         }
       }
-
-      console.log(`Stripe webhook completed for order ${order.orderNumber}.`);
     }
 
     return Response.json({ received: true });

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { memo } from "react";
 
 import QuantitySelector from "./QuantitySelector";
 import RemoveButton from "./RemoveButton";
@@ -30,7 +31,7 @@ type CartItemProps = {
   loading?: boolean;
 };
 
-export default function CartItem({
+function CartItem({
   item,
   onIncrease,
   onDecrease,
@@ -99,3 +100,5 @@ export default function CartItem({
     </div>
   );
 }
+
+export default memo(CartItem);

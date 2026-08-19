@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
   ReactNode,
 } from "react";
@@ -62,8 +63,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const value = useMemo(
+    () => ({ totalItems, refreshCart }),
+    [totalItems, refreshCart]
+  );
+
   return (
-    <CartContext.Provider value={{ totalItems, refreshCart }}>
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );

@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
   ReactNode,
 } from "react";
@@ -62,21 +63,28 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const isWishlisted = (productId: string) => {
-    if (!wishlist) return false;
+  const wishlistProductIdSet = useMemo(
+    () => new Set(wishlist?.products.map((p) => p._id) ?? []),
+    [wishlist]
+  );
 
-    return wishlist.products.some((product) => product._id === productId);
-  };
+  const isWishlisted = useCallback(
+    (productId: string) => wishlistProductIdSet.has(productId),
+    [wishlistProductIdSet]
+  );
+
+  const value = useMemo(
+    () => ({
+      wishlist,
+      totalItems: wishlist?.products.length || 0,
+      refreshWishlist,
+      isWishlisted,
+    }),
+    [wishlist, refreshWishlist, isWishlisted]
+  );
 
   return (
-    <WishlistContext.Provider
-      value={{
-        wishlist,
-        totalItems: wishlist?.products.length || 0,
-        refreshWishlist,
-        isWishlisted,
-      }}
-    >
+    <WishlistContext.Provider value={value}>
       {children}
     </WishlistContext.Provider>
   );

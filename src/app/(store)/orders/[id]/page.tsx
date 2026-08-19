@@ -226,10 +226,12 @@ export default async function OrderPage({ params }: OrderPageProps) {
                 <span>Tax</span>
                 <span>Rs. {formatPrice(order.tax)}</span>
               </div>
-              <div className="flex justify-between gap-4 text-neutral-600">
-                <span>Discount</span>
-                <span>- Rs. {formatPrice(order.discount)}</span>
-              </div>
+              {order.discount > 0 && (
+                <div className="flex justify-between gap-4 text-neutral-600">
+                  <span>Discount</span>
+                  <span>- Rs. {formatPrice(order.discount)}</span>
+                </div>
+              )}
 
               <div className="border-t border-neutral-300 pt-4">
                 <div className="flex items-center justify-between gap-4">

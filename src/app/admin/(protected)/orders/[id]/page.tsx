@@ -10,14 +10,13 @@ import {
   Tag,
   UserRound,
 } from "lucide-react";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import AdminOrderStatusForm from "@/components/admin/AdminOrderStatusForm";
 import OrderStatusBadge from "@/components/orders/OrderStatusBadge";
 import { connectDB } from "@/lib/db";
 import Order, { IShippingAddress } from "@/models/Order";
 import "@/models/Product";
-import { getCurrentUser } from "@/services/auth.service";
 
 export const dynamic = "force-dynamic";
 
@@ -112,16 +111,6 @@ export default async function AdminOrderDetailsPage({
   const { id } = await params;
 
   await connectDB();
-
-  const currentAdmin = await getCurrentUser();
-
-  if (!currentAdmin) {
-    redirect("/login");
-  }
-
-  if (currentAdmin.role !== "admin") {
-    redirect("/");
-  }
 
   const order = (await Order.findById(id)
     .populate({

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { memo } from "react";
 import OrderStatusBadge from "./OrderStatusBadge";
 
 type OrderCardProps = {
@@ -14,7 +15,7 @@ type OrderCardProps = {
   };
 };
 
-export default function OrderCard({ order }: OrderCardProps) {
+function OrderCard({ order }: OrderCardProps) {
   const totalItems = order.items.reduce((total, item) => total + item.quantity, 0);
 
   return (
@@ -66,3 +67,5 @@ export default function OrderCard({ order }: OrderCardProps) {
     </article>
   );
 }
+
+export default memo(OrderCard);

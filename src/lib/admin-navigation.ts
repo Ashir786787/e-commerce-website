@@ -29,5 +29,5 @@ export const adminNavigation = [
   { label: "Newsletter", href: "/admin/newsletter", icon: Mail },
   { label: "Notifications", href: "/admin/notifications", icon: BellRing },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-  { label: "Browse as User", href: "/login", icon: Store, separator: true },
+  { label: "Browse as User", href: "/", icon: Store, separator: true },
 ];
