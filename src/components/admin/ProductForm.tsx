@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ImagePlus, Loader2, Plus, Save, Trash2, UploadCloud } from "lucide-react";
+import { ImagePlus, Loader2, Plus, Save, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 type CategoryOption = {
@@ -508,8 +508,7 @@ export default function ProductForm({
             </h2>
 
             <p className="mt-2 text-sm text-neutral-500">
-              Upload images to Cloudinary or paste publicly accessible
-              image URLs.
+              Paste an image URL or choose a file from your device.
             </p>
           </div>
 
@@ -560,12 +559,12 @@ export default function ProductForm({
                         type="button"
                         onClick={() => fileInputRefs.current[index]?.click()}
                         disabled={isUploading}
-                        className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 text-sm font-semibold text-neutral-700 transition hover:border-indigo-300 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        <UploadCloud className="h-4 w-4" />
+                        <Upload className="h-4 w-4" />
                         {isUploading
                           ? "Uploading..."
-                          : "Upload to Cloudinary"}
+                          : "Choose Image"}
                       </button>
 
                       <input
@@ -609,8 +608,7 @@ export default function ProductForm({
                     </div>
 
                     <p className="text-xs text-neutral-500">
-                      Upload from your computer or paste an image URL
-                      directly.
+                      Supports JPG, PNG, WEBP, GIF and AVIF. Max 4MB.
                     </p>
                   </div>
                 </div>

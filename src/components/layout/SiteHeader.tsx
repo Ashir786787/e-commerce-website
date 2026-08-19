@@ -21,7 +21,16 @@ import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useAuth } from "@/context/AuthContext";
-import { categories } from "@/data/categories";
+
+interface SiteHeaderCategory {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+interface SiteHeaderProps {
+  categories?: SiteHeaderCategory[];
+}
 
 const ChatButton = dynamic(() => import("@/components/chat/UnifiedChatButton"), {
   ssr: false,
@@ -41,7 +50,7 @@ const navigation = [
   { label: "Contact", href: "/contact" },
 ];
 
-export default function SiteHeader() {
+export default function SiteHeader({ categories = [] }: SiteHeaderProps) {
   const router = useRouter();
   const { user, loading: isUserLoading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);

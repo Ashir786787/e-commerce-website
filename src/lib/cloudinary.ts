@@ -1,5 +1,4 @@
 import { v2 as cloudinary } from "cloudinary";
-import type { UploadApiResponse } from "cloudinary";
 
 export interface CloudinaryImage {
   url: string;
@@ -8,7 +7,7 @@ export interface CloudinaryImage {
 
 const CLOUDINARY_FOLDER = "novacart/products";
 
-export function isCloudinaryConfigured(): boolean {
+function isCloudinaryConfigured(): boolean {
   return Boolean(
     process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET
   );
@@ -40,7 +39,13 @@ export function uploadImage(
       { folder, resource_type: "image", format: "auto" },
       (error, result) => {
         if (error || !result) {
-          reject(error instanceof Error ? error : new Error("Cloudinary upload failed."));
+          const message =
+            error instanceof Error
+              ? error.message
+              : typeof error === "object" && error !== null
+                ? String((error as Record<string, unknown>).message || JSON.stringify(error))
+                : String(error);
+          reject(new Error(`Cloudinary: ${message}`));
           return;
         }
 
@@ -55,14 +60,3 @@ export function uploadImage(
     stream.end(buffer);
   });
 }
-
-export async function deleteImage(publicId: string): Promise<void> {
-  if (!publicId) {
-    return;
-  }
-
-  const cloudinaryClient = getCloudinary();
-  await cloudinaryClient.uploader.destroy(publicId, { resource_type: "image" });
-}
-
-export type { UploadApiResponse };
