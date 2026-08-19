@@ -7,9 +7,28 @@ import TrendingProducts from "@/components/home/TrendingProducts";
 import NewArrivals from "@/components/home/NewArrivals";
 import { connectDB } from "@/lib/db";
 import "@/models/Category";
+import Category from "@/models/Category";
 import Product from "@/models/Product";
 
 export const dynamic = "force-dynamic";
+
+async function getCategories() {
+  try {
+    await connectDB();
+    const categories = await Category.find({ isActive: true })
+      .sort({ name: 1 })
+      .lean();
+
+    return categories.map((c) => ({
+      id: c._id.toString(),
+      name: c.name,
+      slug: c.slug,
+      image: c.image || "",
+    }));
+  } catch {
+    return [];
+  }
+}
 
 async function getTrendingProducts() {
   try {
@@ -44,18 +63,21 @@ async function getTrendingProducts() {
 }
 
 export default async function HomePage() {
-  const trendingProducts = await getTrendingProducts();
+  const [trendingProducts, categories] = await Promise.all([
+    getTrendingProducts(),
+    getCategories(),
+  ]);
 
   return (
     <>
       <AnnouncementBar />
-      <CategoryBar />
+      <CategoryBar categories={categories} />
 
       <main className="flex-1">
         <HeroBanner initialProducts={trendingProducts} />
         <FlashDeals />
         <TrendingProducts />
-        <FeaturedCategories />
+        <FeaturedCategories categories={categories} />
         <NewArrivals />
       </main>
     </>

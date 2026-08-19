@@ -1,9 +1,21 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { categories } from "@/data/categories";
 
-export default function FeaturedCategories() {
+interface FeaturedCategory {
+  id: string;
+  name: string;
+  slug: string;
+  image: string;
+}
+
+interface FeaturedCategoriesProps {
+  categories: FeaturedCategory[];
+}
+
+export default function FeaturedCategories({ categories }: FeaturedCategoriesProps) {
+  if (categories.length === 0) return null;
+
   return (
     <section className="py-5">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -27,7 +39,7 @@ export default function FeaturedCategories() {
             >
               <div className="relative h-16 w-16 overflow-hidden rounded-full sm:h-20 sm:w-20">
                 <Image
-                  src={category.image}
+                  src={category.image || "/fallback-product.svg"}
                   alt={category.name}
                   fill
                   sizes="80px"
