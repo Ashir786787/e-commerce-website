@@ -23,13 +23,14 @@ interface ProductCardProps {
     image: string;
     discount?: number;
   };
+  priority?: boolean;
 }
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat("en-PK").format(price);
 }
 
-function ProductCard({ product }: ProductCardProps) {
+function ProductCard({ product, priority }: ProductCardProps) {
   const { refreshCart } = useCart();
   const { refreshWishlist, isWishlisted } = useWishlist();
 
@@ -96,7 +97,8 @@ function ProductCard({ product }: ProductCardProps) {
             src={product.image}
             alt={product.name}
             fill
-            loading="lazy"
+            priority={priority}
+            loading={priority ? undefined : "lazy"}
             sizes="(max-width: 640px) 100vw,
                    (max-width: 1024px) 50vw,
                    25vw"

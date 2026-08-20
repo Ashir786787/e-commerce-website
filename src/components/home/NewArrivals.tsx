@@ -33,9 +33,10 @@ export default async function NewArrivals() {
         </div>
 
         <ProductCarousel itemWidth={200} gap={16}>
-          {products.map((product) => (
+          {products.map((product, index) => (
             <div key={product._id.toString()} className="w-[180px] shrink-0 sm:w-[200px]">
               <ProductCard
+                priority={index < 2}
                 product={{
                   id: product._id.toString(),
                   slug: product.slug,
