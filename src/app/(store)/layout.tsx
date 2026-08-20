@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import { connectDB } from "@/lib/db";
@@ -28,7 +29,9 @@ export default async function StoreLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteHeader categories={categories} />
+      <Suspense>
+        <SiteHeader categories={categories} />
+      </Suspense>
       <main className="flex-1">{children}</main>
       <SiteFooter />
     </div>

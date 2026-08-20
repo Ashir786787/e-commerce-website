@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
@@ -52,6 +52,7 @@ const navigation = [
 
 export default function SiteHeader({ categories = [] }: SiteHeaderProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, loading: isUserLoading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
@@ -62,6 +63,18 @@ export default function SiteHeader({ categories = [] }: SiteHeaderProps) {
   const categoryRef = useRef<HTMLDivElement>(null);
   const { totalItems } = useCart();
   const { totalItems: wishlistTotalItems } = useWishlist();
+
+  useEffect(() => {
+    const catSlug = searchParams.get("category");
+    const search = searchParams.get("search");
+    if (catSlug) {
+      const match = categories.find((c) => c.slug === catSlug);
+      if (match) setSelectedCategory(match.name);
+    } else {
+      setSelectedCategory("All");
+    }
+    if (search) setSearchQuery(search);
+  }, [searchParams, categories]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

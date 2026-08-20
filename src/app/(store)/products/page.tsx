@@ -4,7 +4,6 @@ import ProductFilters from "@/components/product/ProductFilters";
 import MobileProductFilters from "@/components/product/MobileProductFilters";
 import ActiveFilters from "@/components/product/ActiveFilters";
 import ProductPagination from "@/components/product/ProductPagination";
-import ProductSearch from "@/components/product/ProductSearch";
 import ProductSort from "@/components/product/ProductSort";
 import { connectDB } from "@/lib/db";
 import Category from "@/models/Category";
@@ -48,12 +47,22 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const query: Record<string, unknown> = { isActive: true };
 
   if (search?.trim()) {
-    const term = search.trim();
-    query.$or = [
+    const term = search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const categoryIds = categories
+      .filter((c) => c.name.toLowerCase().includes(search.trim().toLowerCase()))
+      .map((c) => c._id);
+
+    const conditions: Record<string, unknown>[] = [
       { name: { $regex: term, $options: "i" } },
       { description: { $regex: term, $options: "i" } },
       { brand: { $regex: term, $options: "i" } },
     ];
+
+    if (categoryIds.length > 0) {
+      conditions.push({ category: { $in: categoryIds } });
+    }
+
+    query.$or = conditions;
   }
 
   if (selectedCategories.length > 0) {
@@ -117,9 +126,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
         <section className="py-14">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <ProductSearch />
-
-            <div className="mb-6 flex flex-col gap-4 border-b pb-4 md:flex-row md:items-center md:justify-between">
+          <div className="mb-6 flex flex-col gap-4 border-b pb-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <h2 className="text-lg font-semibold">
                   Showing {totalProducts} Product{totalProducts !== 1 ? "s" : ""}
