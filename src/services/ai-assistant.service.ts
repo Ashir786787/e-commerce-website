@@ -5,6 +5,8 @@ import Category from "@/models/Category";
 import "@/models/User";
 
 import { generateContentWithFallback } from "@/lib/gemini";
+import { createNotificationSafe } from "@/services/notification.service";
+import { ADMIN_NOTIFICATION_KEY } from "@/types/Notification";
 
 export interface AIChatMessage {
   role: "user" | "assistant";
@@ -157,7 +159,35 @@ async function getRelevantProducts(message: string) {
   const priceFilter = extractPriceFilter(message);
   const hasPriceFilter = priceFilter.max !== undefined || priceFilter.min !== undefined;
 
-  const baseFilter: Record<string, unknown> = { isActive: true };
+  const terms = lower
+    .trim()
+    .split(/\s+/)
+    .filter((t) => t.length > 2 && !["show", "find", "search", "recommend", "suggest", "looking", "buy", "purchase", "give", "me", "the", "for", "some", "any", "good", "best", "cheap", "affordable"].includes(t))
+    .slice(0, 6);
+
+  if (terms.length > 0) {
+    const nameRegex = new RegExp(terms.join("|"), "i");
+
+    const baseFilter: Record<string, unknown> = { isActive: true, name: nameRegex };
+    if (hasPriceFilter) {
+      const priceCondition: Record<string, number> = {};
+      if (priceFilter.max !== undefined) priceCondition.$lte = priceFilter.max;
+      if (priceFilter.min !== undefined) priceCondition.$gte = priceFilter.min;
+      baseFilter.price = priceCondition;
+    }
+
+    const specificProducts = await Product.find(baseFilter)
+      .populate("category", "name")
+      .select("name slug price originalPrice brand stock rating reviewCount images category isFeatured isTrending")
+      .sort({ isFeatured: -1, isTrending: -1, rating: -1, price: 1 })
+      .limit(8)
+      .lean();
+
+    if (specificProducts.length > 0) {
+      return specificProducts;
+    }
+  }
+
   if (categoryIntent) {
     const matchingCategory = await Category.findOne({
       name: categoryIntent,
@@ -165,26 +195,25 @@ async function getRelevantProducts(message: string) {
     }).select("_id name").lean();
 
     if (matchingCategory) {
-      baseFilter.category = matchingCategory._id;
+      const categoryFilter: Record<string, unknown> = { isActive: true, category: matchingCategory._id };
+      if (hasPriceFilter) {
+        const priceCondition: Record<string, number> = {};
+        if (priceFilter.max !== undefined) priceCondition.$lte = priceFilter.max;
+        if (priceFilter.min !== undefined) priceCondition.$gte = priceFilter.min;
+        categoryFilter.price = priceCondition;
+      }
+
+      const categoryProducts = await Product.find(categoryFilter)
+        .populate("category", "name")
+        .select("name slug price originalPrice brand stock rating reviewCount images category isFeatured isTrending")
+        .sort({ isFeatured: -1, isTrending: -1, rating: -1, price: 1 })
+        .limit(8)
+        .lean();
+
+      if (categoryProducts.length > 0) {
+        return categoryProducts;
+      }
     }
-  }
-
-  if (hasPriceFilter) {
-    const priceCondition: Record<string, number> = {};
-    if (priceFilter.max !== undefined) priceCondition.$lte = priceFilter.max;
-    if (priceFilter.min !== undefined) priceCondition.$gte = priceFilter.min;
-    baseFilter.price = priceCondition;
-  }
-
-  const products = await Product.find(baseFilter)
-    .populate("category", "name")
-    .select("name slug price originalPrice brand stock rating reviewCount images category isFeatured isTrending")
-    .sort({ isFeatured: -1, isTrending: -1, rating: -1, price: 1 })
-    .limit(8)
-    .lean();
-
-  if (products.length > 0) {
-    return products;
   }
 
   if (hasPriceFilter || isGiftQuery(message)) {
@@ -217,45 +246,10 @@ async function getRelevantProducts(message: string) {
     }
   }
 
-  const terms = message
-    .trim()
-    .split(/\s+/)
-    .filter((term) => term.length > 2)
-    .slice(0, 6);
-
-  if (terms.length === 0) {
-    return Product.find({ isActive: true, stock: { $gt: 0 } })
-      .populate("category", "name")
-      .select("name slug price originalPrice brand stock rating reviewCount images category isFeatured isTrending")
-      .sort({ isFeatured: -1, isTrending: -1, rating: -1 })
-      .limit(6)
-      .lean();
-  }
-
-  const regex = new RegExp(terms.join("|"), "i");
-
-  const matchingCategories = await Category.find({
-    name: regex,
-    isActive: true,
-  }).select("_id name").lean();
-
-  const categoryIds = matchingCategories.map((c) => c._id);
-
-  const orConditions: Record<string, unknown>[] = [
-    { name: regex },
-    { brand: regex },
-  ];
-
-  if (categoryIds.length > 0) {
-    orConditions.push({ category: { $in: categoryIds } });
-  }
-
-  return Product.find({
-    isActive: true,
-    $or: orConditions,
-  })
+  return Product.find({ isActive: true, stock: { $gt: 0 } })
     .populate("category", "name")
     .select("name slug price originalPrice brand stock rating reviewCount images category isFeatured isTrending")
+    .sort({ isFeatured: -1, isTrending: -1, rating: -1 })
     .limit(6)
     .lean();
 }
@@ -334,15 +328,21 @@ export async function generateAssistantResponse({
 RULES:
 - Be concise (2-4 sentences max).
 - Only recommend products from the PRODUCT CONTEXT. Never invent or suggest products not listed.
-- If products are shown, describe 2-3 top picks with name, price, and why they're a good choice. Always include the link.
-- If "NO matching products found" → suggest the user try a different price range or browse categories. Offer to escalate to a human agent for personalized help.
+- The PRODUCT CONTEXT already contains relevant products for the user's query. Only talk about those products.
+- If the user asks for a specific item (e.g. "headphones"), only recommend headphones from the context — do not recommend unrelated items like laptops, keyboards, or mice even if they appear in the context.
+- Pick 2-3 best matches from the context that directly match what the user asked for. Include name, price, and a brief reason. Always include the link.
+- At the end, you may briefly mention: "We also have other categories like [X, Y] if you're interested." — but only as a short note, not as product recommendations.
+- If "NO matching products found" → suggest the user try a different price range or browse categories. Offer to escalate to a human agent.
 - If "Not a product query" → answer directly, no products.
 - For gift questions: recommend based on the products shown, mention who the gift is suitable for.
 - For price questions: highlight the best value options from the products shown.
-- For contact/team requests: direct to support chat.
-- For refunds, complaints, payment issues, delivery problems, or "speak to a human" → start with [ESCALATE] then a brief polite message. No products.
+- ESCALATION FLOW (contacting the team):
+  Step 1 — When the user first asks to contact the team, speak to a human, get support, or has a complaint/refund/payment/delivery issue: Ask for the reason. Say something like "I'd be happy to connect you! Could you tell me the reason for contacting our team?" Do NOT use [ESCALATE] yet.
+  Step 2 — If the conversation history shows you already asked for a reason and the user now provides it (e.g. "order issue", "refund", "delivery problem", or any reason): Start your reply with [REASON: their reason text] then a warm message like "Thanks! I've shared this with our support team. A team member will reach out to you shortly. Is there anything else I can help with?" Do NOT use [ESCALATE].
+  Only use [ESCALATE] if the user insists on speaking to a human immediately without giving a reason, or if the conversation has gone back and forth more than 3 times on the same support topic.
 - Never reveal other users' orders or internal details.
-- Always be helpful and conversational, not robotic.`;
+- Always be helpful and conversational, not robotic.
+- Do NOT be over-smart or pushy. If the user asks for one thing, show that one thing. Don't flood them with unrelated suggestions.`;
 
   const prompt = `${conversationHistory ? conversationHistory + "\n\n" : ""}PRODUCTS: ${productContext}${priceContext}
 
@@ -362,10 +362,47 @@ CUSTOMER: ${message}`;
 
   let escalate = false;
   let reply = replyText;
+  let reason: string | null = null;
 
-  if (replyText.startsWith("[ESCALATE]")) {
+  const reasonMatch = replyText.match(/^\[REASON:\s*(.+?)\]/);
+  if (reasonMatch) {
+    reason = reasonMatch[1].trim();
+    reply = replyText.replace(reasonMatch[0], "").trim();
+
+    const conversationSummary = history
+      .slice(-8)
+      .map(
+        (item) =>
+          `${item.role === "user" ? "Customer" : "AI"}: ${item.content}`
+      )
+      .join("\n");
+
+    void createNotificationSafe({
+      targetKey: ADMIN_NOTIFICATION_KEY,
+      type: "chat",
+      title: "Customer contact request",
+      body: `Reason: ${reason}\n\nConversation history:\n${conversationSummary}`,
+      link: "/admin/messages",
+    });
+  } else if (replyText.startsWith("[ESCALATE]")) {
     escalate = true;
     reply = replyText.replace("[ESCALATE]", "").trim();
+
+    const conversationSummary = history
+      .slice(-8)
+      .map(
+        (item) =>
+          `${item.role === "user" ? "Customer" : "AI"}: ${item.content}`
+      )
+      .join("\n");
+
+    void createNotificationSafe({
+      targetKey: ADMIN_NOTIFICATION_KEY,
+      type: "chat",
+      title: "User requesting human support",
+      body: `A user asked to speak with a team agent.\n\nConversation history:\n${conversationSummary}`,
+      link: "/admin/messages",
+    });
   }
 
   const shouldIncludeProducts = wantsProducts && products.length > 0 && !escalate;
@@ -373,6 +410,7 @@ CUSTOMER: ${message}`;
   return {
     reply,
     escalate,
+    reason,
     products: shouldIncludeProducts
       ? products.map((product) => {
           const images = product.images as unknown as

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { SlidersHorizontal, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 import ProductFilters from "@/components/product/ProductFilters";
-import { Button } from "@/components/ui/button";
 
 interface FilterCategory {
   id: string;
@@ -20,28 +20,46 @@ export default function MobileProductFilters({
   categories,
   brands,
 }: MobileProductFiltersProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   return (
     <div className="lg:hidden">
-      <Button
+      <button
         type="button"
-        variant="outline"
-        className="w-full justify-center"
-        onClick={() => setIsOpen((current) => !current)}
-        aria-expanded={isOpen}
+        onClick={() => setOpen(true)}
+        className="flex w-full items-center justify-center gap-2 rounded-xl border bg-background px-4 py-2.5 text-sm font-semibold transition hover:border-primary/40"
       >
-        {isOpen ? (
-          <X className="mr-2 h-4 w-4" />
-        ) : (
-          <SlidersHorizontal className="mr-2 h-4 w-4" />
-        )}
+        <SlidersHorizontal className="h-4 w-4" />
+        Filters
+      </button>
 
-        {isOpen ? "Close Filters" : "Show Filters"}
-      </Button>
+      {open && (
+        <div className="fixed inset-0 z-[100]">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setOpen(false)}
+          />
+          <div className="absolute inset-y-0 left-0 flex w-full max-w-sm flex-col bg-background shadow-2xl">
+            <div className="flex items-center justify-between border-b px-5 py-4">
+              <h2 className="text-base font-bold">Filters</h2>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-muted"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
 
-      {isOpen && (
-        <ProductFilters categories={categories} brands={brands} className="mt-4" />
+            <div className="flex-1 overflow-y-auto px-5">
+              <ProductFilters
+                categories={categories}
+                brands={brands}
+                className="border-0 p-0 shadow-none"
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

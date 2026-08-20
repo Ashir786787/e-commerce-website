@@ -6,6 +6,7 @@ import { Settings } from "lucide-react";
 
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
 import { adminNavigation, isAdminNavActive } from "@/lib/admin-navigation";
+import { useUnreadChats } from "@/hooks/useUnreadChats";
 
 interface AdminSidebarProps {
   adminName: string;
@@ -17,6 +18,7 @@ export default function AdminSidebar({
   adminEmail,
 }: AdminSidebarProps) {
   const pathname = usePathname();
+  const unreadChats = useUnreadChats();
 
   return (
     <aside className="hidden w-72 h-screen sticky top-0 z-40 flex-shrink-0 flex-col bg-gradient-to-b from-[#0c0c14] via-[#0b0b13] to-[#08080e] text-white shadow-[2px_0_24px_rgba(0,0,0,0.25)] lg:flex">
@@ -68,6 +70,11 @@ export default function AdminSidebar({
             >
               <Icon className="h-[18px] w-[18px]" />
               {item.label}
+              {item.href === "/admin/messages" && unreadChats > 0 && (
+                <span className="ml-auto flex min-h-[20px] min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                  {unreadChats > 99 ? "99+" : unreadChats}
+                </span>
+              )}
             </Link>
           );
         })}

@@ -9,10 +9,10 @@ interface ActiveFilter {
   label: string;
 }
 
-function formatCategoryLabel(value: string) {
+function formatLabel(value: string) {
   return value
     .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
 
@@ -21,62 +21,49 @@ export default function ActiveFilters() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const activeFilters: ActiveFilter[] = [];
+  const filters: ActiveFilter[] = [];
 
   const search = searchParams.get("search");
-
   if (search) {
-    activeFilters.push({ key: "search", value: search, label: `Search: ${search}` });
+    filters.push({ key: "search", value: search, label: `"${search}"` });
   }
 
-  const categories = searchParams.getAll("category");
-
-  categories.forEach((category) => {
-    activeFilters.push({ key: "category", value: category, label: formatCategoryLabel(category) });
+  searchParams.getAll("category").forEach((c) => {
+    filters.push({ key: "category", value: c, label: formatLabel(c) });
   });
 
-  const brands = searchParams.getAll("brand");
-
-  brands.forEach((brand) => {
-    activeFilters.push({ key: "brand", value: brand, label: brand });
+  searchParams.getAll("brand").forEach((b) => {
+    filters.push({ key: "brand", value: b, label: b });
   });
 
-  const minPrice = searchParams.get("minPrice");
-  const maxPrice = searchParams.get("maxPrice");
-
-  if (minPrice || maxPrice) {
-    activeFilters.push({
+  const minP = searchParams.get("minPrice");
+  const maxP = searchParams.get("maxPrice");
+  if (minP || maxP) {
+    filters.push({
       key: "price",
-      value: `${minPrice ?? ""}-${maxPrice ?? ""}`,
-      label: `Rs. ${minPrice ?? "0"} – ${maxPrice ?? "Any"}`,
+      value: `${minP ?? ""}-${maxP ?? ""}`,
+      label: `Rs. ${minP ?? "0"} – ${maxP ?? "Any"}`,
     });
   }
 
   if (searchParams.get("featured") === "true") {
-    activeFilters.push({ key: "featured", value: "true", label: "Featured" });
+    filters.push({ key: "featured", value: "true", label: "Featured" });
   }
-
   if (searchParams.get("trending") === "true") {
-    activeFilters.push({ key: "trending", value: "true", label: "Trending" });
+    filters.push({ key: "trending", value: "true", label: "Trending" });
   }
 
-  if (activeFilters.length === 0) {
-    return null;
-  }
+  if (filters.length === 0) return null;
 
-  function removeFilter(filter: ActiveFilter) {
+  function remove(filter: ActiveFilter) {
     const params = new URLSearchParams(searchParams.toString());
 
     if (filter.key === "category" || filter.key === "brand") {
-      const remainingValues = params
+      const remaining = params
         .getAll(filter.key)
-        .filter((value) => value !== filter.value);
-
+        .filter((v) => v !== filter.value);
       params.delete(filter.key);
-
-      remainingValues.forEach((value) => {
-        params.append(filter.key, value);
-      });
+      remaining.forEach((v) => params.append(filter.key, v));
     } else if (filter.key === "price") {
       params.delete("minPrice");
       params.delete("maxPrice");
@@ -85,32 +72,30 @@ export default function ActiveFilters() {
     }
 
     params.delete("page");
-
     router.push(params.toString() ? `${pathname}?${params.toString()}` : pathname);
   }
 
-  function clearAllFilters() {
+  function clearAll() {
     router.push(pathname);
   }
 
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-2">
-      {activeFilters.map((filter) => (
+    <div className="mb-5 flex flex-wrap items-center gap-2">
+      {filters.map((f) => (
         <button
-          key={`${filter.key}-${filter.value}`}
+          key={`${f.key}-${f.value}`}
           type="button"
-          onClick={() => removeFilter(filter)}
-          className="inline-flex items-center gap-2 rounded-full border bg-muted px-4 py-2 text-sm font-medium transition hover:bg-muted/70"
+          onClick={() => remove(f)}
+          className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary transition hover:bg-primary hover:text-primary-foreground"
         >
-          <span>{filter.label}</span>
-          <X className="h-3.5 w-3.5" />
+          {f.label}
+          <X className="h-3 w-3" />
         </button>
       ))}
-
       <button
         type="button"
-        onClick={clearAllFilters}
-        className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+        onClick={clearAll}
+        className="rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition hover:opacity-90"
       >
         Clear All
       </button>

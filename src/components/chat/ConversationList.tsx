@@ -62,8 +62,8 @@ export default function ConversationList({
   const hasMore = filteredConversations.length > visibleCount;
 
   return (
-    <aside className="flex min-h-0 flex-col border-r border-neutral-200 bg-white">
-      <div className="border-b border-neutral-200 p-4">
+    <aside className="flex h-full min-h-0 flex-col border-r border-neutral-200 bg-white">
+      <div className="shrink-0 border-b border-neutral-200 p-4">
         <h2 className="text-lg font-semibold text-neutral-950">Conversations</h2>
         <p className="mt-1 text-sm text-neutral-500">Customer support messages</p>
 
@@ -79,7 +79,7 @@ export default function ConversationList({
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
         {filteredConversations.length === 0 ? (
           <div className="px-5 py-16 text-center">
             <UserRound className="mx-auto h-10 w-10 text-neutral-300" />

@@ -37,3 +37,15 @@ export interface SendMessageInput {
   senderRole: ChatSenderRole;
   text: string;
 }
+
+export interface ActiveSession {
+  sessionId: string;
+  userId: string;
+  userName: string;
+  adminId: string;
+  adminName: string;
+  startedAt: number;
+  expiresAt: number;
+  status: "active" | "ended";
+  endedAt?: number;
+}

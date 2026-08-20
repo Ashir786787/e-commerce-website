@@ -9,7 +9,10 @@ import {
 } from "@/lib/gemini";
 import { aiAssistantSchema } from "@/validations/ai-assistant.validation";
 import { generateAssistantResponse } from "@/services/ai-assistant.service";
+import { getActiveSessionForUser } from "@/services/session.service";
+import { createOrGetConversation, sendChatMessage } from "@/services/chat.service";
 import { successResponse, errorResponse } from "@/utils/api-response";
+import AiConversation from "@/models/AiConversation";
 import "@/models/User";
 import "@/models/Order";
 import "@/models/Product";
@@ -46,6 +49,15 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = await resolveUserId();
+
+    const activeSession = await getActiveSessionForUser(userId);
+    if (activeSession && activeSession.expiresAt > Date.now()) {
+      return successResponse("Support session active.", {
+        reply: "Our support team is currently assisting you. Please continue in the chat — they'll be with you shortly.",
+        products: [],
+        escalate: false,
+      });
+    }
 
     const userRate = checkRateLimit(
       `ai-assistant:user:${userId}`,
@@ -96,6 +108,55 @@ export async function POST(request: NextRequest) {
       userId,
       history: parsed.data.history,
     });
+
+    const conversationId = parsed.data.conversationId || userId || "guest";
+
+    const userMsg = {
+      role: "user" as const,
+      content: parsed.data.message,
+      createdAt: new Date(),
+    };
+
+    const assistantMsg = {
+      role: "assistant" as const,
+      content: result.reply,
+      products: result.products?.map((p) => ({
+        name: p.name,
+        slug: p.slug,
+        price: p.price,
+      })),
+      createdAt: new Date(),
+    };
+
+    AiConversation.findOneAndUpdate(
+      { conversationId },
+      {
+        $setOnInsert: {
+          conversationId,
+          userId: userId && userId !== "guest" ? userId : undefined,
+          guestId: !userId || userId === "guest" ? conversationId : undefined,
+        },
+        $push: { messages: { $each: [userMsg, assistantMsg] } },
+        $set: { lastActiveAt: new Date() },
+      },
+      { upsert: true }
+    ).catch((err) => console.error("Failed to save AI conversation:", err));
+
+    if (result.reason) {
+      const conversationId = await createOrGetConversation({
+        userId,
+        userName: "Customer",
+        userEmail: "",
+      });
+
+      void sendChatMessage({
+        conversationId,
+        senderId: "system",
+        senderName: "System",
+        senderRole: "admin",
+        text: `📋 Customer contact request — Reason: ${result.reason}`,
+      }).catch(() => {});
+    }
 
     return successResponse("Response generated.", result);
   } catch (error) {

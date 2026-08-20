@@ -125,9 +125,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   return (
     <main>
         <section className="border-b bg-muted/20">
-          <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Shop</p>
-            <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
+            <h1 className="mt-2 text-2xl font-bold tracking-tight sm:mt-3 sm:text-4xl lg:text-5xl">
               {search ? `Search results for "${search}"` : "All Products"}
             </h1>
             <p className="mt-4 max-w-2xl text-muted-foreground">
@@ -138,9 +138,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           </div>
         </section>
 
-        <section className="py-14">
+        <section className="py-8 sm:py-14">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-6 flex flex-col gap-4 border-b pb-4 md:flex-row md:items-center md:justify-between">
+          <div className="mb-5 flex flex-col gap-3 border-b pb-4 sm:mb-6 md:flex-row md:items-center md:justify-between">
               <div>
                 <h2 className="text-lg font-semibold">
                   Showing {totalProducts} Product{totalProducts !== 1 ? "s" : ""}

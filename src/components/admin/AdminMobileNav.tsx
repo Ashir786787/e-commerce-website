@@ -8,6 +8,7 @@ import { Menu, Settings, X } from "lucide-react";
 
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
 import { adminNavigation, isAdminNavActive } from "@/lib/admin-navigation";
+import { useUnreadChats } from "@/hooks/useUnreadChats";
 
 interface AdminMobileNavProps {
   adminName: string;
@@ -21,6 +22,7 @@ export default function AdminMobileNav({
   const [isOpen, setIsOpen] = useState(false);
   const [prevPathname, setPrevPathname] = useState("");
   const pathname = usePathname();
+  const unreadChats = useUnreadChats();
 
   if (prevPathname !== pathname) {
     setPrevPathname(pathname);
@@ -130,6 +132,11 @@ export default function AdminMobileNav({
                   >
                     <Icon className="h-[18px] w-[18px]" />
                     {item.label}
+                    {item.href === "/admin/messages" && unreadChats > 0 && (
+                      <span className="ml-auto flex min-h-[20px] min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                        {unreadChats > 99 ? "99+" : unreadChats}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
