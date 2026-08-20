@@ -63,21 +63,6 @@ export default function SiteFooter() {
                 <span>+92 300 1234567</span>
               </div>
             </div>
-
-            <div className="mt-6 flex items-center gap-3">
-              {["Facebook", "Instagram", "Twitter", "YouTube"].map(
-                (platform) => (
-                  <a
-                    key={platform}
-                    href="#"
-                    aria-label={platform}
-                    className="flex h-9 w-9 items-center justify-center rounded-full border bg-background text-[11px] font-bold text-muted-foreground transition hover:border-primary/40 hover:text-primary"
-                  >
-                    {platform.charAt(0)}
-                  </a>
-                )
-              )}
-            </div>
           </div>
 
           <div className="lg:col-span-2">
@@ -156,7 +141,7 @@ export default function SiteFooter() {
               <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
                 We Accept
               </span>
-              <div className="flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-1.5">
                 {["Visa", "Mastercard", "COD"].map((method) => (
                   <span
                     key={method}

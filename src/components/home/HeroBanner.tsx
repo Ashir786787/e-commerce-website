@@ -118,7 +118,7 @@ export default function HeroBanner({ initialProducts = [] }: HeroBannerProps) {
     return (
       <section className="mx-auto max-w-7xl px-4 pt-5 pb-2 sm:px-6 lg:px-8">
         <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-          <div className="relative aspect-[16/7] overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-violet-600 to-fuchsia-500">
+          <div className="relative aspect-[16/9] sm:aspect-[16/7] overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-violet-600 to-fuchsia-500">
             <div className="absolute right-[-3rem] top-[-3rem] h-48 w-48 rounded-full border border-white/20" />
             <div className="absolute bottom-[-4rem] left-[-3rem] h-56 w-56 rounded-full bg-white/10" />
             <div className="relative z-10 flex h-full items-center justify-center p-8 sm:p-10">
@@ -191,7 +191,7 @@ export default function HeroBanner({ initialProducts = [] }: HeroBannerProps) {
   return (
     <section className="mx-auto max-w-7xl px-4 pt-5 pb-2 sm:px-6 lg:px-8">
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-        <div className="group relative aspect-[16/7] overflow-hidden rounded-2xl bg-neutral-900">
+        <div className="group relative aspect-[16/9] sm:aspect-[16/7] overflow-hidden rounded-2xl bg-neutral-900">
           <Image
             src={product.image || "/fallback-product.svg"}
             alt={product.name}

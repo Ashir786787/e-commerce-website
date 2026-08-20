@@ -268,7 +268,7 @@ export default function SiteHeader({ categories = [] }: SiteHeaderProps) {
             <Link
               href="/wishlist"
               aria-label={`Wishlist with ${wishlistTotalItems} items`}
-              className="relative hidden h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground sm:flex"
+              className="relative flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
             >
               <Heart className="h-5 w-5" />
               {wishlistTotalItems > 0 && (

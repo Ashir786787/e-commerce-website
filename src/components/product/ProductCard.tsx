@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { memo } from "react";
-import { Eye, Heart, ShoppingCart, Star, Truck } from "lucide-react";
+import { Heart, ShoppingCart, Star, Truck } from "lucide-react";
 import { toast } from "sonner";
 
 import { useCart } from "@/context/CartContext";
@@ -123,34 +123,14 @@ function ProductCard({ product, priority }: ProductCardProps) {
           />
         </Link>
 
-        <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover/card:bg-black/5" />
-
-        <div className="absolute inset-x-0 bottom-0 flex translate-y-full justify-center gap-2 p-3 transition-transform duration-300 group-hover/card:translate-y-0">
-          <Link
-            href={`/products/${product.slug}`}
-            className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold shadow-lg transition hover:bg-primary hover:text-white"
-          >
-            <Eye className="h-3.5 w-3.5" />
-            Quick View
-          </Link>
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold shadow-lg transition hover:bg-primary hover:text-white"
-          >
-            <ShoppingCart className="h-3.5 w-3.5" />
-            Add to Cart
-          </button>
-        </div>
-
-        <div className="absolute left-3 top-3 flex flex-col gap-1.5">
+        <div className="absolute left-2 top-2 z-10 flex flex-wrap items-center gap-1">
           {product.discount && product.discount > 0 && (
-            <span className="inline-flex items-center rounded-md bg-red-600 px-2 py-0.5 text-[11px] font-bold text-white">
+            <span className="inline-flex items-center rounded bg-red-600 px-1.5 py-px text-[10px] font-bold leading-5 text-white">
               -{product.discount}%
             </span>
           )}
           {savingsAmount > 0 && (
-            <span className="inline-flex items-center rounded-md bg-emerald-600 px-2 py-0.5 text-[11px] font-bold text-white">
+            <span className="inline-flex items-center rounded bg-emerald-600 px-1.5 py-px text-[10px] font-bold leading-5 text-white">
               Save Rs. {formatPrice(savingsAmount)}
             </span>
           )}

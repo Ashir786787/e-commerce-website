@@ -55,7 +55,7 @@ export default function ProductCarousel({
           type="button"
           onClick={() => scroll("left")}
           aria-label="Scroll left"
-          className="absolute -left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border bg-white shadow-md transition opacity-0 group-hover:opacity-100 hover:bg-neutral-50 sm:-left-4 sm:h-10 sm:w-10"
+          className="absolute -left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border bg-white shadow-md transition sm:opacity-0 sm:group-hover:opacity-100 hover:bg-neutral-50 sm:-left-4 sm:h-10 sm:w-10"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
@@ -66,7 +66,7 @@ export default function ProductCarousel({
           type="button"
           onClick={() => scroll("right")}
           aria-label="Scroll right"
-          className="absolute -right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border bg-white shadow-md transition opacity-0 group-hover:opacity-100 hover:bg-neutral-50 sm:-right-4 sm:h-10 sm:w-10"
+          className="absolute -right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border bg-white shadow-md transition sm:opacity-0 sm:group-hover:opacity-100 hover:bg-neutral-50 sm:-right-4 sm:h-10 sm:w-10"
         >
           <ChevronRight className="h-5 w-5" />
         </button>

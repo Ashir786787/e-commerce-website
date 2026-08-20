@@ -44,26 +44,22 @@ export default function NewsletterForm() {
   }
 
   return (
-    <form
-      onSubmit={handleSubscribe}
-      className="mt-4 flex w-full max-w-sm gap-2"
-    >
+    <form onSubmit={handleSubscribe} className="mt-4 w-full space-y-2">
       <input
         type="email"
         required
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="Enter your email"
-        className="h-10 min-w-0 flex-1 rounded-xl border border-neutral-300 bg-white px-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+        placeholder="Your email address"
+        className="h-12 w-full rounded-xl border border-neutral-300 bg-white px-4 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
       />
-
       <button
         type="submit"
         disabled={isSubmitting}
-        className="inline-flex h-10 items-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <Send className="h-4 w-4" />
-        {isSubmitting ? "..." : "Subscribe"}
+        {isSubmitting ? "Subscribing..." : "Subscribe"}
       </button>
     </form>
   );
