@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Save } from "lucide-react";
+import { ImagePlus, Loader2, Save, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 type CategoryFormProps = {
@@ -32,10 +32,14 @@ function generateSlug(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
+const MAX_FILE_SIZE = 4 * 1024 * 1024;
+
 export default function CategoryForm({
   category,
 }: CategoryFormProps) {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState<CategoryFormState>({
     name: category?.name || "",
@@ -46,6 +50,7 @@ export default function CategoryForm({
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   function updateField<K extends keyof CategoryFormState>(
     field: K,
@@ -66,6 +71,48 @@ export default function CategoryForm({
           ? generateSlug(value)
           : current.slug,
     }));
+  }
+
+  async function handleFileUpload(file: File) {
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      toast.error("Only JPG, PNG, WEBP, GIF or AVIF images are allowed.");
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("Image must be 4MB or smaller.");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/admin/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Upload failed.");
+      }
+
+      updateField("image", result.data.url);
+      toast.success("Image uploaded successfully.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Upload failed.");
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) handleFileUpload(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   async function handleSubmit(
@@ -210,27 +257,81 @@ export default function CategoryForm({
           </div>
 
           <div className="sm:col-span-2">
-            <label
-              htmlFor="image"
-              className="mb-2 block text-sm font-medium text-neutral-800"
-            >
-              Image URL
+            <label className="mb-2 block text-sm font-medium text-neutral-800">
+              Category Image
             </label>
 
             <input
-              id="image"
-              type="url"
-              value={form.image}
-              onChange={(event) =>
-                updateField("image", event.target.value)
-              }
-              placeholder="https://example.com/category-image.jpg"
-              className="h-11 w-full rounded-xl border border-neutral-300 px-4 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+              onChange={handleFileChange}
+              className="hidden"
             />
 
-            <p className="mt-2 text-xs text-neutral-500">
-              Optional publicly accessible image URL.
-            </p>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+              <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-neutral-200 bg-white">
+                {form.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={form.image}
+                    alt="Category preview"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-neutral-100 text-neutral-400">
+                    <ImagePlus className="h-8 w-8" />
+                  </div>
+                )}
+
+                {isUploading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                    <Loader2 className="h-6 w-6 animate-spin text-white" />
+                  </div>
+                )}
+              </div>
+
+              <div className="min-w-0 flex-1 space-y-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 text-sm font-semibold text-neutral-700 transition hover:border-indigo-300 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <Upload className="h-4 w-4" />
+                    {isUploading ? "Uploading..." : "Choose Image"}
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={!form.image}
+                    onClick={() => updateField("image", "")}
+                    className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-red-200 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Remove
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <input
+                    id="image"
+                    type="url"
+                    value={form.image}
+                    onChange={(event) =>
+                      updateField("image", event.target.value)
+                    }
+                    placeholder="https://res.cloudinary.com/.../category.jpg"
+                    className="h-11 w-full rounded-xl border border-neutral-300 bg-white px-4 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                  />
+                </div>
+
+                <p className="text-xs text-neutral-500">
+                  Supports JPG, PNG, WEBP, GIF and AVIF. Max 4MB.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -284,7 +385,7 @@ export default function CategoryForm({
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isUploading}
           className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Save className="h-4 w-4" />

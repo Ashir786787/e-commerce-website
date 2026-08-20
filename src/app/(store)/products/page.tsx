@@ -30,6 +30,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const maxPrice = typeof params.maxPrice === "string" ? params.maxPrice : undefined;
   const featured = typeof params.featured === "string" ? params.featured : undefined;
   const trending = typeof params.trending === "string" ? params.trending : undefined;
+  const sort = typeof params.sort === "string" ? params.sort : "newest";
   const pageParam = typeof params.page === "string" ? params.page : undefined;
 
   const page = Math.max(1, Number(pageParam) || 1);
@@ -48,14 +49,16 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
   if (search?.trim()) {
     const term = search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const termLower = search.trim().toLowerCase();
     const categoryIds = categories
-      .filter((c) => c.name.toLowerCase().includes(search.trim().toLowerCase()))
+      .filter((c) => c.name.toLowerCase().includes(termLower))
       .map((c) => c._id);
 
     const conditions: Record<string, unknown>[] = [
       { name: { $regex: term, $options: "i" } },
       { description: { $regex: term, $options: "i" } },
       { brand: { $regex: term, $options: "i" } },
+      { slug: { $regex: term, $options: "i" } },
     ];
 
     if (categoryIds.length > 0) {
@@ -93,9 +96,20 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const currentPage = Math.min(page, totalPages);
   const skip = (currentPage - 1) * limit;
 
+  const sortMap: Record<string, Record<string, 1 | -1>> = {
+    newest: { createdAt: -1 },
+    "price-asc": { price: 1 },
+    "price-desc": { price: -1 },
+    "name-asc": { name: 1 },
+    "name-desc": { name: -1 },
+    featured: { isFeatured: -1, createdAt: -1 },
+  };
+
+  const sortQuery = sortMap[sort] || sortMap.newest;
+
   const products = await Product.find(query)
     .populate("category", "name slug image")
-    .sort({ createdAt: -1 })
+    .sort(sortQuery)
     .skip(skip)
     .limit(limit)
     .lean();
