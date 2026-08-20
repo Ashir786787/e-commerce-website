@@ -60,3 +60,8 @@ export function uploadImage(
     stream.end(buffer);
   });
 }
+
+export async function deleteImage(publicId: string): Promise<void> {
+  const cloudinaryClient = getCloudinary();
+  await cloudinaryClient.uploader.destroy(publicId);
+}
