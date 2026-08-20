@@ -62,15 +62,16 @@ export default function GoogleLoginButton({ mode }: GoogleLoginButtonProps) {
 
   return (
     <div className={loading ? "opacity-50 pointer-events-none" : ""}>
-      <GoogleLogin
-        onSuccess={handleSuccess}
-        onError={handleError}
-        text={mode === "login" ? "continue_with" : "signup_with"}
-        shape="rectangular"
-        size="large"
-        width="100%"
-        logo_alignment="left"
-      />
+      <div className="flex justify-center">
+        <GoogleLogin
+          onSuccess={handleSuccess}
+          onError={handleError}
+          text={mode === "login" ? "continue_with" : "signup_with"}
+          shape="rectangular"
+          size="large"
+          logo_alignment="left"
+        />
+      </div>
     </div>
   );
 }
