@@ -3,10 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { memo } from "react";
-import { Heart, ShoppingCart, Star } from "lucide-react";
+import { Check, Eye, Heart, ShoppingCart, Star, Truck } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 
@@ -36,7 +35,14 @@ function ProductCard({ product, priority }: ProductCardProps) {
 
   const productIsWishlisted = isWishlisted(product.id);
 
-  const handleAddToCart = async (event: React.MouseEvent<HTMLButtonElement>) => {
+  const savingsAmount =
+    product.originalPrice && product.originalPrice > product.price
+      ? product.originalPrice - product.price
+      : 0;
+
+  const handleAddToCart = async (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -55,25 +61,32 @@ function ProductCard({ product, priority }: ProductCardProps) {
       }
 
       await refreshCart();
-      toast.success("Product added to cart.");
+      toast.success("Added to cart");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to add product.");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to add product."
+      );
     }
   };
 
-  const toggleWishlist = async (event: React.MouseEvent<HTMLButtonElement>) => {
+  const toggleWishlist = async (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     event.preventDefault();
     event.stopPropagation();
 
     const wasWishlisted = productIsWishlisted;
 
     try {
-      const response = await fetch(wasWishlisted ? "/api/wishlist/remove" : "/api/wishlist/add", {
-        method: wasWishlisted ? "DELETE" : "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: product.id }),
-      });
+      const response = await fetch(
+        wasWishlisted ? "/api/wishlist/remove" : "/api/wishlist/add",
+        {
+          method: wasWishlisted ? "DELETE" : "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId: product.id }),
+        }
+      );
 
       const data = await response.json();
 
@@ -82,34 +95,66 @@ function ProductCard({ product, priority }: ProductCardProps) {
       }
 
       await refreshWishlist();
-
-      toast.success(wasWishlisted ? "Removed from wishlist." : "Added to wishlist.");
+      toast.success(
+        wasWishlisted ? "Removed from wishlist." : "Added to wishlist."
+      );
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Something went wrong.");
+      toast.error(
+        error instanceof Error ? error.message : "Something went wrong."
+      );
     }
   };
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
-      <div className="relative aspect-square shrink-0 overflow-hidden bg-muted">
-        <Link href={`/products/${product.slug}`} className="absolute inset-0 block">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:shadow-lg">
+      <div className="relative aspect-[4/3] shrink-0 overflow-hidden bg-muted">
+        <Link
+          href={`/products/${product.slug}`}
+          className="absolute inset-0 block"
+        >
           <Image
             src={product.image}
             alt={product.name}
             fill
             priority={priority}
             loading={priority ? undefined : "lazy"}
-            sizes="(max-width: 640px) 100vw,
-                   (max-width: 1024px) 50vw,
-                   25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </Link>
-        {product.discount && (
-          <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-            -{product.discount}%
-          </span>
-        )}
+
+        <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/5" />
+
+        <div className="absolute inset-x-0 bottom-0 flex translate-y-full justify-center gap-2 p-3 transition-transform duration-300 group-hover:translate-y-0">
+          <Link
+            href={`/products/${product.slug}`}
+            className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold shadow-lg transition hover:bg-primary hover:text-white"
+          >
+            <Eye className="h-3.5 w-3.5" />
+            Quick View
+          </Link>
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold shadow-lg transition hover:bg-primary hover:text-white"
+          >
+            <ShoppingCart className="h-3.5 w-3.5" />
+            Add to Cart
+          </button>
+        </div>
+
+        <div className="absolute left-3 top-3 flex flex-col gap-1.5">
+          {product.discount && product.discount > 0 && (
+            <span className="inline-flex items-center rounded-md bg-red-600 px-2 py-0.5 text-[11px] font-bold text-white">
+              -{product.discount}%
+            </span>
+          )}
+          {savingsAmount > 0 && (
+            <span className="inline-flex items-center rounded-md bg-emerald-600 px-2 py-0.5 text-[11px] font-bold text-white">
+              Save Rs. {formatPrice(savingsAmount)}
+            </span>
+          )}
+        </div>
 
         <button
           type="button"
@@ -119,52 +164,69 @@ function ProductCard({ product, priority }: ProductCardProps) {
               ? `Remove ${product.name} from wishlist`
               : `Add ${product.name} to wishlist`
           }
-          className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow transition hover:scale-105"
+          className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition hover:scale-110 hover:bg-white"
         >
           <Heart
-            className={`h-5 w-5 transition-colors ${
-              productIsWishlisted ? "fill-red-500 text-red-500" : "text-gray-500 hover:text-red-500"
+            className={`h-4 w-4 transition-colors ${
+              productIsWishlisted
+                ? "fill-red-500 text-red-500"
+                : "text-gray-500 hover:text-red-500"
             }`}
           />
         </button>
       </div>
-      <div className="flex flex-1 flex-col space-y-3 p-4">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">
+
+      <div className="flex flex-1 flex-col p-4">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-primary/70">
           {product.category}
         </p>
 
         <Link
           href={`/products/${product.slug}`}
-          className="line-clamp-2 text-lg font-semibold hover:text-primary"
+          className="mt-1.5 line-clamp-2 text-[15px] font-semibold leading-snug text-foreground transition hover:text-primary"
         >
           {product.name}
         </Link>
 
-        <div className="flex items-center gap-2">
-          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-          <span className="text-sm font-medium">{product.rating}</span>
-          <span className="text-sm text-muted-foreground">({product.reviews})</span>
+        <div className="mt-2 flex items-center gap-1.5">
+          <div className="flex items-center gap-0.5 rounded bg-amber-50 px-1.5 py-0.5">
+            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+            <span className="text-xs font-bold text-amber-700">
+              {product.rating}
+            </span>
+          </div>
+          <span className="text-xs text-muted-foreground">
+            ({product.reviews})
+          </span>
         </div>
-        <div className="mt-auto flex items-end justify-between">
-          <div>
-            <p className="text-xl font-bold text-primary">Rs. {formatPrice(product.price)}</p>
 
-            {product.originalPrice && (
-              <p className="text-sm text-muted-foreground line-through">
+        {product.price >= 5000 && (
+          <div className="mt-2 flex items-center gap-1 text-[11px] font-medium text-emerald-600">
+            <Truck className="h-3 w-3" />
+            Free Delivery
+          </div>
+        )}
+
+        <div className="mt-auto pt-3">
+          <div className="flex items-baseline gap-2">
+            <span className="text-lg font-bold text-foreground">
+              Rs. {formatPrice(product.price)}
+            </span>
+            {product.originalPrice && product.originalPrice > product.price && (
+              <span className="text-sm text-muted-foreground line-through">
                 Rs. {formatPrice(product.originalPrice)}
-              </p>
+              </span>
             )}
           </div>
 
-          <Button
-            size="icon"
-            className="rounded-full"
+          <button
             type="button"
             onClick={handleAddToCart}
-            aria-label={`Add ${product.name} to cart`}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/5 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground"
           >
             <ShoppingCart className="h-4 w-4" />
-          </Button>
+            Add to Cart
+          </button>
         </div>
       </div>
     </article>
