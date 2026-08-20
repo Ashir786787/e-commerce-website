@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { memo } from "react";
-import { Check, Eye, Heart, ShoppingCart, Star, Truck } from "lucide-react";
+import { Eye, Heart, ShoppingCart, Star, Truck } from "lucide-react";
 import { toast } from "sonner";
 
 import { useCart } from "@/context/CartContext";
@@ -106,7 +106,7 @@ function ProductCard({ product, priority }: ProductCardProps) {
   };
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:shadow-lg">
+    <article className="group/card flex h-full flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:shadow-lg">
       <div className="relative aspect-[4/3] shrink-0 overflow-hidden bg-muted">
         <Link
           href={`/products/${product.slug}`}
@@ -119,13 +119,13 @@ function ProductCard({ product, priority }: ProductCardProps) {
             priority={priority}
             loading={priority ? undefined : "lazy"}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 group-hover/card:scale-105"
           />
         </Link>
 
-        <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/5" />
+        <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover/card:bg-black/5" />
 
-        <div className="absolute inset-x-0 bottom-0 flex translate-y-full justify-center gap-2 p-3 transition-transform duration-300 group-hover:translate-y-0">
+        <div className="absolute inset-x-0 bottom-0 flex translate-y-full justify-center gap-2 p-3 transition-transform duration-300 group-hover/card:translate-y-0">
           <Link
             href={`/products/${product.slug}`}
             className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold shadow-lg transition hover:bg-primary hover:text-white"
