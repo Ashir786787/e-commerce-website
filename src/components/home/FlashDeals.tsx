@@ -6,6 +6,7 @@ import Product from "@/models/Product";
 import ProductCard from "@/components/product/ProductCard";
 import { getCategoryName } from "@/lib/utils";
 import CountdownTimer from "./CountdownTimer";
+import ProductCarousel from "./ProductCarousel";
 
 export default async function FlashDeals() {
   await connectDB();
@@ -45,7 +46,7 @@ export default async function FlashDeals() {
           </Link>
         </div>
 
-        <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2 sm:gap-4">
+        <ProductCarousel itemWidth={200} gap={16}>
           {deals.map((product) => (
             <div key={product._id.toString()} className="w-[180px] shrink-0 sm:w-[200px]">
               <ProductCard
@@ -71,7 +72,7 @@ export default async function FlashDeals() {
               />
             </div>
           ))}
-        </div>
+        </ProductCarousel>
       </div>
     </section>
   );
