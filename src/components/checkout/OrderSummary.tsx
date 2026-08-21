@@ -105,7 +105,7 @@ export default function OrderSummary({ appliedDiscount, onApplyDiscount, onRemov
     <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
       <div className="mb-6">
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-600">Summary</p>
-        <h2 className="text-2xl font-semibold text-neutral-950">Order Summary</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold text-neutral-950">Order Summary</h2>
       </div>
       <div className="space-y-1 border-b border-neutral-200 pb-4">
         {validItems.map((item) => (

@@ -51,7 +51,7 @@ export default function LiveOrderStatus({
   }, [orderId, userId]);
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-wrap items-center gap-3 print:hidden">
       <OrderStatusBadge status={orderStatus} />
 
       <span

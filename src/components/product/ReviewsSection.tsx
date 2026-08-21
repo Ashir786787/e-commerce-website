@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import StarRating from "./StarRating";
 import ReviewForm from "./ReviewForm";
@@ -66,10 +66,6 @@ export default function ReviewsSection({
       }
     } catch {}
   }, [productId]);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
 
   return (
     <div className="mt-12 space-y-8">

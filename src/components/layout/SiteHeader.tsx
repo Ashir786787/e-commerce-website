@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   ArrowRight,
@@ -66,13 +66,19 @@ export default function SiteHeader({ categories = [] }: SiteHeaderProps) {
   const { totalItems: wishlistTotalItems } = useWishlist();
 
   const [scrolled, setScrolled] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get("search") || "");
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+
+  const selectedCategory = useMemo(() => {
+    const catSlug = searchParams.get("category");
+    if (!catSlug) return "All";
+    const match = categories.find((c) => c.slug === catSlug);
+    return match?.name || "All";
+  }, [searchParams, categories]);
 
   const searchDropdownRef = useRef<HTMLDivElement>(null);
   const megaMenuRef = useRef<HTMLDivElement>(null);
@@ -87,19 +93,6 @@ export default function SiteHeader({ categories = [] }: SiteHeaderProps) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  useEffect(() => {
-    const catSlug = searchParams.get("category");
-    const search = searchParams.get("search");
-    if (catSlug) {
-      const match = categories.find((c) => c.slug === catSlug);
-      if (match) setSelectedCategory(match.name);
-      else setSelectedCategory("All");
-    } else {
-      setSelectedCategory("All");
-    }
-    if (search) setSearchQuery(search);
-  }, [searchParams, categories]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -230,7 +223,7 @@ export default function SiteHeader({ categories = [] }: SiteHeaderProps) {
                     <button
                       type="button"
                       onClick={() => {
-                        setSelectedCategory("All");
+                        router.push("/");
                         setIsCategoryDropdownOpen(false);
                       }}
                       className={cn(
@@ -246,7 +239,7 @@ export default function SiteHeader({ categories = [] }: SiteHeaderProps) {
                         key={cat.id}
                         type="button"
                         onClick={() => {
-                          setSelectedCategory(cat.name);
+                          router.push(`/products?category=${cat.slug}`);
                           setIsCategoryDropdownOpen(false);
                         }}
                         className={cn(

@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock, Tag, XCircle } from "lucide-react";
 import AdminPagination from "@/components/admin/AdminPagination";
+import ToggleDiscountStatus from "@/components/admin/ToggleDiscountStatus";
 import { connectDB } from "@/lib/db";
 import DiscountCode from "@/models/DiscountCode";
 import GenerateCodesForm from "./GenerateCodesForm";
@@ -84,11 +85,11 @@ export default async function AdminDiscountCodesPage({
 
       <div className="mt-8 overflow-x-auto rounded-2xl border border-neutral-200 bg-white shadow-sm">
         {codes.length > 0 ? (
-          <table className="w-full min-w-[700px] border-collapse">
+          <table className="w-full min-w-[800px] border-collapse">
             <thead>
               <tr className="border-b border-neutral-200 bg-neutral-50">
-                {["Code", "Discount", "Status", "Uses", "Expires", "Created"].map((h) => (
-                  <th key={h} className={`px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500 ${h === "Created" ? "text-right" : ""}`}>{h}</th>
+                {["Code", "Discount", "Status", "Uses", "Expires", "Created", "Actions"].map((h) => (
+                  <th key={h} className={`px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500 ${h === "Created" || h === "Actions" ? "text-right" : ""}`}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -106,6 +107,15 @@ export default async function AdminDiscountCodesPage({
                     <td className="px-5 py-4 text-sm text-neutral-600">{c.usedBy.length > 0 ? `${c.usedBy.length} time${c.usedBy.length > 1 ? "s" : ""}` : "Never used"}</td>
                     <td className="px-5 py-4 text-sm text-neutral-600">{fmt(c.expiresAt)}</td>
                     <td className="px-5 py-4 text-right text-sm text-neutral-500">{fmt(c.createdAt)}</td>
+                    <td className="px-5 py-4 text-right">
+                      <div className="flex items-center justify-end gap-3">
+                        <span className="text-xs text-neutral-500">{c.isActive ? "Active" : "Inactive"}</span>
+                        <ToggleDiscountStatus
+                          codeId={c._id.toString()}
+                          isActive={c.isActive}
+                        />
+                      </div>
+                    </td>
                   </tr>
                 );
               })}

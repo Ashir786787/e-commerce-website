@@ -35,7 +35,21 @@ export default function AdminReviewsPage() {
   }
 
   useEffect(() => {
-    fetchReviews();
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/reviews");
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          setReviews(data.reviews);
+        }
+      } catch {
+        toast.error("Failed to load reviews");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   async function toggleVisibility(reviewId: string, isVisible: boolean) {

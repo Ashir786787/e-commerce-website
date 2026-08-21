@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Package, ShoppingBag } from "lucide-react";
 import OrderCard from "@/components/orders/OrderCard";
 import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
@@ -29,11 +31,21 @@ export default async function OrdersPage() {
         <section className="py-12">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {orders.length === 0 ? (
-              <div className="rounded-2xl border border-dashed bg-background px-6 py-16 text-center">
-                <h2 className="text-2xl font-semibold">No Orders Yet</h2>
-                <p className="mt-3 text-muted-foreground">
-                  Once you place your first order, it will appear here.
+              <div className="rounded-2xl border border-dashed border-neutral-300 bg-white px-6 py-20 text-center">
+                <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-indigo-50">
+                  <Package className="h-9 w-9 text-indigo-400" />
+                </div>
+                <h2 className="mt-6 text-2xl font-bold text-neutral-900">No Orders Yet</h2>
+                <p className="mx-auto mt-3 max-w-sm text-sm text-neutral-500">
+                  Once you place your first order, it will appear here so you can track it.
                 </p>
+                <Link
+                  href="/products"
+                  className="mt-7 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-7 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                >
+                  <ShoppingBag className="h-4 w-4" />
+                  Start Shopping
+                </Link>
               </div>
             ) : (
               <div className="space-y-6">

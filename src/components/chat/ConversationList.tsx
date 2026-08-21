@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Search, UserRound } from "lucide-react";
+import { ChevronDown, Search, Trash2, UserRound, UserPlus } from "lucide-react";
 
 import type { ChatConversation } from "@/types/Chat";
 
@@ -11,6 +11,8 @@ interface ConversationListProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
   onSelect: (conversation: ChatConversation) => void;
+  onDelete?: (conversationId: string) => void;
+  onNewChat?: () => void;
 }
 
 const VISIBLE_LIMIT = 20;
@@ -41,6 +43,8 @@ export default function ConversationList({
   searchQuery,
   onSearchChange,
   onSelect,
+  onDelete,
+  onNewChat,
 }: ConversationListProps) {
   const [visibleCount, setVisibleCount] = useState(VISIBLE_LIMIT);
   const [previousSearch, setPreviousSearch] = useState(searchQuery);
@@ -64,8 +68,22 @@ export default function ConversationList({
   return (
     <aside className="flex h-full min-h-0 flex-col border-r border-neutral-200 bg-white">
       <div className="shrink-0 border-b border-neutral-200 p-4">
-        <h2 className="text-lg font-semibold text-neutral-950">Conversations</h2>
-        <p className="mt-1 text-sm text-neutral-500">Customer support messages</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-neutral-950">Conversations</h2>
+            <p className="mt-1 text-sm text-neutral-500">Customer support messages</p>
+          </div>
+          {onNewChat && (
+            <button
+              type="button"
+              onClick={onNewChat}
+              className="flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-indigo-700"
+            >
+              <UserPlus className="h-3.5 w-3.5" />
+              New Chat
+            </button>
+          )}
+        </div>
 
         <div className="relative mt-4">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
@@ -94,11 +112,18 @@ export default function ConversationList({
                 const initial = conversation.userName.charAt(0).toUpperCase() || "U";
 
                 return (
-                  <button
+                  <div
                     key={conversation.id}
-                    type="button"
+                    role="button"
+                    tabIndex={0}
                     onClick={() => onSelect(conversation)}
-                    className={`flex w-full items-start gap-3 border-l-2 px-4 py-4 text-left transition ${
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        onSelect(conversation);
+                      }
+                    }}
+                    className={`group relative flex w-full items-start gap-3 border-l-2 px-4 py-4 text-left transition ${
                       isSelected
                         ? "border-l-indigo-600 bg-indigo-50"
                         : "border-l-transparent hover:bg-neutral-50"
@@ -114,7 +139,22 @@ export default function ConversationList({
                           <p className="truncate font-semibold text-neutral-950">{conversation.userName}</p>
                           <p className="mt-1 truncate text-xs text-neutral-500">{conversation.userEmail}</p>
                         </div>
-                        <p className="shrink-0 text-[11px] text-neutral-400">{formatTime(conversation.updatedAt)}</p>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <p className="text-[11px] text-neutral-400">{formatTime(conversation.updatedAt)}</p>
+                          {onDelete && (
+                            <button
+                              type="button"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                onDelete(conversation.id);
+                              }}
+                              aria-label="Delete conversation"
+                              className="hidden h-6 w-6 items-center justify-center rounded-md text-neutral-400 transition hover:bg-red-50 hover:text-red-500 group-hover:flex"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
                       </div>
 
                       <div className="mt-3 flex items-center justify-between gap-3">
@@ -127,7 +167,7 @@ export default function ConversationList({
                         )}
                       </div>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>

@@ -25,7 +25,7 @@ function paymentMethodLabel(method: string) {
     case "cod":
       return "Cash on Delivery";
     case "card":
-      return "Credit/Debit Card";
+      return "Credit / Debit Card";
     case "bank":
       return "Bank Transfer";
     default:
@@ -45,17 +45,27 @@ export function orderConfirmationTemplate({
   paymentMethod,
   shippingAddress,
 }: OrderConfirmationTemplateOptions) {
+  const invoiceNumber = `INV-${orderNumber}`;
+  const orderDate = new Date().toLocaleDateString("en-PK", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   const itemsHtml = items
     .map(
       (item) => `
       <tr>
-        <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 14px;">
+        <td style="padding:14px 16px; border-bottom:1px solid #e5e7eb; color:#111827; font-size:14px; font-weight:600;">
           ${item.name}
         </td>
-        <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 14px; text-align: center;">
+        <td style="padding:14px 16px; border-bottom:1px solid #e5e7eb; color:#6b7280; font-size:14px; text-align:center;">
           ${item.quantity}
         </td>
-        <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 14px; text-align: right;">
+        <td style="padding:14px 16px; border-bottom:1px solid #e5e7eb; color:#6b7280; font-size:14px; text-align:right;">
+          Rs. ${formatPrice(item.price)}
+        </td>
+        <td style="padding:14px 16px; border-bottom:1px solid #e5e7eb; color:#111827; font-size:14px; text-align:right; font-weight:600;">
           Rs. ${formatPrice(item.price * item.quantity)}
         </td>
       </tr>
@@ -63,80 +73,190 @@ export function orderConfirmationTemplate({
     )
     .join("");
 
+  const discountRow =
+    discount > 0
+      ? `<tr>
+          <td colspan="3" style="padding:10px 16px; color:#6b7280; font-size:14px;">Discount</td>
+          <td style="padding:10px 16px; color:#16a34a; font-size:14px; text-align:right; font-weight:600;">- Rs. ${formatPrice(discount)}</td>
+        </tr>`
+      : "";
+
   return `
-    <div style="font-family: Arial, sans-serif; background-color: #f8fafc; padding: 40px;">
-      <div style="max-width: 600px; margin: auto; background: white; border-radius: 12px; padding: 32px; border: 1px solid #e2e8f0;">
-        <div style="text-align: center; margin-bottom: 24px;">
-          <h1 style="color: #0f172a; margin: 0; font-size: 24px;">Order Confirmed!</h1>
-          <p style="color: #64748b; font-size: 14px; margin-top: 8px;">Thank you for shopping with NovaCart</p>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Confirmed — ${orderNumber}</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f3f4f6; font-family:Arial, Helvetica, sans-serif; -webkit-font-smoothing:antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f3f4f6;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:640px; background-color:#ffffff; border-radius:16px; overflow:hidden; border:1px solid #e5e7eb;">
 
-        <p style="color: #334155; font-size: 16px;">Hi ${fullName},</p>
-        <p style="color: #334155; font-size: 16px;">We've received your order and it's being processed.</p>
+          <!-- HEADER -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); padding:32px 40px; text-align:center;">
+              <h1 style="margin:0; color:#ffffff; font-size:28px; font-weight:800; letter-spacing:-0.5px;">NovaCart</h1>
+              <p style="margin:6px 0 0; color:rgba(255,255,255,0.8); font-size:13px; letter-spacing:2px; text-transform:uppercase;">Order Confirmed</p>
+            </td>
+          </tr>
 
-        <div style="background: #f1f5f9; border-radius: 8px; padding: 16px; margin: 24px 0;">
-          <p style="color: #64748b; font-size: 12px; margin: 0; text-transform: uppercase; letter-spacing: 1px;">Order Number</p>
-          <p style="color: #4f46e5; font-size: 18px; font-weight: bold; margin: 4px 0 0 0;">${orderNumber}</p>
-          <p style="color: #64748b; font-size: 12px; margin: 12px 0 0 0; text-transform: uppercase; letter-spacing: 1px;">Tracking Number</p>
-          <p style="color: #4f46e5; font-size: 16px; font-weight: bold; margin: 4px 0 0 0;">${trackingNumber}</p>
-        </div>
+          <!-- GREETING -->
+          <tr>
+            <td style="padding:32px 40px 0;">
+              <p style="margin:0; color:#374151; font-size:16px; line-height:1.6;">Hi <strong>${fullName}</strong>,</p>
+              <p style="margin:12px 0 0; color:#374151; font-size:15px; line-height:1.6;">
+                Thank you for your order! We've received it and it's now being processed. Here's your invoice.
+              </p>
+            </td>
+          </tr>
 
-        <table style="width: 100%; border-collapse: collapse; margin: 24px 0;">
-          <thead>
-            <tr>
-              <th style="text-align: left; padding: 8px 0; border-bottom: 2px solid #e2e8f0; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Item</th>
-              <th style="text-align: center; padding: 8px 0; border-bottom: 2px solid #e2e8f0; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Qty</th>
-              <th style="text-align: right; padding: 8px 0; border-bottom: 2px solid #e2e8f0; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsHtml}
-          </tbody>
+          <!-- ORDER INFO CARD -->
+          <tr>
+            <td style="padding:24px 40px 0;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f9fafb; border-radius:12px; border:1px solid #e5e7eb;">
+                <tr>
+                  <td style="padding:20px 24px;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td width="50%" style="vertical-align:top; padding-right:12px;">
+                          <p style="margin:0 0 4px; color:#9ca3af; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Invoice Number</p>
+                          <p style="margin:0; color:#4f46e5; font-size:16px; font-weight:700;">${invoiceNumber}</p>
+                        </td>
+                        <td width="50%" style="vertical-align:top; padding-left:12px;">
+                          <p style="margin:0 0 4px; color:#9ca3af; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Order Date</p>
+                          <p style="margin:0; color:#111827; font-size:14px; font-weight:600;">${orderDate}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td width="50%" style="vertical-align:top; padding-right:12px; padding-top:16px;">
+                          <p style="margin:0 0 4px; color:#9ca3af; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Order Number</p>
+                          <p style="margin:0; color:#111827; font-size:14px; font-weight:600;">${orderNumber}</p>
+                        </td>
+                        <td width="50%" style="vertical-align:top; padding-left:12px; padding-top:16px;">
+                          <p style="margin:0 0 4px; color:#9ca3af; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Tracking Number</p>
+                          <p style="margin:0; color:#4f46e5; font-size:14px; font-weight:600;">${trackingNumber}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- BILL TO & SHIPPING -->
+          <tr>
+            <td style="padding:24px 40px 0;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td width="50%" style="vertical-align:top; padding-right:16px;">
+                    <p style="margin:0 0 8px; color:#9ca3af; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Bill To</p>
+                    <p style="margin:0; color:#111827; font-size:14px; font-weight:600;">${fullName}</p>
+                    <p style="margin:4px 0 0; color:#6b7280; font-size:13px; line-height:1.5;">
+                      ${shippingAddress.address}<br/>
+                      ${shippingAddress.city}, ${shippingAddress.postalCode}<br/>
+                      ${shippingAddress.country}
+                    </p>
+                  </td>
+                  <td width="50%" style="vertical-align:top; padding-left:16px;">
+                    <p style="margin:0 0 8px; color:#9ca3af; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Payment Method</p>
+                    <p style="margin:0; color:#111827; font-size:14px; font-weight:600;">${paymentMethodLabel(paymentMethod)}</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ITEMS TABLE -->
+          <tr>
+            <td style="padding:28px 40px 0;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <thead>
+                  <tr>
+                    <th style="padding:10px 16px; text-align:left; border-bottom:2px solid #e5e7eb; color:#9ca3af; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Product</th>
+                    <th style="padding:10px 16px; text-align:center; border-bottom:2px solid #e5e7eb; color:#9ca3af; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Qty</th>
+                    <th style="padding:10px 16px; text-align:right; border-bottom:2px solid #e5e7eb; color:#9ca3af; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Price</th>
+                    <th style="padding:10px 16px; text-align:right; border-bottom:2px solid #e5e7eb; color:#9ca3af; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${itemsHtml}
+                </tbody>
+              </table>
+            </td>
+          </tr>
+
+          <!-- TOTALS -->
+          <tr>
+            <td style="padding:24px 40px 0;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td style="padding:8px 0; color:#6b7280; font-size:14px;">Subtotal</td>
+                  <td style="padding:8px 0; color:#111827; font-size:14px; text-align:right; font-weight:500;">Rs. ${formatPrice(subtotal)}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0; color:#6b7280; font-size:14px;">Delivery</td>
+                  <td style="padding:8px 0; color:#111827; font-size:14px; text-align:right; font-weight:500;">${deliveryFee === 0 ? '<span style="color:#16a34a;">Free</span>' : `Rs. ${formatPrice(deliveryFee)}`}</td>
+                </tr>
+                ${discountRow}
+                <tr>
+                  <td colspan="2" style="padding:0;"></td>
+                </tr>
+                <tr>
+                  <td style="padding:14px 0 0; border-top:2px solid #111827; color:#111827; font-size:16px; font-weight:700;">Grand Total</td>
+                  <td style="padding:14px 0 0; border-top:2px solid #111827; color:#4f46e5; font-size:20px; font-weight:800; text-align:right;">Rs. ${formatPrice(total)}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- TRACKING CTA -->
+          <tr>
+            <td style="padding:28px 40px 0;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#eef2ff; border-radius:12px; border:1px solid #c7d2fe;">
+                <tr>
+                  <td style="padding:20px 24px; text-align:center;">
+                    <p style="margin:0 0 4px; color:#4338ca; font-size:12px; text-transform:uppercase; letter-spacing:1.5px; font-weight:700;">What&apos;s Next</p>
+                    <p style="margin:0; color:#3730a3; font-size:14px; line-height:1.6;">
+                      Track your order anytime from your NovaCart account.<br/>
+                      We&apos;ll also notify you when your order ships.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="padding:32px 40px 0;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-top:1px solid #e5e7eb;">
+                <tr>
+                  <td style="padding:24px 0 0; text-align:center;">
+                    <p style="margin:0; color:#9ca3af; font-size:12px; line-height:1.6;">
+                      NovaCart — Premium Marketplace<br/>
+                      If you have any questions, contact us at <a href="mailto:support@novacart.com" style="color:#4f46e5; text-decoration:none;">support@novacart.com</a>
+                    </p>
+                    <p style="margin:16px 0 0; color:#d1d5db; font-size:11px;">
+                      This invoice was generated electronically and does not require a signature.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:0 0 32px;"></td>
+          </tr>
+
         </table>
-
-        <div style="border-top: 2px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <span style="color: #64748b; font-size: 14px;">Subtotal</span>
-            <span style="color: #334155; font-size: 14px;">Rs. ${formatPrice(subtotal)}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <span style="color: #64748b; font-size: 14px;">Delivery</span>
-            <span style="color: #334155; font-size: 14px;">${deliveryFee === 0 ? "Free" : `Rs. ${formatPrice(deliveryFee)}`}</span>
-          </div>
-          ${
-            discount > 0
-              ? `<div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                  <span style="color: #16a34a; font-size: 14px;">Discount</span>
-                  <span style="color: #16a34a; font-size: 14px;">- Rs. ${formatPrice(discount)}</span>
-                </div>`
-              : ""
-          }
-          <div style="display: flex; justify-content: space-between; border-top: 2px solid #e2e8f0; padding-top: 12px; margin-top: 12px;">
-            <span style="color: #0f172a; font-size: 16px; font-weight: bold;">Total</span>
-            <span style="color: #4f46e5; font-size: 16px; font-weight: bold;">Rs. ${formatPrice(total)}</span>
-          </div>
-        </div>
-
-        <div style="background: #f8fafc; border-radius: 8px; padding: 16px; margin: 24px 0;">
-          <p style="color: #64748b; font-size: 12px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">Payment Method</p>
-          <p style="color: #334155; font-size: 14px; margin: 0;">${paymentMethodLabel(paymentMethod)}</p>
-
-          <p style="color: #64748b; font-size: 12px; margin: 16px 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">Shipping Address</p>
-          <p style="color: #334155; font-size: 14px; margin: 0;">
-            ${shippingAddress.address}<br/>
-            ${shippingAddress.city}, ${shippingAddress.postalCode}<br/>
-            ${shippingAddress.country}
-          </p>
-        </div>
-
-        <p style="color: #64748b; font-size: 14px; text-align: center; margin-top: 24px;">
-          You can track your order status in your NovaCart account.
-        </p>
-
-        <p style="color: #94a3b8; font-size: 12px; text-align: center; margin-top: 24px;">
-          If you have any questions, contact us at support@novacart.com
-        </p>
-      </div>
-    </div>
-  `;
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
 }

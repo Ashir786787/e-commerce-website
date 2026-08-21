@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MessageCircle, Sparkles, X } from "lucide-react";
+import { MessageCircle, X } from "lucide-react";
 
 import UnifiedChatWindow from "./UnifiedChatWindow";
 import { useChat } from "@/hooks/useChat";

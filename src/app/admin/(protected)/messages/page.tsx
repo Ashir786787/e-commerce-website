@@ -6,11 +6,15 @@ import { toast } from "sonner";
 
 import AiChatsPanel from "@/components/admin/AiChatsPanel";
 import SessionDialog from "@/components/admin/SessionDialog";
+import UserPickerDialog from "@/components/admin/UserPickerDialog";
 import ChatMessage from "@/components/chat/ChatMessage";
 import ConversationList from "@/components/chat/ConversationList";
 import MessageDateDivider from "@/components/chat/MessageDateDivider";
 import MessageInput from "@/components/chat/MessageInput";
 import {
+  cleanupOldConversations,
+  createOrGetConversation,
+  deleteConversation,
   markConversationAsRead,
   sendChatMessage,
   subscribeToConversations,
@@ -39,14 +43,9 @@ interface MeResponse {
 }
 
 function useCountdown(expiresAt: number) {
-  const [remaining, setRemaining] = useState(Math.max(0, expiresAt - Date.now()));
+  const [remaining, setRemaining] = useState(0);
 
   useEffect(() => {
-    if (expiresAt <= Date.now()) {
-      setRemaining(0);
-      return;
-    }
-
     const interval = setInterval(() => {
       const diff = expiresAt - Date.now();
       if (diff <= 0) {
@@ -89,6 +88,7 @@ export default function AdminMessagesPage() {
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
   const [isSessionDialogOpen, setIsSessionDialogOpen] = useState(false);
   const [isStartingSession, setIsStartingSession] = useState(false);
+  const [isUserPickerOpen, setIsUserPickerOpen] = useState(false);
 
   const isLoading = isLoadingAdmin || isLoadingConversations;
 
@@ -134,26 +134,46 @@ export default function AdminMessagesPage() {
   }, []);
 
   useEffect(() => {
-    if (!selectedConversation) {
-      setMessages([]);
-      return;
-    }
+    void cleanupOldConversations();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedConversation) return;
     const conversationId = selectedConversation.id;
     const unsubscribe = subscribeToMessages(conversationId, setMessages);
     markConversationAsRead({ conversationId, readerRole: "admin" }).catch(() => {
       toast.error("Unable to update message read status.");
     });
     return unsubscribe;
-  }, [selectedConversation?.id]);
+  }, [selectedConversation]);
 
   useEffect(() => {
-    if (!selectedConversation) {
-      setActiveSession(null);
-      return;
-    }
+    if (!selectedConversation) return;
     const unsubscribe = subscribeToSession(selectedConversation.id, setActiveSession);
     return unsubscribe;
-  }, [selectedConversation?.id]);
+  }, [selectedConversation]);
+
+  useEffect(() => {
+    if (!activeSession || !selectedConversation) return;
+    const interval = setInterval(() => {
+      if (activeSession.expiresAt <= Date.now()) {
+        void endSession(selectedConversation.id, activeSession.sessionId);
+        if (admin) {
+          void sendChatMessage({
+            conversationId: selectedConversation.id,
+            senderId: admin.id,
+            senderName: "System",
+            senderRole: "admin",
+            text: "Support session has ended. The AI assistant will resume shortly.",
+          });
+        }
+        setActiveSession(null);
+        toast.info("Session expired.");
+        clearInterval(interval);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [activeSession, selectedConversation, admin]);
 
   useEffect(() => {
     if (messagesContainerRef.current) {
@@ -228,6 +248,47 @@ export default function AdminMessagesPage() {
     setSelectedConversation(conversation);
   }
 
+  async function handleStartChatWithUser(user: { _id: string; fullName: string; email: string }) {
+    try {
+      const conversationId = await createOrGetConversation({
+        userId: user._id,
+        userName: user.fullName,
+        userEmail: user.email,
+      });
+      const conversation: ChatConversation = {
+        id: conversationId,
+        userId: user._id,
+        userName: user.fullName,
+        userEmail: user.email,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        lastMessage: "",
+        lastMessageSenderRole: "admin",
+        unreadByAdmin: 0,
+        unreadByUser: 0,
+      };
+      setMessages([]);
+      setSelectedConversation(conversation);
+      toast.success(`Chat started with ${user.fullName}`);
+    } catch {
+      toast.error("Failed to start chat.");
+    }
+  }
+
+  async function handleDeleteConversation(conversationId: string) {
+    if (!window.confirm("Delete this conversation permanently? This cannot be undone.")) return;
+    try {
+      await deleteConversation(conversationId);
+      if (selectedConversation?.id === conversationId) {
+        setSelectedConversation(null);
+        setMessages([]);
+      }
+      toast.success("Conversation deleted.");
+    } catch {
+      toast.error("Failed to delete conversation.");
+    }
+  }
+
   if (isLoading && !hasTimedOut) {
     return (
       <div className="flex min-h-[500px] items-center justify-center rounded-2xl border border-neutral-200 bg-white">
@@ -247,11 +308,11 @@ export default function AdminMessagesPage() {
         <p className="mt-1.5 text-neutral-600">Support chats and AI assistant conversations in one place.</p>
       </div>
 
-      <div className="mt-6 flex gap-1 rounded-xl border border-neutral-200 bg-neutral-100 p-1 w-fit">
+      <div className="mt-6 flex gap-0.5 sm:gap-1 rounded-xl border border-neutral-200 bg-neutral-100 p-1 w-fit">
         <button
           type="button"
           onClick={() => setActiveTab("support")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition ${
+          className={`flex items-center gap-1.5 sm:gap-2 rounded-lg px-2.5 sm:px-4 py-2 text-xs sm:text-sm font-medium transition ${
             activeTab === "support"
               ? "bg-white text-neutral-950 shadow-sm"
               : "text-neutral-500 hover:text-neutral-700"
@@ -268,7 +329,7 @@ export default function AdminMessagesPage() {
         <button
           type="button"
           onClick={() => setActiveTab("ai")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition ${
+          className={`flex items-center gap-1.5 sm:gap-2 rounded-lg px-2.5 sm:px-4 py-2 text-xs sm:text-sm font-medium transition ${
             activeTab === "ai"
               ? "bg-white text-neutral-950 shadow-sm"
               : "text-neutral-500 hover:text-neutral-700"
@@ -296,6 +357,8 @@ export default function AdminMessagesPage() {
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
                 onSelect={selectConversation}
+                onDelete={handleDeleteConversation}
+                onNewChat={() => setIsUserPickerOpen(true)}
               />
             </div>
 
@@ -343,7 +406,7 @@ export default function AdminMessagesPage() {
 
                     <div className="flex items-center gap-2">
                       {activeSession ? (
-                        <div className="flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 rounded-full bg-emerald-50 px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-semibold text-emerald-700">
                           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                           <Clock className="h-3.5 w-3.5" />
                           <SessionCountdown session={activeSession} />
@@ -361,7 +424,7 @@ export default function AdminMessagesPage() {
                           type="button"
                           onClick={() => setIsSessionDialogOpen(true)}
                           disabled={isStartingSession}
-                          className="hidden items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50 sm:flex"
+                          className="hidden items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-50 px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50 sm:flex"
                         >
                           <Clock className="h-3.5 w-3.5" />
                           Start Session
@@ -438,6 +501,12 @@ export default function AdminMessagesPage() {
           onStart={handleStartSession}
         />
       )}
+
+      <UserPickerDialog
+        isOpen={isUserPickerOpen}
+        onClose={() => setIsUserPickerOpen(false)}
+        onSelect={handleStartChatWithUser}
+      />
     </div>
   );
 }

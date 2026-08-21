@@ -219,11 +219,13 @@ export default async function AccountPage() {
               </div>
 
               {recentOrders.length === 0 ? (
-                <div className="mt-6 rounded-2xl border border-dashed bg-background px-6 py-16 text-center">
-                  <Package className="mx-auto h-10 w-10 text-neutral-300" />
-                  <h3 className="mt-4 text-xl font-semibold">No Orders Yet</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Once you place your first order, it will appear here.
+                <div className="mt-6 rounded-2xl border border-dashed border-neutral-300 bg-white px-6 py-14 text-center">
+                  <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-indigo-50">
+                    <Package className="h-7 w-7 text-indigo-400" />
+                  </div>
+                  <h3 className="mt-5 text-xl font-bold text-neutral-900">No Orders Yet</h3>
+                  <p className="mx-auto mt-2 max-w-sm text-sm text-neutral-500">
+                    Your order history will appear here once you make your first purchase.
                   </p>
                 </div>
               ) : (

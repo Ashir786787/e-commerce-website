@@ -25,7 +25,7 @@ export default function GoogleLoginButton({ mode }: GoogleLoginButtonProps) {
       const endpoint =
         mode === "login" ? "/auth/google" : "/auth/google/link";
 
-      const result = await api.post(endpoint, {
+      await api.post(endpoint, {
         idToken: response.credential,
       });
 

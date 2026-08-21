@@ -12,10 +12,10 @@ interface SessionDialogProps {
 }
 
 const DURATION_OPTIONS = [
+  { label: "1 min", minutes: 1 },
   { label: "5 min", minutes: 5 },
   { label: "15 min", minutes: 15 },
   { label: "30 min", minutes: 30 },
-  { label: "1 hour", minutes: 60 },
 ];
 
 export default function SessionDialog({
@@ -25,14 +25,14 @@ export default function SessionDialog({
   onClose,
   onStart,
 }: SessionDialogProps) {
-  const [selectedMinutes, setSelectedMinutes] = useState(60);
+  const [selectedMinutes, setSelectedMinutes] = useState(5);
   const [customMinutes, setCustomMinutes] = useState("");
   const [isStarting, setIsStarting] = useState(false);
 
   if (!isOpen) return null;
 
   const effectiveMinutes = customMinutes
-    ? Math.min(60, Math.max(5, parseInt(customMinutes, 10) || 5))
+    ? Math.min(60, Math.max(1, parseInt(customMinutes, 10) || 1))
     : selectedMinutes;
 
   async function handleStart() {
@@ -105,7 +105,7 @@ export default function SessionDialog({
             <input
               id="custom-duration"
               type="number"
-              min={5}
+              min={1}
               max={60}
               value={customMinutes}
               onChange={(e) => setCustomMinutes(e.target.value)}
@@ -126,7 +126,7 @@ export default function SessionDialog({
           <button
             type="button"
             onClick={() => void handleStart()}
-            disabled={isStarting || effectiveMinutes < 5}
+            disabled={isStarting || effectiveMinutes < 1}
             className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isStarting ? (

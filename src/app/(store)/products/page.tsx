@@ -165,14 +165,19 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 <ActiveFilters />
 
                 {products.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed p-12 text-center">
-                    <h2 className="text-2xl font-semibold">No products matched your filters</h2>
-                    <p className="mt-3 text-muted-foreground">
-                      Try changing or clearing some filters to discover more products.
+                  <div className="rounded-2xl border border-dashed border-neutral-300 bg-white px-6 py-20 text-center">
+                    <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-indigo-50">
+                      <svg className="h-9 w-9 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                      </svg>
+                    </div>
+                    <h2 className="mt-6 text-2xl font-bold text-neutral-900">No products found</h2>
+                    <p className="mx-auto mt-3 max-w-sm text-sm text-neutral-500">
+                      We could not find any products matching your filters. Try adjusting your search criteria.
                     </p>
                     <Link
                       href="/products"
-                      className="mt-6 inline-flex rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+                      className="mt-7 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-7 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
                     >
                       Clear All Filters
                     </Link>

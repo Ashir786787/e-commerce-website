@@ -29,11 +29,15 @@ export default async function StoreLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Suspense>
-        <SiteHeader categories={categories} />
-      </Suspense>
+      <div className="print:hidden">
+        <Suspense>
+          <SiteHeader categories={categories} />
+        </Suspense>
+      </div>
       <main className="flex-1">{children}</main>
-      <SiteFooter />
+      <div className="print:hidden">
+        <SiteFooter />
+      </div>
     </div>
   );
 }

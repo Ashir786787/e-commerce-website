@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Backpack,
   Clock,
@@ -140,7 +140,7 @@ function TypingIndicator() {
 }
 
 function SessionBanner({ session }: { session: ActiveSession }) {
-  const [remaining, setRemaining] = useState(Math.max(0, session.expiresAt - Date.now()));
+  const [remaining, setRemaining] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -224,11 +224,13 @@ export default function UnifiedChatWindow({
   const [isStarting, setIsStarting] = useState(false);
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
   const [sessionJustEnded, setSessionJustEnded] = useState(false);
+  const [isSessionActive, setIsSessionActive] = useState(false);
   const wasInSessionRef = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const chatReady = !identity.isGuest || Boolean(identity.name);
-  const isSessionActive = activeSession !== null && activeSession.expiresAt > Date.now();
+
+  const effectiveMode: ChatMode = isSessionActive ? "human" : mode;
 
   const {
     messages: aiMessages,
@@ -270,8 +272,16 @@ export default function UnifiedChatWindow({
   }, [chatReady, identity.id]);
 
   useEffect(() => {
+    function check() {
+      setIsSessionActive(activeSession !== null && activeSession.expiresAt > Date.now());
+    }
+    check();
+    const interval = setInterval(check, 1000);
+    return () => clearInterval(interval);
+  }, [activeSession]);
+
+  useEffect(() => {
     if (isSessionActive && mode === "ai") {
-      setMode("human");
       markAsRead();
       wasInSessionRef.current = true;
     }
@@ -288,18 +298,30 @@ export default function UnifiedChatWindow({
   }, [isSessionActive]);
 
   useEffect(() => {
-    if (mode === "human" && chatReady) {
+    if (effectiveMode === "human" && chatReady) {
       markAsRead();
     }
-  }, [mode, chatReady, markAsRead, humanMessages]);
+  }, [effectiveMode, chatReady, markAsRead, humanMessages]);
 
   function handleClose() {
     clearHistory();
     onClose();
   }
 
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        handleClose();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function handleSend(text: string) {
-    if (mode === "ai") {
+    if (effectiveMode === "ai") {
       await aiSendMessage(text);
     } else {
       await humanSendMessage(text);
@@ -315,11 +337,11 @@ export default function UnifiedChatWindow({
     setIsStarting(false);
   }
 
-  const showWelcome = !hasUserMessage && !aiSending && unifiedMessages.length === 0 && mode === "ai" && !isSessionActive;
+  const showWelcome = !hasUserMessage && !aiSending && unifiedMessages.length === 0 && effectiveMode === "ai" && !isSessionActive;
 
   return (
     <section className="fixed bottom-20 right-4 z-50 flex h-[560px] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl sm:right-6 sm:w-[380px]">
-      {mode === "ai" && !isSessionActive ? (
+      {effectiveMode === "ai" && !isSessionActive ? (
         <header className="relative flex items-center justify-between border-b bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-4 text-white">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm">
@@ -357,7 +379,7 @@ export default function UnifiedChatWindow({
               <div className="flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 animate-pulse" />
                 <p className="text-xs text-white/80">
-                  {isSessionActive ? `${activeSession.adminName} is online` : "We usually reply soon"}
+                  {isSessionActive && activeSession ? `${activeSession.adminName} is online` : "We usually reply soon"}
                 </p>
               </div>
             </div>
@@ -373,7 +395,7 @@ export default function UnifiedChatWindow({
         </header>
       )}
 
-      {isSessionActive && <SessionBanner session={activeSession} />}
+      {isSessionActive && activeSession && <SessionBanner session={activeSession} />}
       {sessionJustEnded && <SessionEndedBanner />}
 
       {!chatReady ? (
@@ -472,7 +494,7 @@ export default function UnifiedChatWindow({
                 return <HumanBubble key={`human-${message.id}`} message={message} />;
               })}
 
-              {aiSending && mode === "ai" && <TypingIndicator />}
+              {aiSending && effectiveMode === "ai" && <TypingIndicator />}
               {humanSending && (
                 <div className="flex justify-center py-1">
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-medium text-emerald-700">

@@ -5,6 +5,7 @@ import {
   onValue,
   push,
   ref,
+  remove,
   set,
   update,
 } from "firebase/database";
@@ -239,4 +240,50 @@ export async function markConversationAsRead({ conversationId, readerRole }: { c
   });
 
   await update(ref(db), updates);
+}
+
+export async function deleteConversation(conversationId: string): Promise<void> {
+  const db = getFirebaseDatabase();
+  if (!db) return;
+
+  const updates: Record<string, null> = {};
+  updates[`conversations/${conversationId}`] = null;
+  updates[`messages/${conversationId}`] = null;
+
+  await update(ref(db), updates);
+}
+
+const CONVERSATION_MAX_AGE_MS = 6 * 24 * 60 * 60 * 1000;
+
+let lastCleanupAt = 0;
+
+export async function cleanupOldConversations(): Promise<void> {
+  const now = Date.now();
+  if (now - lastCleanupAt < 60 * 60 * 1000) return;
+
+  const db = getFirebaseDatabase();
+  if (!db) return;
+
+  const cutoff = now - CONVERSATION_MAX_AGE_MS;
+  const conversationsRef = ref(db, "conversations");
+  const snapshot = await get(conversationsRef);
+  if (!snapshot.exists()) {
+    lastCleanupAt = now;
+    return;
+  }
+
+  const updates: Record<string, null> = {};
+  snapshot.forEach((child) => {
+    const data = child.val() as Omit<ChatConversation, "id">;
+    if ((data.updatedAt || 0) < cutoff) {
+      updates[`conversations/${child.key}`] = null;
+      updates[`messages/${child.key}`] = null;
+    }
+  });
+
+  if (Object.keys(updates).length > 0) {
+    await update(ref(db), updates);
+  }
+
+  lastCleanupAt = now;
 }

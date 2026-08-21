@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Package, Search, MapPin, CreditCard, Clock } from "lucide-react";
+import { Package, MapPin, CreditCard, Clock } from "lucide-react";
 
 import OrderTimeline from "@/components/orders/OrderTimeline";
 

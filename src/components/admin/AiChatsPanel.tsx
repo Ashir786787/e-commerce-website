@@ -64,7 +64,6 @@ export default function AiChatsPanel() {
   }, []);
 
   useEffect(() => {
-    setLoading(true);
     fetchAnalytics().finally(() => setLoading(false));
 
     const interval = setInterval(() => {

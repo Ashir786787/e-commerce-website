@@ -3,7 +3,6 @@ import { Types } from "mongoose";
 import { connectDB } from "@/lib/db";
 import Review from "@/models/Review";
 import Product from "@/models/Product";
-import User from "@/models/User";
 
 export async function recalculateProductRating(productId: string) {
   await connectDB();
@@ -73,17 +72,6 @@ export async function canUserReview(userId: string, productId: string) {
 
   const existing = await Review.findOne({ user: userId, product: productId });
   if (existing) return false;
-
-  const hasPurchased = await Review.aggregate([
-    {
-      $lookup: {
-        from: "orders",
-        localField: "order",
-        foreignField: "_id",
-        as: "orderData",
-      },
-    },
-  ]);
 
   const purchased = await Review.exists({
     user: userId,

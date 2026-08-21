@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { SlidersHorizontal, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 import ProductFilters from "@/components/product/ProductFilters";
 
 interface FilterCategory {

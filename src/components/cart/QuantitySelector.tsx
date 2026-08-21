@@ -1,5 +1,7 @@
 "use client";
 
+import { Minus, Plus } from "lucide-react";
+
 type QuantitySelectorProps = {
   quantity: number;
   onDecrease: () => void;
@@ -14,17 +16,17 @@ export default function QuantitySelector({
   loading = false,
 }: QuantitySelectorProps) {
   return (
-    <div className="flex items-center rounded-lg border">
+    <div className="inline-flex items-center overflow-hidden rounded-xl border border-neutral-200 bg-white">
       <button
         type="button"
         disabled={loading || quantity <= 1}
         onClick={onDecrease}
-        className="px-3 py-2 text-lg font-semibold transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex size-9 items-center justify-center text-neutral-600 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:text-neutral-300"
       >
-        −
+        <Minus className="h-3.5 w-3.5" />
       </button>
 
-      <span className="min-w-[48px] text-center font-medium">
+      <span className="min-w-[40px] text-center text-sm font-semibold tabular-nums text-neutral-900">
         {quantity}
       </span>
 
@@ -32,9 +34,9 @@ export default function QuantitySelector({
         type="button"
         disabled={loading}
         onClick={onIncrease}
-        className="px-3 py-2 text-lg font-semibold transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex size-9 items-center justify-center text-neutral-600 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:text-neutral-300"
       >
-        +
+        <Plus className="h-3.5 w-3.5" />
       </button>
     </div>
   );

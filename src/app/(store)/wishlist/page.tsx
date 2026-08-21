@@ -94,23 +94,21 @@ export default function WishlistPage() {
     return (
       <main className="min-h-[65vh] px-4 py-20">
         <div className="mx-auto flex max-w-xl flex-col items-center text-center">
-          <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-violet-50">
-            <Heart className="h-9 w-9 text-violet-600" />
+          <div className="flex size-20 items-center justify-center rounded-full bg-indigo-50">
+            <Heart className="h-9 w-9 text-indigo-400" />
           </div>
-          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-violet-600">
-            Your Wishlist
-          </p>
-          <h1 className="text-4xl font-bold tracking-tight text-slate-950">
+          <h1 className="mt-6 text-3xl font-bold tracking-tight text-neutral-900">
             Your wishlist is empty
           </h1>
-          <p className="mt-4 max-w-md text-slate-600">
+          <p className="mt-3 max-w-sm text-sm text-neutral-500">
             Save products you love and return to them whenever you are ready.
           </p>
           <Link
             href="/products"
-            className="mt-8 rounded-xl bg-violet-600 px-6 py-3 font-medium text-white transition hover:bg-violet-700"
+            className="mt-7 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-7 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
           >
-            Continue Shopping
+            <Heart className="h-4 w-4" />
+            Discover Products
           </Link>
         </div>
       </main>
