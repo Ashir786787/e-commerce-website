@@ -85,11 +85,8 @@ export default function StickyProductBar({
     >
       <div className="flex items-center gap-3 px-4 py-3">
         <div className="min-w-0 flex-1">
-          <p className="truncate text-xs font-semibold text-foreground">
-            {productName}
-          </p>
           <div className="flex items-baseline gap-2">
-            <span className="text-sm font-bold text-primary">
+            <span className="text-base font-bold text-primary">
               Rs. {formatPrice(price)}
             </span>
             {originalPrice && originalPrice > price && (

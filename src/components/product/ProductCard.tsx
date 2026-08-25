@@ -34,7 +34,9 @@ function ProductCard({ product, priority }: ProductCardProps) {
   const router = useRouter();
   const { refreshCart } = useCart();
   const { refreshWishlist, isWishlisted } = useWishlist();
+  const [added, setAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [updating, setUpdating] = useState(false);
 
   const productIsWishlisted = isWishlisted(product.id);
 
@@ -54,7 +56,7 @@ function ProductCard({ product, priority }: ProductCardProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ productId: product.id, quantity }),
+        body: JSON.stringify({ productId: product.id, quantity: 1 }),
       });
 
       const result = await response.json();
@@ -64,8 +66,9 @@ function ProductCard({ product, priority }: ProductCardProps) {
       }
 
       await refreshCart();
+      setAdded(true);
       setQuantity(1);
-      toast.success(`${quantity > 1 ? `${quantity}x ` : ""}${product.name} added to cart`, {
+      toast.success(`${product.name} added to cart`, {
         action: {
           label: "View Cart",
           onClick: () => router.push("/cart"),
@@ -79,6 +82,29 @@ function ProductCard({ product, priority }: ProductCardProps) {
       toast.error(
         error instanceof Error ? error.message : "Failed to add product."
       );
+    }
+  };
+
+  const updateQuantity = async (newQty: number) => {
+    if (newQty < 1 || newQty > 10 || updating) return;
+    setUpdating(true);
+    try {
+      const res = await fetch("/api/cart/update", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ productId: product.id, quantity: newQty }),
+      });
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        throw new Error(result.message || "Failed to update.");
+      }
+      await refreshCart();
+      setQuantity(newQty);
+    } catch {
+      toast.error("Failed to update quantity");
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -212,46 +238,60 @@ function ProductCard({ product, priority }: ProductCardProps) {
             )}
           </div>
 
-          <div className="mt-3 flex items-center gap-2">
-            <div className="flex items-center rounded-lg border border-neutral-200">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setQuantity((q) => Math.max(1, q - 1));
-                }}
-                disabled={quantity <= 1}
-                className="flex h-8 w-8 items-center justify-center text-neutral-500 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-30"
-              >
-                <Minus className="h-3 w-3" />
-              </button>
-              <span className="flex h-8 w-8 items-center justify-center text-xs font-semibold text-neutral-900">
-                {quantity}
-              </span>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setQuantity((q) => Math.min(10, q + 1));
-                }}
-                disabled={quantity >= 10}
-                className="flex h-8 w-8 items-center justify-center text-neutral-500 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-30"
-              >
-                <Plus className="h-3 w-3" />
-              </button>
-            </div>
-
+          {!added ? (
             <button
               type="button"
               onClick={handleAddToCart}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/5 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/5 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground"
             >
               <ShoppingCart className="h-4 w-4" />
               Add to Cart
             </button>
-          </div>
+          ) : (
+            <div className="mt-3 flex items-center gap-2">
+              <div className="flex items-center rounded-xl border border-primary/20 bg-primary/5">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    updateQuantity(quantity - 1);
+                  }}
+                  disabled={quantity <= 1 || updating}
+                  className="flex h-9 w-9 items-center justify-center text-primary transition hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-30"
+                >
+                  <Minus className="h-3.5 w-3.5" />
+                </button>
+                <span className="flex h-9 w-9 items-center justify-center text-sm font-bold text-foreground">
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    updateQuantity(quantity + 1);
+                  }}
+                  disabled={quantity >= 10 || updating}
+                  className="flex h-9 w-9 items-center justify-center text-primary transition hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-30"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  router.push("/cart");
+                }}
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+              >
+                <ShoppingCart className="h-4 w-4" />
+                View Cart
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </article>
