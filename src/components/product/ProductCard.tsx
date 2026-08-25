@@ -90,7 +90,7 @@ function ProductCard({ product, priority }: ProductCardProps) {
     setUpdating(true);
     try {
       const res = await fetch("/api/cart/update", {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ productId: product.id, quantity: newQty }),
