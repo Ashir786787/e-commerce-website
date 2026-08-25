@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { memo } from "react";
-import { Heart, ShoppingCart, Star, Truck } from "lucide-react";
+import { memo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Heart, Minus, Plus, ShoppingCart, Star, Truck } from "lucide-react";
 import { toast } from "sonner";
 
 import { useCart } from "@/context/CartContext";
@@ -30,8 +31,10 @@ function formatPrice(price: number) {
 }
 
 function ProductCard({ product, priority }: ProductCardProps) {
+  const router = useRouter();
   const { refreshCart } = useCart();
   const { refreshWishlist, isWishlisted } = useWishlist();
+  const [quantity, setQuantity] = useState(1);
 
   const productIsWishlisted = isWishlisted(product.id);
 
@@ -51,7 +54,7 @@ function ProductCard({ product, priority }: ProductCardProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ productId: product.id, quantity: 1 }),
+        body: JSON.stringify({ productId: product.id, quantity }),
       });
 
       const result = await response.json();
@@ -61,7 +64,17 @@ function ProductCard({ product, priority }: ProductCardProps) {
       }
 
       await refreshCart();
-      toast.success("Added to cart");
+      setQuantity(1);
+      toast.success(`${quantity > 1 ? `${quantity}x ` : ""}${product.name} added to cart`, {
+        action: {
+          label: "View Cart",
+          onClick: () => router.push("/cart"),
+        },
+        cancel: {
+          label: "Continue Shopping",
+          onClick: () => {},
+        },
+      });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to add product."
@@ -199,14 +212,46 @@ function ProductCard({ product, priority }: ProductCardProps) {
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/5 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            Add to Cart
-          </button>
+          <div className="mt-3 flex items-center gap-2">
+            <div className="flex items-center rounded-lg border border-neutral-200">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setQuantity((q) => Math.max(1, q - 1));
+                }}
+                disabled={quantity <= 1}
+                className="flex h-8 w-8 items-center justify-center text-neutral-500 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                <Minus className="h-3 w-3" />
+              </button>
+              <span className="flex h-8 w-8 items-center justify-center text-xs font-semibold text-neutral-900">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setQuantity((q) => Math.min(10, q + 1));
+                }}
+                disabled={quantity >= 10}
+                className="flex h-8 w-8 items-center justify-center text-neutral-500 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                <Plus className="h-3 w-3" />
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/5 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground"
+            >
+              <ShoppingCart className="h-4 w-4" />
+              Add to Cart
+            </button>
+          </div>
         </div>
       </div>
     </article>

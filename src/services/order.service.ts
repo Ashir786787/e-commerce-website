@@ -54,6 +54,7 @@ function validateShippingAddress(shippingAddress: ShippingAddressInput) {
     if (!shippingAddress[field]?.trim()) throw new Error(`${field} is required`);
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(shippingAddress.email)) throw new Error("Invalid email");
+  if (!/^03\d{9}$/.test(shippingAddress.phone.trim())) throw new Error("Phone must be an 11-digit number starting with 03");
 }
 
 export async function createOrder({ userId, shippingAddress, paymentMethod, discountCode }: CreateOrderInput) {

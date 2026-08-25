@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
@@ -27,6 +28,7 @@ export default function StickyProductBar({
   triggerRef,
 }: StickyProductBarProps) {
   const { refreshCart } = useCart();
+  const router = useRouter();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -58,7 +60,16 @@ export default function StickyProductBar({
         throw new Error(result.message || "Failed to add to cart.");
       }
       await refreshCart();
-      toast.success(`${productName} added to cart.`);
+      toast.success(`${productName} added to cart`, {
+        action: {
+          label: "View Cart",
+          onClick: () => router.push("/cart"),
+        },
+        cancel: {
+          label: "Continue Shopping",
+          onClick: () => {},
+        },
+      });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to add to cart."

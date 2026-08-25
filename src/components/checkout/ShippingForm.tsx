@@ -88,9 +88,15 @@ export default function ShippingForm({
             onChange={onChange}
             placeholder="03XX XXXXXXX"
             autoComplete="tel"
+            maxLength={11}
+            inputMode="numeric"
+            pattern="03[0-9]{9}"
             required
             className="h-11 w-full rounded-xl border border-neutral-300 bg-white px-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
           />
+          <p className="mt-1 text-xs text-neutral-400">
+            11-digit Pakistani mobile number starting with 03
+          </p>
         </div>
         <div className="sm:col-span-2">
           <label

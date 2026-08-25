@@ -2,6 +2,7 @@
 
 import { ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 
@@ -15,6 +16,7 @@ export default function AddToCartButton({
   disabled = false,
 }: AddToCartButtonProps) {
   const { refreshCart } = useCart();
+  const router = useRouter();
 
   const handleAddToCart = async () => {
     try {
@@ -33,7 +35,16 @@ export default function AddToCartButton({
 
       await refreshCart();
 
-      toast.success("Product added to cart.");
+      toast.success("Product added to cart", {
+        action: {
+          label: "View Cart",
+          onClick: () => router.push("/cart"),
+        },
+        cancel: {
+          label: "Continue Shopping",
+          onClick: () => {},
+        },
+      });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to add product to cart.");
     }
